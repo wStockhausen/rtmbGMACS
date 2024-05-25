@@ -4,7 +4,8 @@ crossref:
   fig-title: Figuure
   tbl-title: Table
 format: 
-  gfm: 
+#  gfm: 
+  html:
     html-math-method: mathjax
     comment: "#>"
     collapse: true

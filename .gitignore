@@ -5,3 +5,9 @@
 inst/doc
 .DS_Store
 WTS_Ideas-ModelConfigurationFile.docx
+/.quarto/
+/_site/
+/_freeze/
+/site_libs/
+README.gfm.md
+README.html.md
