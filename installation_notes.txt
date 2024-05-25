@@ -1,4 +1,0 @@
-#--note on installing with vignettes
-use
-  devtools::install(build_vignettes = TRUE)
-to install a package with vignettes built

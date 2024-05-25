@@ -1,0 +1,52 @@
+[
+  {
+    "objectID": "README.html",
+    "href": "README.html",
+    "title": "README",
+    "section": "",
+    "text": "rtmbGMACS is an R package that, when completed, will provide a RTMB-based implementation of the Generalized Model for Assessing Crustacean Stocks (GMACS) model that was developed using AD MODEL BUILDER (ADMB). RTMB (R Bindings for Template Model Builder) is an R package that provides a native R interface to Template Model Builder (TMB), an R package that allows the user to develop and run C++-based statistical models (similar to ADMB) using automatic differentiation in the R framework.\n\n\nDON’T TRY THIS YET!! You can install the current (at present, development) version of rtmbGMACS from GitHub with:\n# install.packages(\"devtools\")\ndevtools::install_github(\"wStockhausen/rtmbGMACS\")\n\n\n\n\nThis repository is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.\nSoftware code created by U.S. Government employees is not subject to copyright in the United States (17 U.S.C. §105). The United States/Department of Commerce reserve all rights to seek and obtain copyright protection in countries other than the United States for Software authored in its entirety by the Department of Commerce. To this end, the Department of Commerce hereby grants to Recipient a royalty-free, nonexclusive license to use, copy, and create derivative works of the Software outside of the United States.\n\n\nU.S. Department of Commerce | National Oceanographic and Atmospheric Administration | NOAA Fisheries\n\n\n\nThe purpose of rtmbGMACS is to implement a population model for a fished crustacean stock and fit it to fishery and survey data to estimate various population processes (e.g., recruitment, growth, and mortality) and population size in order to determine sustainable fishing limits and targets. The ADMB version of GMACS is currently used to provide fishery stock assessment information to the North Pacific Fishery Management Council (NPFMC) for a number of crab stocks in the Bering Sea and Aleutian Islands (see, for example, the stock assessment reports for Bristol Bay red king crab and snow crab).\nHere, the RTMB model is referred to as “gmacs” while the R package is referred to “rtmbGMACS”. The R package provides functions to set up data inputs to gmacs, with associated likelihood functions, select functional forms for various population processes, define estimable parameters and associated priors or penalties, run the model, create plots and tables from a fitted model, and compare multiple models.\n\n\n\nThe rtmbGMACS R package allows the user to construct a rather general size-structured population dynamics model, as well as “observation” models for predicting data values and associated likelihood functions to characterize model fit, define various characteristics (e.g., value, hyper parameters and prior probability function) of the resulting set of model parameters, calculate the population state and predict observations through time based on the parameter values, and calculate individual and total likelihood components.",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "README.html#installation",
+    "href": "README.html#installation",
+    "title": "README",
+    "section": "",
+    "text": "DON’T TRY THIS YET!! You can install the current (at present, development) version of rtmbGMACS from GitHub with:\n# install.packages(\"devtools\")\ndevtools::install_github(\"wStockhausen/rtmbGMACS\")",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "README.html#noaa-disclaimer",
+    "href": "README.html#noaa-disclaimer",
+    "title": "README",
+    "section": "",
+    "text": "This repository is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.\nSoftware code created by U.S. Government employees is not subject to copyright in the United States (17 U.S.C. §105). The United States/Department of Commerce reserve all rights to seek and obtain copyright protection in countries other than the United States for Software authored in its entirety by the Department of Commerce. To this end, the Department of Commerce hereby grants to Recipient a royalty-free, nonexclusive license to use, copy, and create derivative works of the Software outside of the United States.\n\n\nU.S. Department of Commerce | National Oceanographic and Atmospheric Administration | NOAA Fisheries",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "README.html#introduction",
+    "href": "README.html#introduction",
+    "title": "README",
+    "section": "",
+    "text": "The purpose of rtmbGMACS is to implement a population model for a fished crustacean stock and fit it to fishery and survey data to estimate various population processes (e.g., recruitment, growth, and mortality) and population size in order to determine sustainable fishing limits and targets. The ADMB version of GMACS is currently used to provide fishery stock assessment information to the North Pacific Fishery Management Council (NPFMC) for a number of crab stocks in the Bering Sea and Aleutian Islands (see, for example, the stock assessment reports for Bristol Bay red king crab and snow crab).\nHere, the RTMB model is referred to as “gmacs” while the R package is referred to “rtmbGMACS”. The R package provides functions to set up data inputs to gmacs, with associated likelihood functions, select functional forms for various population processes, define estimable parameters and associated priors or penalties, run the model, create plots and tables from a fitted model, and compare multiple models.",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "README.html#software-architecture",
+    "href": "README.html#software-architecture",
+    "title": "README",
+    "section": "",
+    "text": "The rtmbGMACS R package allows the user to construct a rather general size-structured population dynamics model, as well as “observation” models for predicting data values and associated likelihood functions to characterize model fit, define various characteristics (e.g., value, hyper parameters and prior probability function) of the resulting set of model parameters, calculate the population state and predict observations through time based on the parameter values, and calculate individual and total likelihood components.",
+    "crumbs": [
+      "Welcome"
+    ]
+  }
+]
