@@ -2,7 +2,10 @@ project:
   type: website
   output-dir: _site
   render:
-    - README.qmd
+    - website/01_Intro.qmd
+    - website/02_PopDyMod.qmd
+    - website/03_ModelDimensions.qmd
+    - website/04_FunctionsAndParametersSpecification.qmd
 
 execute:
   freeze: auto
@@ -16,7 +19,7 @@ website:
 
   page-footer:
     right: "This page is built with [Quarto](https://quarto.org/)."
-    left: "&copy; 2024-05-24"
+    left: "&copy; 2024-05-26"
 
   sidebar:
     # logo: "images/openscapes_hex.png"
@@ -37,8 +40,14 @@ website:
     search: true
     collapse-level: 1
     contents:
-      - href: README.qmd
-        text: Welcome
+      - href: website/01_Intro.qmd
+        text: Introduction
+      - href: website/02_PopDyMod.qmd
+        text: Population Dynamics
+      - href: website/03_ModelDimensions.qmd
+        text: Model Dimensions
+      - href: website/04_FunctionsAndParametersSpecification.qmd
+        text: Functions and Parameters Specification
       # - explore.qmd
       # - section: quarto-workflows/index.qmd
       #   contents:
