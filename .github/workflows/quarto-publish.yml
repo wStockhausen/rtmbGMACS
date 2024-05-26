@@ -34,7 +34,7 @@ jobs:
       # - name: Setup Python
       #   uses: actions/setup-python@v3
 
-      From https://github.com/r-lib/actions/tree/v2-branch/setup-r
+      # From https://github.com/r-lib/actions/tree/v2-branch/setup-r
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
 
