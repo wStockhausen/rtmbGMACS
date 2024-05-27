@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.547">
+<meta name="generator" content="quarto-1.4.554">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB - README</title>
+<title>rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB - Population Dynamcs Vignette</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,61 +20,29 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../website/03_ModelDimensions.html" rel="next">
+<link href="../website/01_Intro.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -103,6 +71,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -115,7 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./README.html">Welcome</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../website/02_PopDyMod.html">Population Dynamics</a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -130,7 +127,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB</a> 
+      <a href="../">rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
@@ -145,8 +142,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./README.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Welcome</span></a>
+  <a href="../website/01_Intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../website/02_PopDyMod.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Population Dynamics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../website/03_ModelDimensions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Model Dimensions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../website/04_FunctionsAndParametersSpecification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Functions and Parameters Specification</span></a>
   </div>
 </li>
     </ul>
@@ -159,22 +174,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#rtmbgmacs" id="toc-rtmbgmacs" class="nav-link active" data-scroll-target="#rtmbgmacs">rtmbGMACS</a>
-  <ul class="collapse">
-  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">Installation</a></li>
-  <li><a href="#noaa-disclaimer" id="toc-noaa-disclaimer" class="nav-link" data-scroll-target="#noaa-disclaimer">NOAA Disclaimer</a></li>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#software-architecture" id="toc-software-architecture" class="nav-link" data-scroll-target="#software-architecture">Software architecture</a></li>
-  </ul></li>
+  <li><a href="#population-model-description" id="toc-population-model-description" class="nav-link active" data-scroll-target="#population-model-description">Population model description</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/README.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/website/02_PopDyMod.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">README</h1>
+<h1 class="title">Population Dynamcs Vignette</h1>
 </div>
 
 
@@ -191,40 +200,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<!-- README.md is generated from README.qmd. Please edit README.qmd, then render README.md using `quarto render README.qmd`. -->
-<!-- use `quarto render README.qmd` to build README.md prior to committing to keep README.md up-to-date-->
-<!-- don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.-->
-<section id="rtmbgmacs" class="level1">
-<h1>rtmbGMACS</h1>
-<!-- badges: start -->
-<!-- badges: end -->
-<p>rtmbGMACS is an <a href="https://www.r-project.org/">R</a> package that, when completed, will provide a RTMB-based implementation of the Generalized Model for Assessing Crustacean Stocks (<a href="https://github.com/GMACS-project/GMACS_Assessment_code">GMACS</a>) model that was developed using AD MODEL BUILDER (<a href="http://www.admb-project.org">ADMB</a>). RTMB (<a href="https://github.com/kaskr/RTMB">R Bindings for Template Model Builder</a>) is an R package that provides a native R interface to Template Model Builder (<a href="https://kaskr.github.io/adcomp">TMB</a>), an R package that allows the user to develop and run C++-based statistical models (similar to ADMB) using automatic differentiation in the R framework.</p>
-<section id="installation" class="level2">
-<h2 class="anchored" data-anchor-id="installation">Installation</h2>
-<p><strong>DON’T TRY THIS YET!!</strong> You can install the current (at present, development) version of rtmbGMACS from <a href="https://github.com/">GitHub</a> with:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("devtools")</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"wStockhausen/rtmbGMACS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<hr>
-</section>
-<section id="noaa-disclaimer" class="level2">
-<h2 class="anchored" data-anchor-id="noaa-disclaimer">NOAA Disclaimer</h2>
-<p>This repository is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.</p>
-<p>Software code created by U.S. Government employees is not subject to copyright in the United States (17 U.S.C. §105). The United States/Department of Commerce reserve all rights to seek and obtain copyright protection in countries other than the United States for Software authored in its entirety by the Department of Commerce. To this end, the Department of Commerce hereby grants to Recipient a royalty-free, nonexclusive license to use, copy, and create derivative works of the Software outside of the United States.</p>
-<hr>
-<p><img src="https://raw.githubusercontent.com/nmfs-general-modeling-tools/nmfspalette/main/man/figures/noaa-fisheries-rgb-2line-horizontal-small.png" height="75" alt="NOAA Fisheries"></p>
-<p><a href="https://www.commerce.gov/">U.S. Department of Commerce</a> | <a href="https://www.noaa.gov">National Oceanographic and Atmospheric Administration</a> | <a href="https://www.fisheries.noaa.gov/">NOAA Fisheries</a></p>
-</section>
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>The purpose of rtmbGMACS is to implement a population model for a fished crustacean stock and fit it to fishery and survey data to estimate various population processes (e.g., recruitment, growth, and mortality) and population size in order to determine sustainable fishing limits and targets. The ADMB version of GMACS is currently used to provide fishery stock assessment information to the North Pacific Fishery Management Council (<a href="https://www.npfmc.org">NPFMC</a>) for a number of crab stocks in the Bering Sea and Aleutian Islands (see, for example, the stock assessment reports for <a href="https://meetings.npfmc.org/CommentReview/DownloadFile?p=b98b90b2-88ab-43c2-9487-c12cdb4e0a25.pdf&amp;fileName=BBRKC%20SAFE%202022%20Final.pdf">Bristol Bay red king crab</a> and <a href="https://meetings.npfmc.org/CommentReview/DownloadFile?p=fca55335-ad34-4896-9b1e-4c09aa8342ce.pdf&amp;fileName=EBS%20Snow%20SAFE%20FINAL.pdf">snow crab</a>).</p>
-<p>Here, the RTMB model is referred to as “gmacs” while the R package is referred to “rtmbGMACS”. The <em>R</em> package provides functions to set up data inputs to gmacs, with associated likelihood functions, select functional forms for various population processes, define estimable parameters and associated priors or penalties, run the model, create plots and tables from a fitted model, and compare multiple models.</p>
-</section>
-<section id="software-architecture" class="level2">
-<h2 class="anchored" data-anchor-id="software-architecture">Software architecture</h2>
-<p>The rtmbGMACS <em>R</em> package allows the user to construct a rather general size-structured population dynamics model, as well as “observation” models for predicting data values and associated likelihood functions to characterize model fit, define various characteristics (e.g., value, hyper parameters and prior probability function) of the resulting set of model parameters, calculate the population state and predict observations through time based on the parameter values, and calculate individual and total likelihood components.</p>
+<section id="population-model-description" class="level2">
+<h2 class="anchored" data-anchor-id="population-model-description">Population model description</h2>
+<p>The gmacs population model integrates the abundance of individuals in various discrete population categories over time based on assumptions regarding population processes consisting of recruitment, growth, maturation, natural mortality, and fishing mortality. Typical population categories might be sex and size, but it is possible to define an arbitrary number of categories (e.g., region, sex, maturity state, shell condition, and size). Although crustaceans cannot typically be aged, age could be included as a population category if population processes such as maturation were thought to have a strong age dependence.</p>
+<p>Population abundance in gmacs is represented as vector, <span class="math inline">\(\mathbf{n}\)</span>, with elements <span class="math inline">\(n_c\)</span>, where <span class="math inline">\(c\)</span> is a 1-dimensional index across the combination of population categories. The temporal nature of the population is represented by <span class="math inline">\(\mathbf{n}_t\)</span>, a vector representing the abundance in each category at time <span class="math inline">\(t\)</span> (i.e., a vector with elements <span class="math inline">\(\mathbf{n}_{t_c}\)</span>):</p>
+<p><span id="eq-1"><span class="math display">\[ \frac{d\mathbf{n}_t}{dt} = \left[ \mathbf{T}_t-(\mathbf{M}_t+\mathbf{F}_t) \right]*\mathbf{n}_t  \tag{1}\]</span></span></p>
+<p>where <span class="math inline">\(\mathbf{T}_t\)</span> is a <span class="math inline">\(c\)</span> x <span class="math inline">\(c\)</span> matrix representing transition rates between population categories (e.g., growth or movement) at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\mathbf{M}_t\)</span> is a similarly-sized diagonal matrix representing natural mortality at time <span class="math inline">\(t\)</span>, and <span class="math inline">\(\mathbf{M}_t\)</span> is a similarly-sized diagonal matrix representing fishing mortality at time <span class="math inline">\(t\)</span>. For gmacs, individual time steps represent seasons within a year and rates within a time step are assumed to be constant. Thus, eq. <a href="#eq-1" class="quarto-xref">1</a> can be integrated to obtain</p>
+<p><span id="eq-2"><span class="math display">\[\mathbf{n}_{n+1} = e^{\mathbf{A}_t \delta t_s}*\mathbf{n}_t \tag{2}\]</span></span></p>
+<p>where <span class="math inline">\(\delta t_s\)</span> is the time step from <span class="math inline">\(t\)</span> to <span class="math inline">\(t+1\)</span> corresonding to season <span class="math inline">\(s\)</span>, and <span class="math inline">\(\mathbf{A}_t=\left[ \mathbf{T}_t-(\mathbf{M}_t+\mathbf{F}_t) \right]\)</span>. In practice, when <span class="math inline">\(\mathbf{T}_t\)</span> represents growth processes, these are regarded as discrete-time processes with a season length of zero, so that</p>
+<p><span id="eq-3"><span class="math display">\[ \mathbf{n}_{t+1} = \mathbf{T}_t \cdot \mathbf{n}_t  \tag{3}\]</span></span></p>
+<p>for seasons in which growth occurs and</p>
+<p><span id="eq-4"><span class="math display">\[ \mathbf{n}_{t+1} = e^{-\left[ \mathbf{M}_t+\mathbf{F}_t \right]\cdot \delta t} \cdot \mathbf{n}_t \tag{4}\]</span></span></p>
+<p>for seasons with non-zero lengths in which mortality occurs.</p>
+<p>Recruitment, the addition of new individuals to the model population categories, is also considered a discrete-time process associated with a season of zero length, so</p>
+<p><span id="eq-5"><span class="math display">\[ \mathbf{n_{t+1}} = \mathbf{r}_t+\mathbf{n}_t  \tag{5}\]</span></span></p>
+<p>when recruitment occurs, where <span class="math inline">\(\mathbf{r}_t\)</span> is a vector of length <span class="math inline">\(c\)</span>.</p>
+<p>At an annual time step <span class="math inline">\(y\)</span>, the integration across <span class="math inline">\(n_s\)</span> seasons <span class="math inline">\(s\)</span> can be represented as</p>
+<p><span id="eq-6"><span class="math display">\[ \mathbf{n}_{y+1,s=1} = \{ \prod_{s \in {s_a}} \mathbf{\Lambda}_{y,s} \} \cdot \{ \mathbf{r}_y + \cdot \{ \prod_{s \in {s_b}} \mathbf{\Lambda}_{y,s} \} \cdot \mathbf{n}_{y,s=1} \} \tag{6}\]</span></span></p>
+<p>where <span class="math inline">\(s_a\)</span> are seasons after recruitment occurs and <span class="math inline">\(s_b\)</span> are seasons before recruitment occurs. This can be represented more compactly as</p>
+<p><span id="eq-7"><span class="math display">\[ \mathbf{n_{y+1}} = \mathfrak{\mathbf{A}}_y \cdot \{\mathbf{r}_y + \mathfrak{\mathbf{B}}_y \cdot \mathbf{n}_y \} \tag{7}\]</span></span></p>
+<p>where the season subscript has been dropped (<span class="math inline">\(s=1\)</span>) from the <span class="math inline">\(\mathbf{n}\)</span>’s.</p>
+<p>Assuming that the terms in <a href="#eq-7" class="quarto-xref">Equation&nbsp;7</a> can be replaced by equilibrium equivalents (e.g., appropriate longterm averages), the equilibrium population size structure <span class="math inline">\(&lt;\mathbf{n}&gt;\)</span> is given by</p>
+<p><span id="eq-eq_soln"><span class="math display">\[ &lt;\mathbf{n}&gt; = [&lt;\mathfrak{\mathbf{A}}&gt;^{-1} - &lt;\mathfrak{\mathbf{B}}&gt;]^{-1} &lt;\mathbf{r}&gt; \tag{8}\]</span></span></p>
+<p>where <span class="math inline">\(&lt;  &gt;\)</span> is the expected value operator.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -451,6 +451,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/wstockhausen\.github\.io\/rtmbGMACS\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -485,7 +503,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
@@ -759,15 +781,27 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../website/01_Intro.html" class="pagination-link" aria-label="Introduction">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Introduction</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../website/03_ModelDimensions.html" class="pagination-link" aria-label="Model Dimensions">
+        <span class="nav-page-text">Model Dimensions</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>© 2024-05-24</p>
+<p>© 2024-05-26</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/README.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/website/02_PopDyMod.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
 </div>
