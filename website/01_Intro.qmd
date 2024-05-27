@@ -1,7 +1,7 @@
 ---
 title: "Introduction"
 crossref: 
-  fig-title: Figuure
+  fig-title: Figure
   tbl-title: Table
 format: 
   html:
@@ -12,8 +12,8 @@ format:
 tbl-cap-location: top
 fig-cap-location: bottom
 prefer-html: true
-keep-yaml: true
-keep-md: true
+keep-yaml: false
+keep-md: false
 ---
 
 ```{r, include = FALSE}

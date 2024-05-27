@@ -1,8 +1,8 @@
 ---
-title: "Model Dimensions Vignette"
+title: "Model Dimensions"
 author: "William Stockhausen"
 crossref: 
-  fig-title: Figuure
+  fig-title: Figure
   tbl-title: Table
 comment: "#>"
 collapse: true
@@ -15,10 +15,6 @@ fig-cap-location: bottom
 #prefer-html: true
 keep-md: false
 keep-yaml: false
-vignette: >
-  %\VignetteIndexEntry{Model Dimensions}
-  %\VignetteEngine{quarto::format}
-  %\VignetteEncoding{UTF-8}
 ---
 
 <!--NOTE: for scalar variables,    use: *var*   (italics)  
@@ -28,7 +24,7 @@ vignette: >
 -->
 
 ```{r setup,echo=FALSE}
-  library(rtmbGMACS);
+  suppressPackageStartupMessages(require(rtmbGMACS));
 ```
 
 ## Model dimensions 

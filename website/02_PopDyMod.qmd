@@ -1,7 +1,7 @@
 ---
 title: "Population Dynamcs Vignette"
 crossref: 
-  fig-title: Figuure
+  fig-title: Figure
   tbl-title: Table
 comment: "#>"
 collapse: true
@@ -14,10 +14,6 @@ fig-cap-location: bottom
 #prefer-html: true
 keep-md: false
 keep-yaml: false
-vignette: >
-  %\VignetteIndexEntry{Population Dynamics}
-  %\VignetteEngine{quarto::format}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}

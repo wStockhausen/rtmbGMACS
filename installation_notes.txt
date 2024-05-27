@@ -1,17 +1,32 @@
-#--note on installing with vignettes
-use
-  devtools::install(build_vignettes = TRUE)
-to install a package with vignettes built
+#--notes on vignettes
+  - to install a package with vignettes built, use
+      devtools::install(build_vignettes = TRUE)
 
-#--note on installing package website
-run the following once:
-quarto publish gh-pages
+
+#--notes on package website
+  - qmd's are in folder "website"
+  - when rendered locally, the website is in folder "_site", which is ignored in version control
+  - re-render the site locally when qmd's
+  - TO MAKE SURE CODE IS ONLY EXECUTED LOCALLY, configure _quatro.yml to use the "freeze" feature
+    - for details: see https://quarto.org/docs/publishing/github-pages.html#freezing-computations
+    - modify _quarto.yml to add "freeze" feature
+    - fully re-render site using "quarto render" in a terminal
+    - check the resulting "_freeze" folder into version control
+      - _freeze wil be updated automatically when project is re-rendered locally after modifications to code
+ - BEFORE CONFIGURING THE PUBLISHING ACTION: run the following once locally to set up the website https://wstockhausen.github.io/rtmbGMACS/:
+    quarto publish gh-pages
+  - AFTER, create a "publish" GitHub Action and save it in ".github/workflows/quarto-publish.yml"
+    - see https://quarto.org/docs/publishing/github-pages.html#publish-action
 
 #--note on README:
  - use `quarto render README.qmd` to build README.md prior to committing to keep README.md up-to-date
  - commit and push the resulting figure files, so they display on GitHub and CRAN
 
+#--NOTE: not using GitHub Action to execute code, so don't necessarily need renv
 #--using renv
 #----update dependencies using
 renv::install() or
-renv::install(c("wStockhausen/wtsUtilities","wStockhausen/wtsPlots"))
+renv::install(c("wStockhausen/wtsUtilities","wStockhausen/wtsPlots","wStockhausen/rtmbGMACS"))
+#----upadte snapshot
+renv::snapshot()
+

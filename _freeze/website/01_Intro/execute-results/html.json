@@ -1,0 +1,17 @@
+{
+  "hash": "37341c90e7bbb5c7afef8f6104e90f0a",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Introduction\"\ncrossref: \n  fig-title: Figure\n  tbl-title: Table\nformat: \n  html:\n    html-math-method: mathjax\n    comment: \"#>\"\n    collapse: true\n    toc: true\ntbl-cap-location: top\nfig-cap-location: bottom\nprefer-html: true\nkeep-yaml: false\nkeep-md: false\n---\n\n\n\n\n\n\nThe purpose of rtmbGMACS is to provide a population modeling framework for commercially-fished crustacean stocks. Stock assessment models developed using rtmbGMACS can be fit to fishery, survey, and biological data to estimate various population processes (e.g., recruitment, growth, and mortality) and population size in order to determine sustainable fishing limits and targets.\n\nHere, the modeling framework is referred to as \"gmacs\" while the R package is referred to \"rtmbGMACS\". The *R* package provides functions to set up data inputs to a gmacs model, with associated likelihood functions, select functional forms for various population processes, define estimable parameters and associated priors or penalties, run the model, create plots and tables from a fitted model, and compare multiple models.\n\n## Software architecture\n\nThe rtmbGMACS *R* package allows the user to construct rather general size-structured population dynamics models, as well as \"observation\" models for predicting data values and associated likelihood functions to characterize model fit, define various characteristics \n(e.g., value, hyper parameters and prior probability function) of the resulting set of model parameters, calculate \nthe population state and predict observations through time based on the parameter values, and calculate individual and \ntotal likelihood components. \n\n\n\n",
+    "supporting": [
+      "01_Intro_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

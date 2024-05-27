@@ -2,7 +2,7 @@
 title: "Model Functions and Parameters"
 author: "William Stockhausen"
 crossref: 
-  fig-title: Figuure
+  fig-title: Figure
   tbl-title: Table
 comment: "#>"
 collapse: true
@@ -13,8 +13,8 @@ format:
 tbl-cap-location: top
 fig-cap-location: bottom
 prefer-html: true
-keep-md: true
-keep-yaml: true
+keep-md: false
+keep-yaml: false
 ---
 
 <!--NOTE: for scalar variables,    use: *var*   (italics)  
@@ -24,7 +24,7 @@ keep-yaml: true
 -->
 
 ```{r setup,echo=FALSE}
-  library(rtmbGMACS);
+  suppressPackageStartupMessages(require(rtmbGMACS));
 ```
 
 ## Model processes, functions and parameters
