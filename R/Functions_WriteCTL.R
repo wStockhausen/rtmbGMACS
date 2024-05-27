@@ -20,7 +20,7 @@ writeCTL_Table<-function(lst){
 writeCTL<-function(lst,conn,justText=TRUE){
   if (!justText)
     if(!isOpen(conn)) conn = file(conn,open="w");
-  str = c("#--tmbGMACS CTL file",
+  str = c("#--rtmbGMACS CTL file",
           "#--model population dynamics",
           "################################################################################"
           );
@@ -57,7 +57,7 @@ writeCTL_SeasonalIntegration<-function(lst,conn,justText=TRUE){
           "##--values (fraction of year) for category 'duration' must be defined for",
           "##----each year and season and sum to 1 for each year",
           "##",
-          ,"#              duration (fraction of year)",
+          "#              duration (fraction of year)",
           writeCTL_Table(lst[["seasonal_integration"]])
           );
   str = c(str,"END SEASONAL INTEGRATION SECTION","\n");

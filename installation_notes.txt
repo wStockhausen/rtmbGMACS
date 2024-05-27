@@ -10,3 +10,8 @@ quarto publish gh-pages
 #--note on README:
  - use `quarto render README.qmd` to build README.md prior to committing to keep README.md up-to-date
  - commit and push the resulting figure files, so they display on GitHub and CRAN
+
+#--using renv
+#----update dependencies using
+renv::install() or
+renv::install(c("wStockhausen/wtsUtilities","wStockhausen/wtsPlots"))

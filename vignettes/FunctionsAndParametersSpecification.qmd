@@ -17,7 +17,7 @@ keep-md: true
 keep-yaml: true
 vignette: >
   %\VignetteIndexEntry{Model functions and parameters}
-  %\VignetteEngine{tmbGMACS::quarto}
+  %\VignetteEngine{rtmbGMACS::quarto}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -28,12 +28,12 @@ vignette: >
 -->
 
 ```{r setup,echo=FALSE}
-  library(tmbGMACS);
+  library(rtmbGMACS);
 ```
 
 ## Model processes, functions and parameters
 
-tmbGMACS can encapsulate the following population- and observation-related processes 
+rtmbGMACS can encapsulate the following population- and observation-related processes 
 in a model:
 
   - initial abundance

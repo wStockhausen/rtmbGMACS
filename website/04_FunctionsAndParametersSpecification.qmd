@@ -1,5 +1,5 @@
 ---
-title: "Model Functions and Parameters Vignette"
+title: "Model Functions and Parameters"
 author: "William Stockhausen"
 crossref: 
   fig-title: Figuure
@@ -15,10 +15,6 @@ fig-cap-location: bottom
 prefer-html: true
 keep-md: true
 keep-yaml: true
-vignette: >
-  %\VignetteIndexEntry{Model functions and parameters}
-  %\VignetteEngine{tmbGMACS::quarto}
-  %\VignetteEncoding{UTF-8}
 ---
 
 <!--NOTE: for scalar variables,    use: *var*   (italics)  
@@ -28,12 +24,12 @@ vignette: >
 -->
 
 ```{r setup,echo=FALSE}
-  library(tmbGMACS);
+  library(rtmbGMACS);
 ```
 
 ## Model processes, functions and parameters
 
-tmbGMACS can encapsulate the following population- and observation-related processes 
+rtmbGMACS can encapsulate the following population- and observation-related processes 
 in a model:
 
   - initial abundance
