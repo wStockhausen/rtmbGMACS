@@ -10,10 +10,10 @@
 #' first dimension cycling the fastest; otherwise, the index is calculated with the
 #' last dimension cycling the fastest.
 #'
-#' @example inst/examples/example-getFullDimsIndex.R
+#' @example inst/examples/example-getDenseDimsIndex.R
 #'
 #' @export
-getFullDimsIndex<-function(v,n,rev=FALSE){
+getDenseDimsIndex<-function(v,n,rev=FALSE){
     idx = 0; mi = 1;
     if (!rev){
         for (i in seq(1,length(v))){
@@ -98,6 +98,7 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 #' the associated level for each dimension.
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs
+#' @param debug - flag (T/F) to print debugging info
 #'
 #' @return a tibble (see [tibble::tibble()]) with attributes
 #' \itemize{
@@ -122,12 +123,12 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 #'
 #' @export
 #'
-createSparseDimsMap<-function(...){
+createSparseDimsMap<-function(...,debug=FALSE){
     dfr = NULL;
     dots = rlang::list2(...);
     for (nm in names(dots)){
         #--testing: nm = names(dots)[1];
-        dfrp = traverseDimsList(dots[[nm]],nm,debug=TRUE);
+        dfrp = traverseDimsList(dots[[nm]],nm,debug=debug);
         if (is.null(dfr)) {
             dfr = dfrp;
             #--convert all dimensions to factors
@@ -161,6 +162,7 @@ createSparseDimsMap<-function(...){
         dmsl[[n]] = levels(dfr[[n]]);
         dmsi[n]   = length(dmsl[[n]]);
     }
+    attr(dfr,"dmtyp") <-"sparse"; #--dim type
     attr(dfr,"dmnms") <-dmsn;#--dim names
     attr(dfr,"dmlvs") <-dmsl;#--dim levels
     attr(dfr,"dmlns") <-dmsi;#--dim lengths
@@ -177,6 +179,7 @@ createSparseDimsMap<-function(...){
 #' (non-nested, fully-crossed) dimension levels
 #'
 #' @param map - tibble created using [createSparseDimsMap()]
+#' @param debug - flag (T/F) to print debugging info
 #'
 #' @return a tibble (see [tibble::tibble()]) with attributes
 #' \itemize{
@@ -189,7 +192,7 @@ createSparseDimsMap<-function(...){
 #' @details The sparse dims map \code{map} is used to identify all levels of
 #' each dimension included in the tibble. These are then used to create a
 #' fully-crossed (dense) dims map (i.e., ignoring any nesting of dimensions).
-#' The first column ("j") contains the 1-d index associated
+#' The first column ("dense_idx") contains the 1-d index associated
 #' with each combination of the full dimension levels.
 #'
 #' @example inst/examples/example-createFullIndexMap.R
@@ -199,18 +202,19 @@ createSparseDimsMap<-function(...){
 #'
 #' @export
 #'
-createFullDimsMap<-function(map){
+createDenseDimsMap<-function(map,debug=FALSE){
     dmlvs = attr(map,"dmlvs");
     dfr = NULL;
     for (nm in names(dmlvs)) {
         #--nm = names(lst)[3];
-        dfrp = traverseDimsList(dmlvs[[nm]],nm);
+        dfrp = traverseDimsList(dmlvs[[nm]],nm,debug=debug);
         if (is.null(dfr)){
             dfr = dfrp;
         } else {
             dfr  = dfr |> dplyr::cross_join(dfrp);
         }
     }
+    attr(dfr,"dmtyp") <-"full";           #--dim type
     attr(dfr,"dmnms") <-attr(map,"dmnms");#--dim names
     attr(dfr,"dmlvs") <-dmlvs;            #--dim levels
     attr(dfr,"dmlns") <-attr(map,"dmlns");#--dim lengths
@@ -226,6 +230,7 @@ createFullDimsMap<-function(map){
 #' @description Function to create maps between sparse and dense dimension indices.
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs
+#' @param debug - flag (T/F) to print debugging info
 #'
 #' @return a list with elements
 #' \itemize{
@@ -245,9 +250,9 @@ createFullDimsMap<-function(map){
 #'
 #' @export
 #'
-createDimsMaps<-function(...){
-    dfrSprs = createSparseDimsMap(...);
-    dfrDens = createFullDimsMap(dfrSprs);
+createDimsMaps<-function(...,debug=FALSE){
+    dfrSprs = createSparseDimsMap(...,debug=debug);
+    dfrDens = createDenseDimsMap(dfrSprs,debug=debug);
     dmnms   = attr(dfrSprs,"dmnms");
     dfrS2D  = dfrSprs |> dplyr::inner_join(dfrDens,by=dmnms) |>
                 dplyr::select(-1) |>
@@ -259,4 +264,61 @@ createDimsMaps<-function(...){
                 dplyr::select(sparse_idx,!dplyr::last_col());# |>
                 #createDimsFactors();
     return(list(dfrS2D=dfrS2D,dfrD2S=dfrD2S));
+}
+
+#'
+#' @title Create the intrinsic model dimensions from the user model dimension
+#'
+#' @description Function to create the intrinsic model dimensions from the user model dimension.
+#'
+#' @param udfr - dataframe representing user dimensions map (sparse or full)
+#'
+#' @return a dataframe representing the intrinsic model dimensions.
+#'
+#' @details The user dimensions defined by `udfr` are expanded to the full set of
+#' intrinsic model dimensions ("r","x","m","a","p","z"), with default values
+#' added for intrinsic dimensions undefined in the user dimensions.
+#'
+#' @example inst/examples/example-createIntrinsicDimensions.R
+#'
+#' @importFrom dplyr mutate select
+#'
+#' @export
+#'
+createIntrinsicDims<-function(udfr){
+  #--intrinsic dimensions info
+  idmnms = c("y","s","r","x","m","a","p","z");
+  idefs  = c(r="default",
+             x="undetermined",
+             m="undetermined",
+             a="undetermined",
+             p="undetermined",
+             z="undetermined");
+
+  #--user dimensions info
+  utype  = attr(udfr,"dmtyp");  #--user dimensions type (sparse or dense)
+  #----determine missing intrinsic dimensions
+  udmnms = attr(udfr,"dmnms"); #--vector of user dim names
+  mdmnms = idmnms[!(idmnms %in% udmnms)];#--missing intrinsic dimensions
+  #----other dimensions info
+  idmlvs = attr(udfr,"dmlvs"); #--list of user dim levels
+  idmlns = attr(udfr,"dmlns"); #--vector of user dim lengths
+  #--add columns, info for missing dimensions
+  idfr = udfr;
+  if (length(mdmnms)>0){
+    for (dmnm in mdmnms){
+      idfr = idfr |> dplyr::mutate("{dmnm}":=factor(idefs[dmnm]));
+      idmlvs[dmnm] = idefs[dmnm];
+      idmlns[dmnm] = 1;
+    }
+  }
+  #--rearrange into canonical format
+  idfr = idfr |> dplyr::select(tidyselect::all_of(idmnms));
+  idmlvs = idmlvs[idmnms];
+  idmlns = idmlns[idmnms];
+  attr(idfr,"dmtyp") = paste("intrinsic-",utype);#--dimensions type
+  attr(idfr,"dmnms") = idmnms; #--vector of dimension names
+  attr(idfr,"dmlvs") = idmlvs; #--list of dimension levels
+  attr(idfr,"dmlns") = idmlns; #--vector of dimension lengths
+  return(idfr);
 }

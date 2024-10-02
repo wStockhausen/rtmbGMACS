@@ -41,16 +41,16 @@ attr(vZs,"dmnms")<-c("x","m","s","a","z");
 #----of the example dimensions.
 require(rtmbGMACS);
 dfrSparse = createSparseDimsMap(y=vYs);   #--defined combinations
-dfrFull   = createFullDimsMap(dfrSparse); #--all possible combinations
+dfrFull   = createDenseDimsMap(dfrSparse); #--all possible combinations
 dfrSparse = createSparseDimsMap(y=vYs,c=vCs);
-dfrFull   = createFullDimsMap(dfrSparse); #--all possible combinations
+dfrFull   = createDenseDimsMap(dfrSparse); #--all possible combinations
 dfrSparse = createSparseDimsMap(y=vYs,z=vZs);
-dfrFull   = createFullDimsMap(dfrSparse); #--all possible combinations
+dfrFull   = createDenseDimsMap(dfrSparse); #--all possible combinations
 dfrSparse = createSparseDimsMap(a=vAs);
-dfrFull   = createFullDimsMap(dfrSparse); #--all possible combinations
+dfrFull   = createDenseDimsMap(dfrSparse); #--all possible combinations
 dfrSparse = createSparseDimsMap(z=vZs);
-dfrFull   = createFullDimsMap(dfrSparse); #--all possible combinations
+dfrFull   = createDenseDimsMap(dfrSparse); #--all possible combinations
 dfrSparse = createSparseDimsMap(a=vAs,z=vZs);
-dfrFull   = createFullDimsMap(dfrSparse); #--all possible combinations
+dfrFull   = createDenseDimsMap(dfrSparse); #--all possible combinations
 dfrSparse = createSparseDimsMap(y=vYs,c=vCs,r=vRs,x=vXs,m=vMs,s=vSs,a=vAs,z=vZs);
-dfrFull   = createFullDimsMap(dfrSparse); #--all possible combinations
+dfrFull   = createDenseDimsMap(dfrSparse); #--all possible combinations

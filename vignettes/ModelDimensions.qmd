@@ -76,14 +76,14 @@ dmsSparse |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
 
 ### Dense dimension maps
 
-Given a sparse dimensions map `dmsSparse`, the associated dense map can be created using the R function **createFullDimsMap**: 
+Given a sparse dimensions map `dmsSparse`, the associated dense map can be created using the R function **createDenseDimsMap**: 
 
 ```{r}
 #| label: tbl-ExDenseDimsMap
 #| tbl-cap: "Example dense dimensions map (first 20 rows) corrseponding to the previous sparse dimensions map."
 #| eval: !expr '(require(kableExtra))'
 #| echo: false
-dmsDense = createFullDimsMap(dmsSparse);
+dmsDense = createDenseDimsMap(dmsSparse);
 dmsDense[1:20,] |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
 ```
 
