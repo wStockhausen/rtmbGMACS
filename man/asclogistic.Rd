@@ -4,7 +4,7 @@
 \alias{asclogistic}
 \title{Calculate an ascending logistic function parameterized by z50 and slope}
 \usage{
-asclogistic(z, z50, slope, fsz = 0)
+asclogistic(z, z50, slope, fsz = 0, debug = FALSE)
 }
 \arguments{
 \item{z}{- vector of sizes at which to compute selectivities}
@@ -14,9 +14,11 @@ asclogistic(z, z50, slope, fsz = 0)
 \item{slope}{- slope at z50}
 
 \item{fsz}{- if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done}
+
+\item{debug}{- flag (T/F) to print debugging messages}
 }
 \value{
-vector with selectivity values at the elements of z
+named vector with selectivity values at the elements of z
 }
 \description{
 Function to calculate an ascending logistic function parameterized by z50 and slope.

@@ -14,9 +14,11 @@ asclogistic5095(z, z50, z95, fsz = 0)
 \item{z95}{- size at which selectivity  = 0.95}
 
 \item{fsz}{- if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done}
+
+\item{debug}{- flag (T/F) to print debugging messages}
 }
 \value{
-vector with selectivity values at the elements of z
+named vector with selectivity values at the elements of z
 }
 \description{
 Function to calculate an ascending logistic function parameterized by z50 and z95.

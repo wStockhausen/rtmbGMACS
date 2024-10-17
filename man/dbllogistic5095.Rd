@@ -4,27 +4,32 @@
 \alias{dbllogistic5095}
 \title{Calculate a double logistic function parameterized by z50 and D95=z95-z50 for ascending/descending limbs}
 \usage{
-dbllogistic5095(z, ascZ50, ascZ95, dscZ95, dscZ50, fsz = 0)
+dbllogistic5095(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
 \item{z}{- vector of sizes at which to compute selectivities}
 
-\item{ascZ50}{- ascending z50}
+\item{params}{- 4-element parameter vector}
 
-\item{ascZ95}{- z95 on ascending limb}
+\item{refZ}{- reference size}
 
-\item{dscZ95}{- z95 on descending limb}
-
-\item{dscZ50}{- descending z50}
-
-\item{fsz}{- if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done}
+\item{debug}{- flag (T/F) to print debugging messages}
 }
 \value{
-vector with selectivity values at the elements of z
+named vector with selectivity values at the elements of z
 }
 \description{
 Function to calculate a double logistic function parameterized by z50, z95 on ascending/descending limbs.
 }
 \details{
-None.
+The parameters are
+\itemize{
+ \item{params[1] - ascending limb size at 50\% selected}
+ \item{params[2] - ascending limb size at 95\% selected}
+ \item{params[3] - descending limb size at 95\% selected}
+ \item{params[4] - descending limb size at 50\% selected}
+}
+
+If `refZ`>0, fsz=fully-selected size. if `refZ`<0, function is normalized to max.
+if `refZ`=0, no re-scaling is done.
 }

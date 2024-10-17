@@ -4,10 +4,12 @@
 \alias{createSparseDimsMap}
 \title{Create a sparse index map (a tibble) for a set of (possibly nested) dimension levels}
 \usage{
-createSparseDimsMap(...)
+createSparseDimsMap(..., debug = FALSE)
 }
 \arguments{
 \item{...}{<[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs}
+
+\item{debug}{- flag (T/F) to print debugging info}
 }
 \value{
 a tibble (see [tibble::tibble()]) with attributes

@@ -2,27 +2,29 @@
 % Please edit documentation in R/SelectivityFunctions.R
 \name{ascnormal}
 \alias{ascnormal}
-\title{Calculate an ascending normal selectivity function parameterized by size-at-1 and width}
+\title{Calculate an ascending normal selectivity curve}
 \usage{
-ascnormal(z, params, fsz = 0)
+ascnormal(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute selectivities}
+\item{z}{- vector of sizes at which to compute selectivity values}
 
-\item{params}{- selectivity parameters}
+\item{params}{- 2-element vector of selectivity function parameters}
 
-\item{fsz}{- if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done}
+\item{refZ}{- reference size (not used)}
+
+\item{debug}{- flag (T/F) to print debugging messages}
 }
 \value{
-vector with selectivity values at the elements of z
+named vector with selectivity values at the elements of z
 }
 \description{
-Function to calculate an ascending normal selectivity function parameterized by size-at-1 and width.
+Function to calculate an ascending normal selectivity curve.
 }
 \details{
 The parameters are
 \itemize{
-\item{p[1] - size at which ascending limb hits 1 (mean of normal distribution)}
-\item{p[2] - width of ascending limb (standard deviation ofnormal distribution)}
+\item{params[1] - width of ascending limb (standard deviation of a normal distribution)}
+\item{params[2] - size at which ascending limb hits 1 (mean of a normal distribution)}
 }
 }

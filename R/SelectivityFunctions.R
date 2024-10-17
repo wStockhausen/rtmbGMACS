@@ -61,24 +61,47 @@ calcSelectivity<-function(type,z,params){
 }
 #-----------------------------------------------------------------------------------
 #'
-#'@title Calculate the logistic function
+#' @title Calculate a constant-valued selectivity curve
+#' @description Function to calculate a constant-valued selectivity curve
+#' @param z      - sizes at which to compute selectivity values
+#' @param params - parameter vector
+#' @param debug - flag (T/F) to print debugging messages
 #'
-#'@description Function to calculate the logistic function.
+#' @return named vector with selectivity values at the elements of z
 #'
-#'@param z   - vector of size class midpoints at which to compute selectivity
+#' @details  The parameter vector has values
+#' \itemize{
+#'  \item{params[1]: the constant value}
+#' }
+#'
+#' @export
+#'
+const_sel<-function(z, params,debug=FALSE){
+    if (debug) message("Starting const_sel(...)");
+    s = 0*z + params[1];
+    if (debug) message("Finished const_sel(...)");
+    return(s);
+}
+#-----------------------------------------------------------------------------------
+#'
+#'@title Calculate a logistic selectivity curve
+#'
+#'@description Function to calculate a logistic selectivity curve.
+#'
+#'@param z   - vector of size class midpoints at which to compute the selectivity curve
 #'@param z50 - size at which selectivity = 0.5 (logit-scale mean)
 #'@param sd  - standard deviation in selectivity (logit-scale standard deviation)
 #'@param fsz - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param debug - flag (T/F) to print debugging messages
 #'
-#'@return vector with selectivity values at the elements of z
+#'@return named vector with selectivity values at the elements of z
 #'
 #'@details None.
 #'
 #'@export
 #'
 plogis<-function(z,z50,sd,fsz=0){
-    #cat(z,'\n')
-    #cat('z50, sd = ',z50,sd,'\n')
+    if (debug) message(paste('starting plogis: z50, sd =',z50,sd));
     res<-1.0/(1.0+exp(-(z-z50)/sd));
     scl <-1;
     if (fsz>0){
@@ -87,10 +110,9 @@ plogis<-function(z,z50,sd,fsz=0){
         scl<-1/max(res);
     }
     res<-scl*res;
-    #print(res);
     names(res)<-as.character(z);
-    #print(res)
-    return(res)
+    if (debug) message(paste('finished plogis. res =',res));
+    return(res);
 }
 #-----------------------------------------------------------------------------------
 #'
@@ -102,14 +124,15 @@ plogis<-function(z,z50,sd,fsz=0){
 #'@param z50   - size at which selectivity  = 0.5 (logit-scale mean)
 #'@param slope - slope at z50
 #'@param fsz   - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param debug - flag (T/F) to print debugging messages
 #'
-#'@return vector with selectivity values at the elements of z
+#' @return named vector with selectivity values at the elements of z
 #'
 #'@details None.
 #'
 #'@export
 #'
-asclogistic<-function(z,z50,slope,fsz=0){
+asclogistic<-function(z,z50,slope,fsz=0,debug=FALSE){
     #cat(z,'\n')
     #cat('z50, lnD = ',z50,lnD,'\n')
     res <- 1.0/(1.0+exp(-slope*(z-z50)));
@@ -135,8 +158,9 @@ asclogistic<-function(z,z50,slope,fsz=0){
 #'@param z50 - size at which selectivity  = 0.5 (logit-scale mean)
 #'@param z95 - size at which selectivity  = 0.95
 #'@param fsz - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param debug - flag (T/F) to print debugging messages
 #'
-#'@return vector with selectivity values at the elements of z
+#' @return named vector with selectivity values at the elements of z
 #'
 #'@details None.
 #'
@@ -155,52 +179,60 @@ asclogistic5095<-function(z,z50,z95,fsz=0){
 #'@param z   - vector of sizes at which to compute selectivities
 #'@param z50 - size at which selectivity  = 0.5 (logit-scale mean)
 #'@param D95 - z95-z50
-#'@param fsz - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param refZ - reference size
+#'@param debug - flag (T/F) to print debugging messages
 #'
-#'@return vector with selectivity values at the elements of z
+#'@return named vector with selectivity values at the elements of z
 #'
 #'@details None.
 #'
 #'@export
 #'
-asclogistic50D95<-function(z,z50,D95,fsz=0){
-    slope<-log(19.0)/D95;
-    return(asclogistic(z,z50,slope,fsz=fsz));
+asclogistic50D95<-function(z,z50,D95,refZ=0,debug=FALSE){
+    slope<-log(19.0)/params[2];
+    return(asclogistic(z,c(params[1],slope),refZ,debug));
 }
 #-----------------------------------------------------------------------------------
 #'
-#'@title Calculate a double logistic function parameterized by z50 and slope for ascending/descending limbs
+#'@title Calculate a double logistic selectivity curve
+#'@description Function to calculate a double logistic selectivity curve.
+#'@param z - vector of sizes at which to compute selectivity curve
+#'@param params - 4-element vector of selectivity function parameters
+#'@param refZ - reference size
+#'@param debug - flag (T/F) to print debugging messages
 #'
-#'@description Function to calculate a double logistic function parameterized by z50 and slope for ascending/descending limbs.
+#'@return named vector with selectivity values at the elements of z
 #'
-#'@param z     - vector of sizes at which to compute selectivities
-#'@param ascZ50   - ascending logistic size at which selectivity  = 0.5 (logit-scale mean)
-#'@param ascSlope - ascending logistic slope at z50
-#'@param dscZ50   - descending logistic size at which selectivity  = 0.5 (logit-scale mean)
-#'@param dscSlope - descending logistic slope at z50
-#'@param fsz   - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@details The parameter values are
+#'\itemize{
+#' \item{params[1] - ascZ50   - ascending logistic size at which selectivity  = 0.5 (logit-scale mean)}
+#' \item{params[2] - ascSlope - ascending logistic slope at z50}
+#' \item{params[3] - dscZ50   - descending logistic size at which selectivity  = 0.5 (logit-scale mean)}
+#' \item{params[4] - dscSlope - descending logistic slope at z50}
+#'}
 #'
-#'@return vector with selectivity values at the elements of z
-#'
-#'@details None.
+#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+#'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
-dbllogistic<-function(z,ascZ50,ascSlope,dscZ50,dscSlope,fsz=0){
-    #cat(z,'\n')
-    #cat('z50, lnD = ',z50,lnD,'\n')
-    res <- 1.0/(1.0+exp(-ascSlope*(z-ascZ50)))*1.0/(1.0+exp(dscSlope*(z-dscZ50)));
-    scl <-1;
-    if (fsz>0){
-        scl<-(1.0+exp(-ascSlope*(fsz-ascZ50)))*(1.0+exp(dscSlope*(fsz-dscZ50)));
-    } else if (fsz<0){
-        scl<-1.0/max(res);
-    }
-    res<-scl*res;
-    #print(res);
-    names(res)<-as.character(z);
-    #print(res)
-    return(res)
+dbllogistic<-function(z,params,fsz=0,debug=FALSE){
+  #cat(z,'\n')
+  #cat('z50, lnD = ',z50,lnD,'\n')
+  ascZ50   = params[1];
+  ascSlope = params[2];
+  dscZ50   = params[3];
+  dscSlope = params[4];
+  res <- 1.0/(1.0+exp(-ascSlope*(z-ascZ50)))*1.0/(1.0+exp(dscSlope*(z-dscZ50)));
+  scl <-1;
+  if (fsz>0){
+      scl<-(1.0+exp(-ascSlope*(fsz-ascZ50)))*(1.0+exp(dscSlope*(fsz-dscZ50)));
+  } else if (fsz<0){
+      scl<-1.0/max(res);
+  }
+  res<-scl*res;
+  names(res)<-as.character(z);
+  return(res);
 }
 #-----------------------------------------------------------------------------------
 #'
@@ -209,50 +241,128 @@ dbllogistic<-function(z,ascZ50,ascSlope,dscZ50,dscSlope,fsz=0){
 #'@description Function to calculate a double logistic function parameterized by z50, z95 on ascending/descending limbs.
 #'
 #'@param z      - vector of sizes at which to compute selectivities
-#'@param ascZ50 - ascending z50
-#'@param ascZ95 - z95 on ascending limb
-#'@param dscZ95 - z95 on descending limb
-#'@param dscZ50 - descending z50
-#'@param fsz   - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param params - 4-element parameter vector
+#'@param refZ   - reference size
+#'@param debug - flag (T/F) to print debugging messages
 #'
-#'@return vector with selectivity values at the elements of z
+#'@return named vector with selectivity values at the elements of z
 #'
-#'@details None.
+#'@details The parameters are
+#' \itemize{
+#'  \item{params[1] - ascending limb size at 50\% selected}
+#'  \item{params[2] - ascending limb size at 95\% selected}
+#'  \item{params[3] - descending limb size at 95\% selected}
+#'  \item{params[4] - descending limb size at 50\% selected}
+#' }
+#'
+#'If `refZ`>0, fsz=fully-selected size. if `refZ`<0, function is normalized to max.
+#'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
-dbllogistic5095<-function(z,ascZ50,ascZ95,dscZ95,dscZ50,fsz=0){
-    ascSlope<-log(19.0)/(ascZ95-ascZ50);
-    dscSlope<-log(19.0)/(dscZ50-dscZ95);
-    return(dbllogistic(z,ascZ50,ascSlope,dscZ50,dscSlope,fsz));
+dbllogistic5095<-function(z,params,refZ=0,debug=FALSE){
+  ascZ50 = params[1];
+  ascZ95 = params[2];
+  dscZ95 = params[3];
+  dscZ50 = params[4];
+  ascSlope<-log(19.0)/(ascZ95-ascZ50);
+  dscSlope<-log(19.0)/(dscZ50-dscZ95);
+  return(dbllogistic(z,c(ascZ50,ascSlope,dscZ50,dscSlope),refZ,debug));
 }
 
 #-----------------------------------------------------------------------------------
 #'
-#'@title Calculate an ascending normal selectivity function parameterized by size-at-1 and width
+#'@title Calculate an ascending normal selectivity curve
 #'
-#'@description Function to calculate an ascending normal selectivity function parameterized by size-at-1 and width.
+#'@description Function to calculate an ascending normal selectivity curve.
 #'
-#'@param z      - vector of sizes at which to compute selectivities
-#'@param params - selectivity parameters
-#'@param fsz   - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param z      - vector of sizes at which to compute selectivity values
+#'@param params - 2-element vector of selectivity function parameters
+#'@param refZ   - reference size (not used)
+#'@param debug - flag (T/F) to print debugging messages
 #'
-#'@return vector with selectivity values at the elements of z
+#'@return named vector with selectivity values at the elements of z
 #'
 #'@details The parameters are
 #' \itemize{
-#' \item{p[1] - size at which ascending limb hits 1 (mean of normal distribution)}
-#' \item{p[2] - width of ascending limb (standard deviation ofnormal distribution)}
+#' \item{params[1] - width of ascending limb (standard deviation of a normal distribution)}
+#' \item{params[2] - size at which ascending limb hits 1 (mean of a normal distribution)}
 #' }
 #'
 #'@export
 #'
-ascnormal<-function(z,params,fsz=0){
+ascnormal<-function(z,params,refZ=0,debug=FALSE){
+  if (debug) message(paste("Starting ascnormal(...)"));
   slp = 5.0;
-  ascMnZ = params[1];#--size at which ascending limb hits 1
-  ascWdZ = params[2];#--width of ascending limb
-  ascN   = exp(-0.5*square((z-ascMnZ)/ascWdZ));
-  ascJ   = 1.0/(1.0+mfexp(slp*(z-(ascMnZ))));
+  ascWdZ = params[1];#--width of ascending limb
+  ascMnZ = params[2];#--size at which ascending limb hits 1
+  ascN   = exp(-0.5*((z-ascMnZ)/ascWdZ)^2);
+  ascJ   = 1.0/(1.0+exp(slp*(z-(ascMnZ))));
   sel    = ascJ*ascN+(1.0-ascJ);
+  if (debug) message(paste("Finished ascnormal(...)"));
   return(sel);
+}
+#-----------------------------------------------------------------------------------
+#'
+#' @title Calculate ascending normal selectivity curve
+#' @description Function to calculate ascending normal selectivity curve.
+#' @param z      - vector of sizes at which to compute selectivity values
+#' @param params - 2-element vector of selectivity function parameters
+#' @param refZ   - size at which function reaches params[2]
+#' @param debug - flag (T/F) to print debugging messages
+#'
+#' @return named vector with selectivity values at the elements of z
+#'
+#' @details  The parameter vector has values
+#' \itemize{
+#'  \item{params[1]: selectivity at size = refZ}
+#'  \item{params[2]: size at which ascending limb reaches 1}
+#' }
+#'
+#' @export
+#'
+ascnormal2<-function(z, params, refZ=0,debug=FALSE){
+  if (debug) message("Starting SelFcns::ascnormal2(...)");
+  slp = 5.0;
+  ascSref = params[1];#--selectivity at ascZref
+  ascZref = refZ;      #--size at which selectivity reaches ascSref
+  ascZ1   = params[2];#--size at which ascending limb hits 1
+  ascN = exp(log(ascSref)*((z-ascZ1)/(ascZref-ascZ1))^2);
+  ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
+  s = ascJ*ascN+(1.0-ascJ);
+  if (debug) message("Finished ascnormal2(...)");
+  return(s);
+}
+
+#-----------------------------------------------------------------------------------
+#'
+#' @title Calculate an ascending normal selectivity curve
+#' @description Function to calculate an ascending normal selectivity curve
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - vector of function parameters
+#' @param refS    - reference selectivity value (default=0.5)
+#' @param debug - flag (T/F) to print debugging messages
+#'
+#' @return named vector with selectivity values at the elements of z
+#'
+#' @details  The parameter vector has values
+#' \itemize{
+#'  \item{params[1]: size at which selectivity = refS}
+#'  \item{params[2]: size at which ascending limb reaches 1}
+#' }
+#'
+#' @export
+#'
+ascnormal2a<-function(z, params, refS=0.5, debug=FALSE){
+    if (debug) message("Starting SelFcns::ascnormal2a(...)");
+    slp = 5.0;
+    ascSref  = refS;     #--selectivity at ascZref
+    ascZref  = params[1];#--size at which selectivity reaches ascSref
+    ascZ1    = params[2];#--size at which ascending limb hits 1
+    ascN = exp(log(ascSref)*((z-ascZ1)/(ascZref-ascZ1))^2);
+    ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
+    s = ascJ*ascN + (1.0-ascJ);
+    if (debug) message("Finished SelFcns::ascnormal2a(...)");
+    names(s) = as.character(z);
+    return(s);
 }

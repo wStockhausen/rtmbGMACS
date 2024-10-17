@@ -2,24 +2,26 @@
 % Please edit documentation in R/SelectivityFunctions.R
 \name{plogis}
 \alias{plogis}
-\title{Calculate the logistic function}
+\title{Calculate a logistic selectivity curve}
 \usage{
 plogis(z, z50, sd, fsz = 0)
 }
 \arguments{
-\item{z}{- vector of size class midpoints at which to compute selectivity}
+\item{z}{- vector of size class midpoints at which to compute the selectivity curve}
 
 \item{z50}{- size at which selectivity = 0.5 (logit-scale mean)}
 
 \item{sd}{- standard deviation in selectivity (logit-scale standard deviation)}
 
 \item{fsz}{- if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done}
+
+\item{debug}{- flag (T/F) to print debugging messages}
 }
 \value{
-vector with selectivity values at the elements of z
+named vector with selectivity values at the elements of z
 }
 \description{
-Function to calculate the logistic function.
+Function to calculate a logistic selectivity curve.
 }
 \details{
 None.

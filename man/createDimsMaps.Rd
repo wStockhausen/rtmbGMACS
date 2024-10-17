@@ -4,10 +4,12 @@
 \alias{createDimsMaps}
 \title{Create maps between sparse and dense dimension indices}
 \usage{
-createDimsMaps(...)
+createDimsMaps(..., debug = FALSE)
 }
 \arguments{
 \item{...}{<[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs}
+
+\item{debug}{- flag (T/F) to print debugging info}
 }
 \value{
 a list with elements

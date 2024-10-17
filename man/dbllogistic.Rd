@@ -2,29 +2,34 @@
 % Please edit documentation in R/SelectivityFunctions.R
 \name{dbllogistic}
 \alias{dbllogistic}
-\title{Calculate a double logistic function parameterized by z50 and slope for ascending/descending limbs}
+\title{Calculate a double logistic selectivity curve}
 \usage{
-dbllogistic(z, ascZ50, ascSlope, dscZ50, dscSlope, fsz = 0)
+dbllogistic(z, params, fsz = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute selectivities}
+\item{z}{- vector of sizes at which to compute selectivity curve}
 
-\item{ascZ50}{- ascending logistic size at which selectivity  = 0.5 (logit-scale mean)}
+\item{params}{- 4-element vector of selectivity function parameters}
 
-\item{ascSlope}{- ascending logistic slope at z50}
+\item{debug}{- flag (T/F) to print debugging messages}
 
-\item{dscZ50}{- descending logistic size at which selectivity  = 0.5 (logit-scale mean)}
-
-\item{dscSlope}{- descending logistic slope at z50}
-
-\item{fsz}{- if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done}
+\item{refZ}{- reference size}
 }
 \value{
-vector with selectivity values at the elements of z
+named vector with selectivity values at the elements of z
 }
 \description{
-Function to calculate a double logistic function parameterized by z50 and slope for ascending/descending limbs.
+Function to calculate a double logistic selectivity curve.
 }
 \details{
-None.
+The parameter values are
+\itemize{
+\item{params[1] - ascZ50   - ascending logistic size at which selectivity  = 0.5 (logit-scale mean)}
+\item{params[2] - ascSlope - ascending logistic slope at z50}
+\item{params[3] - dscZ50   - descending logistic size at which selectivity  = 0.5 (logit-scale mean)}
+\item{params[4] - dscSlope - descending logistic slope at z50}
+}
+
+If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+if `refZ`=0, no re-scaling is done.
 }
