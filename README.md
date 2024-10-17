@@ -4,11 +4,11 @@
 -   [rtmbGMACS](#rtmbgmacs)
     -   [Installation](#installation)
     -   [Introduction](#introduction)
-    -   [Software architecture](#software-architecture)
     -   [NOAA Disclaimer](#noaa-disclaimer)
 
-<!-- README.md is generated from README.qmd. Please edit README.qmd, then render README.md using `quarto render README.qmd`. -->
-<!-- use `quarto render README.qmd` to build README.md prior to committing to keep README.md up-to-date-->
+<!--DO NOT VIEW THIS FILE USING THE VISUAL EDITOR!! (seems to screw things up)-->
+<!-- README.md is generated from README.qmd. Please edit README.qmd, then render README.md using `quarto render README.qmd` in a terminal window. -->
+<!-- use `quarto render README.qmd` in the terminal window to build README.md prior to committing to keep README.md up-to-date-->
 <!-- don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.-->
 
 # rtmbGMACS
@@ -19,14 +19,14 @@
 rtmbGMACS is an [R](https://www.r-project.org/) package that, when
 completed, will provide a RTMB-based implementation of the Generalized
 Model for Assessing Crustacean Stocks
-([GMACS](https://github.com/GMACS-project/GMACS_Assessment_code))
-modeling framework that was developed using AD Model Builder
-([ADMB](http://www.admb-project.org)). The ADMB version of GMACS is
-currently used to in stock assessment models for a number of crab
-species in the Bering Sea and Aleutian Islands to determine reference
-points for fishery management to the North Pacific Fishery Management
-Council ([NPFMC](https://www.npfmc.org)) (see, for example, the stock
-assessment reports for [Bristol Bay red king
+([GMACS](https://github.com/GMACS-project)) modeling framework that was
+developed using AD Model Builder ([ADMB](http://www.admb-project.org)).
+The ADMB version of GMACS is currently used to in stock assessment
+models for a number of crab species in the Bering Sea and Aleutian
+Islands to determine reference points for fishery management to the
+North Pacific Fishery Management Council
+([NPFMC](https://www.npfmc.org)) (see, for example, the stock assessment
+reports for [Bristol Bay red king
 crab](https://meetings.npfmc.org/CommentReview/DownloadFile?p=b98b90b2-88ab-43c2-9487-c12cdb4e0a25.pdf&fileName=BBRKC%20SAFE%202022%20Final.pdf)
 and [snow
 crab](https://meetings.npfmc.org/CommentReview/DownloadFile?p=fca55335-ad34-4896-9b1e-4c09aa8342ce.pdf&fileName=EBS%20Snow%20SAFE%20FINAL.pdf)).
@@ -50,31 +50,25 @@ devtools::install_github("wStockhausen/rtmbGMACS")
 
 ## Introduction
 
-The purpose of rtmbGMACS is to provide a population modeling framework
-for commercially-fished crustacean stocks. Stock assessment models
-developed using rtmbGMACS can be fit to fishery, survey, and biological
-data to estimate various population processes (e.g., recruitment,
-growth, and mortality) and population size in order to determine
-sustainable fishing limits and targets.
+The purpose of rtmbGMACS is to provide a population modeling and stock
+assessment framework for, in particular, federally-managed
+commercially-fished crab stocks in the US Bering Sea and Aleutian
+Islands, although the software should be more widely applicable to (at
+least) other crustacean stocks. Here, the modeling framework is referred
+to as “gmacs” while the R package is referred to “rtmbGMACS”. The *R*
+package will provide functionality to:
 
-Here, the modeling framework is referred to as “gmacs” while the R
-package is referred to “rtmbGMACS”. The *R* package provides functions
-to set up data inputs to a gmacs model, with associated likelihood
-functions, select functional forms for various population processes,
-define estimable parameters and associated priors or penalties, run the
-model, create plots and tables from a fitted model, and compare multiple
-models.
-
-## Software architecture
-
-The rtmbGMACS *R* package allows the user to construct rather general
-size-structured population dynamics models, as well as “observation”
-models for predicting data values and associated likelihood functions to
-characterize model fit, define various characteristics (e.g., value,
-hyper parameters and prior probability function) of the resulting set of
-model parameters, calculate the population state and predict
-observations through time based on the parameter values, and calculate
-individual and total likelihood components.
+-   set up data inputs to a gmacs model
+-   define associated likelihood functions
+-   select functional forms for various population processes
+-   define estimable parameters and associated priors or penalties
+-   run the model to estimate parameters and stock status
+-   determine required management-related quantities under different
+    harvest strategies
+-   create plots and tables from a fitted model
+-   perform standard diagnostic analyses (e.g., retrospective analyses,
+    likelihood profiling, MCMC)
+-   and compare results from multiple models.
 
 ------------------------------------------------------------------------
 
