@@ -4,16 +4,14 @@
 \alias{asclogistic5095}
 \title{Calculate an ascending logistic function parameterized by z50 and z95}
 \usage{
-asclogistic5095(z, z50, z95, fsz = 0)
+asclogistic5095(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
 \item{z}{- vector of sizes at which to compute selectivities}
 
-\item{z50}{- size at which selectivity  = 0.5 (logit-scale mean)}
+\item{params}{- 2-element vector with selectivity function parameters}
 
-\item{z95}{- size at which selectivity  = 0.95}
-
-\item{fsz}{- if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done}
+\item{refZ}{- reference size}
 
 \item{debug}{- flag (T/F) to print debugging messages}
 }
@@ -24,5 +22,12 @@ named vector with selectivity values at the elements of z
 Function to calculate an ascending logistic function parameterized by z50 and z95.
 }
 \details{
-None.
+The parameter values are
+\itemize{
+\item{params[1] - z50 - size at which selectivity = 0.50 (logit-scale mean)}
+\item{params[2] - z95 - size at which selectivity = 0.95}
+}
+
+If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+if `refZ`=0, no re-scaling is done.
 }

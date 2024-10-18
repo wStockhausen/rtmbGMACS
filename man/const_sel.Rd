@@ -4,14 +4,16 @@
 \alias{const_sel}
 \title{Calculate a constant-valued selectivity curve}
 \usage{
-const_sel(z, params, debug = FALSE)
+const_sel(z, params, ref = 0, debug = FALSE)
 }
 \arguments{
 \item{z}{- sizes at which to compute selectivity values}
 
-\item{params}{- parameter vector}
+\item{params}{- 1-element parameter vector}
 
 \item{debug}{- flag (T/F) to print debugging messages}
+
+\item{refZ}{- reference size (dummy input)}
 }
 \value{
 named vector with selectivity values at the elements of z

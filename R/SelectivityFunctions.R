@@ -11,60 +11,56 @@
 #'
 #'@details "type" may be one of
 #'\itemize{
+#' \item{"sel_const"}
 #' \item{"asclogistic"}
 #' \item{'asclogistic5095'}
 #' \item{'asclogistic50D95'}
-#' \item{'asclogistic50LnD95'}
-#' \item{'asclogisticLn50LnD95'}
 #' \item{'dbllogistic'}
 #' \item{'dbllogistic5095'}
+#' \item{"ascnormal"}
+#' \item{"ascnormal2"}
+#' \item{"ascnormal2a"}
 #' }
 #'
 #'@export
 #'
-calcSelectivity<-function(type,z,params){
-    fsz <- 0; #fully-selected size for re-scaling selectivity function
-    if (type=='asclogistic'){
-        cat('sel function=asclogistic\n')
-        if (length(params)>2) fsz<-params[3];
-        res<-asclogistic(z,params[1],params[2],fsz);
+calcSelectivity<-function(type,z,params,ref=0,debug=FALSE){
+    if (debug) message('sel function =',type);
+    if (type=='const_sel'){
+        res<-const_sel(z,params,ref,debug);
+    } else if (type=='asclogistic'){
+        res<-asclogistic(z,params,ref,debug);
     } else if (type=='asclogistic5095'){
-        cat('sel function =',type,'\n')
-        if (length(params)>2) fsz<-params[3];
-        res<-asclogistic5095(z,params[1],params[2],fsz);
+        res<-asclogistic5095(z,params,ref,debug);
     } else if (type=='asclogistic50D95'){
-        cat('sel function =',type,'\n')
-        if (length(params)>2) fsz<-params[3];
-        res<-asclogistic50D95(z,params[1],params[2],fsz);
-    } else if (type=='asclogistic50LnD95'){
-        cat('sel function =',type,'\n')
-        if (length(params)>2) fsz<-params[3];
-        res<-asclogistic50LnD95(z,params[1],params[2],fsz);
-    } else if (type=='asclogisticLn50LnD95'){
-        cat('sel function =',type,'\n')
-        if (length(params)>2) fsz<-params[3];
-        res<-asclogisticLn50LnD95(z,params[1],params[2],fsz);
+        res<-asclogistic50D95(params,ref,debug);
+    # } else if (type=='asclogistic50LnD95'){
+    #     res<-asclogistic50LnD95(params,ref,debug);
+    # } else if (type=='asclogisticLn50LnD95'){
+    #     res<-asclogisticLn50LnD95(params,ref,debug);
     } else if (type=='dbllogistic'){
-        cat('sel function =',type,'\n')
-        if (length(params)>4) fsz<-params[5];
-        res<-dbllogistic(z,params[1],params[2],params[3],params[4],fsz);
+        res<-dbllogistic(z,params,ref,debug);
     } else if (type=='dbllogistic5095'){
-        cat('sel function =',type,'\n')
-        if (length(params)>4) fsz<-params[5];
-        res<-dbllogistic5095(z,params[1],params[2],params[3],params[4],fsz);
+        res<-dbllogistic5095(z,params,ref,debug);
+    } else if (type=='ascnormal'){
+        res<-ascnormal(z,params,ref,debug);
+    } else if (type=='ascnormal2'){
+        res<-ascnormal2(z,params,ref,debug);
+    } else if (type=='ascnormal2a'){
+        res<-ascnormal2a(z,params,ref,debug);
     } else {
-        cat('Selectivity/retention function type "',type,'" not recognnized.\n',sep='');
-        cat('Aborting...\n');
-        stop();
+        stop(paste0('Selectivity/retention function type "',type,'" not recognnized.\n',
+                    'Aborting...\n'));
     }
-    return(res)
+    return(res);
 }
 #-----------------------------------------------------------------------------------
 #'
 #' @title Calculate a constant-valued selectivity curve
 #' @description Function to calculate a constant-valued selectivity curve
 #' @param z      - sizes at which to compute selectivity values
-#' @param params - parameter vector
+#' @param params - 1-element parameter vector
+#' @param refZ   - reference size (dummy input)
 #' @param debug - flag (T/F) to print debugging messages
 #'
 #' @return named vector with selectivity values at the elements of z
@@ -76,43 +72,12 @@ calcSelectivity<-function(type,z,params){
 #'
 #' @export
 #'
-const_sel<-function(z, params,debug=FALSE){
+const_sel<-function(z, params,ref=0,debug=FALSE){
     if (debug) message("Starting const_sel(...)");
-    s = 0*z + params[1];
+    s = params[1] + 0*z;
+    names(s) = as.character(z);
     if (debug) message("Finished const_sel(...)");
     return(s);
-}
-#-----------------------------------------------------------------------------------
-#'
-#'@title Calculate a logistic selectivity curve
-#'
-#'@description Function to calculate a logistic selectivity curve.
-#'
-#'@param z   - vector of size class midpoints at which to compute the selectivity curve
-#'@param z50 - size at which selectivity = 0.5 (logit-scale mean)
-#'@param sd  - standard deviation in selectivity (logit-scale standard deviation)
-#'@param fsz - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
-#'@param debug - flag (T/F) to print debugging messages
-#'
-#'@return named vector with selectivity values at the elements of z
-#'
-#'@details None.
-#'
-#'@export
-#'
-plogis<-function(z,z50,sd,fsz=0){
-    if (debug) message(paste('starting plogis: z50, sd =',z50,sd));
-    res<-1.0/(1.0+exp(-(z-z50)/sd));
-    scl <-1;
-    if (fsz>0){
-        scl<-(1.0+exp(-(fsz-z50)/sd));
-    } else if (fsz<0){
-        scl<-1/max(res);
-    }
-    res<-scl*res;
-    names(res)<-as.character(z);
-    if (debug) message(paste('finished plogis. res =',res));
-    return(res);
 }
 #-----------------------------------------------------------------------------------
 #'
@@ -121,20 +86,26 @@ plogis<-function(z,z50,sd,fsz=0){
 #'@description Function to calculate an ascending logistic function parameterized by z50 and slope.
 #'
 #'@param z     - vector of sizes at which to compute selectivities
-#'@param z50   - size at which selectivity  = 0.5 (logit-scale mean)
-#'@param slope - slope at z50
-#'@param fsz   - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param params - 2-element vector with selectivity function parameters
+#'@param refZ   - reference size
 #'@param debug - flag (T/F) to print debugging messages
 #'
 #' @return named vector with selectivity values at the elements of z
 #'
-#'@details None.
+#'@details The parameter values are
+#'\itemize{
+#' \item{params[1] - z50   - size at which selectivity = 0.5 (logit-scale mean)}
+#' \item{params[2] - slope - slope at z50}
+#'}
+#'
+#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+#'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
-asclogistic<-function(z,z50,slope,fsz=0,debug=FALSE){
-    #cat(z,'\n')
-    #cat('z50, lnD = ',z50,lnD,'\n')
+asclogistic<-function(z,params,fsz=0,debug=FALSE){
+    z50   = params[1];
+    slope = params[2];
     res <- 1.0/(1.0+exp(-slope*(z-z50)));
     scl <-1;
     if (fsz>0){
@@ -143,9 +114,7 @@ asclogistic<-function(z,z50,slope,fsz=0,debug=FALSE){
         scl<-1.0/max(res);
     }
     res<-scl*res;
-    #print(res);
     names(res)<-as.character(z);
-    #print(res)
     return(res)
 }
 #-----------------------------------------------------------------------------------
@@ -155,20 +124,27 @@ asclogistic<-function(z,z50,slope,fsz=0,debug=FALSE){
 #'@description Function to calculate an ascending logistic function parameterized by z50 and z95.
 #'
 #'@param z   - vector of sizes at which to compute selectivities
-#'@param z50 - size at which selectivity  = 0.5 (logit-scale mean)
-#'@param z95 - size at which selectivity  = 0.95
-#'@param fsz - if fsz>0, fsz=fully-selected size. if fsz<0, function is normalized to max. if fsz=0, no re-scaling is done
+#'@param params - 2-element vector with selectivity function parameters
+#'@param refZ - reference size
 #'@param debug - flag (T/F) to print debugging messages
 #'
 #' @return named vector with selectivity values at the elements of z
 #'
-#'@details None.
+#'@details The parameter values are
+#'\itemize{
+#' \item{params[1] - z50 - size at which selectivity = 0.50 (logit-scale mean)}
+#' \item{params[2] - z95 - size at which selectivity = 0.95}
+#'}
+#'
+#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+#'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
-asclogistic5095<-function(z,z50,z95,fsz=0){
-    slope<-log(19.0)/(z95-z50);
-    return(asclogistic(z,z50,slope,fsz=fsz));
+asclogistic5095<-function(z,params,refZ=0,debug=FALSE){
+  z50 = params[1];
+  slope = log(19.0)/(params[2]-params[1]);
+  return(asclogistic(z,c(z50,slope),refZ,debug));
 }
 #-----------------------------------------------------------------------------------
 #'
@@ -176,26 +152,32 @@ asclogistic5095<-function(z,z50,z95,fsz=0){
 #'
 #'@description Function to calculate an ascending logistic function parameterized by z50 and D95.
 #'
-#'@param z   - vector of sizes at which to compute selectivities
-#'@param z50 - size at which selectivity  = 0.5 (logit-scale mean)
-#'@param D95 - z95-z50
+#'@param z   - vector of sizes at which to compute selectivity values
+#'@param params - 2-element vector with selectivity function parameters
 #'@param refZ - reference size
 #'@param debug - flag (T/F) to print debugging messages
 #'
 #'@return named vector with selectivity values at the elements of z
 #'
-#'@details None.
+#'@details The parameter values are
+#'\itemize{
+#' \item{params[1] - z50   - size at which selectivity = 0.5 (logit-scale mean)}
+#' \item{params[2] - z95-z50 - difference between sizes at 95\% and 50\%-selected}
+#'}
+#'
+#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+#'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
-asclogistic50D95<-function(z,z50,D95,refZ=0,debug=FALSE){
-    slope<-log(19.0)/params[2];
+asclogistic50D95<-function(z,params,refZ=0,debug=FALSE){
+    slope = log(19.0)/params[2];
     return(asclogistic(z,c(params[1],slope),refZ,debug));
 }
 #-----------------------------------------------------------------------------------
 #'
-#'@title Calculate a double logistic selectivity curve
-#'@description Function to calculate a double logistic selectivity curve.
+#'@title Calculate a logistic selectivity curve
+#'@description Function to calculate a logistic selectivity curve.
 #'@param z - vector of sizes at which to compute selectivity curve
 #'@param params - 4-element vector of selectivity function parameters
 #'@param refZ - reference size
@@ -205,10 +187,10 @@ asclogistic50D95<-function(z,z50,D95,refZ=0,debug=FALSE){
 #'
 #'@details The parameter values are
 #'\itemize{
-#' \item{params[1] - ascZ50   - ascending logistic size at which selectivity  = 0.5 (logit-scale mean)}
-#' \item{params[2] - ascSlope - ascending logistic slope at z50}
-#' \item{params[3] - dscZ50   - descending logistic size at which selectivity  = 0.5 (logit-scale mean)}
-#' \item{params[4] - dscSlope - descending logistic slope at z50}
+#' \item{params[1] - ascZ50   - ascending limb size at which selectivity = 0.5 (logit-scale mean)}
+#' \item{params[2] - ascSlope - ascending limb slope at 50\%-selected}
+#' \item{params[3] - dscZ50   - descending limb size at which selectivity = 0.5 (logit-scale mean)}
+#' \item{params[4] - dscSlope - descending limb slope at 50\%-selected}
 #'}
 #'
 #'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
@@ -236,9 +218,9 @@ dbllogistic<-function(z,params,fsz=0,debug=FALSE){
 }
 #-----------------------------------------------------------------------------------
 #'
-#'@title Calculate a double logistic function parameterized by z50 and D95=z95-z50 for ascending/descending limbs
+#'@title Calculate a logistic function parameterized by z50 and D95=z95-z50 for ascending/descending limbs
 #'
-#'@description Function to calculate a double logistic function parameterized by z50, z95 on ascending/descending limbs.
+#'@description Function to calculate a logistic function parameterized by z50, z95 on ascending/descending limbs.
 #'
 #'@param z      - vector of sizes at which to compute selectivities
 #'@param params - 4-element parameter vector
@@ -298,9 +280,10 @@ ascnormal<-function(z,params,refZ=0,debug=FALSE){
   ascMnZ = params[2];#--size at which ascending limb hits 1
   ascN   = exp(-0.5*((z-ascMnZ)/ascWdZ)^2);
   ascJ   = 1.0/(1.0+exp(slp*(z-(ascMnZ))));
-  sel    = ascJ*ascN+(1.0-ascJ);
+  s    = ascJ*ascN+(1.0-ascJ);
+  names(s) = as.character(z);
   if (debug) message(paste("Finished ascnormal(...)"));
-  return(sel);
+  return(s);
 }
 #-----------------------------------------------------------------------------------
 #'
@@ -330,6 +313,7 @@ ascnormal2<-function(z, params, refZ=0,debug=FALSE){
   ascN = exp(log(ascSref)*((z-ascZ1)/(ascZref-ascZ1))^2);
   ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
   s = ascJ*ascN+(1.0-ascJ);
+  names(s) = as.character(z);
   if (debug) message("Finished ascnormal2(...)");
   return(s);
 }
@@ -366,3 +350,176 @@ ascnormal2a<-function(z, params, refS=0.5, debug=FALSE){
     names(s) = as.character(z);
     return(s);
 }
+
+#-----------------------------------------------------------------------------------
+#' @title Calculate an ascending normal selectivity curve
+#' @description Function to calculate an ascending normal selectivity curve.
+#' @details Function is parameterized by
+#' \itemize{
+#'      \item params[1]: size at which ascending limb reaches 1
+#'      \item params[2]: delta from size at 1 to size at which selectivity=refS
+#' }
+#' @param z      - dvector of sizes at which to compute function values
+#' @param params - dvar_vector of function parameters
+#' @param refS    - selectivity at params[1]-params[2]
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+ascnormal2b<-function(z,params,refS=0,debug=FALSE){
+    if (debug) message("Starting SelFcns::ascnormal2b(...)");
+    slp = 5.0;
+    ascZ1    = params[1];#--size at which ascending limb hits 1
+    ascSref  = refS;     #--selectivity at ascZref
+    ascZref  = params[1]-params[2];#--size at which selectivity reaches ascSref
+    ascN = exp(log(ascSref)*square((z-ascZ1)/(ascZref-ascZ1)));
+    ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
+    s = elem_prod(ascJ,ascN)+(1.0-ascJ);
+    names(s) = as.character(z);
+    if (debug) message("Finished SelFcns::ascnormal2b(...)");
+    return(s);
+}
+
+#-----------------------------------------------------------------------------------
+#' @title Calculates a 2-parameter ascending normal selectivity curve
+#' @description Function to calculate a 2-parameter ascending normal selectivity curve.
+#' @details Calculates 2-parameter normal function parameterized by
+#' \itemize{
+#'      \item params[1]: delta from max possible size (refZ[1]) at which ascending limb could reach 1
+#'      \item params[2]: selectivity at size=refZ[2]
+#' }:
+#' `refZ` is a 2-element vector with elements
+#' \itemize{
+#'   \item refZ[1] - max possible size at which the curve could reach 1
+#'   \item refZ[2] - reference size at which curve reaches the value of param[2]
+#' }
+#' @param z      - dvector of sizes at which to compute function values
+#' @param params - dvar_vector of function parameters
+#' @param refZ   - 2-element vector of reference sizes (see details)
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+ascnormal3<-function(z,params,refZ=0,debug=FALSE){
+    if (debug) message("Starting SelFcns::ascnormal3(...)");
+    slp = 5.0;
+    ascZ1   = refZ[1]-params[1];#--size at which ascending limb hits 1
+    ascSref = params[2];        #--selectivity at ascZref
+    ascZref = refZ[2];          #--size at which selectivity reaches ascSref
+    ascN = exp(log(ascSref)*square((z-ascZ1)/(ascZref-ascZ1)));
+    ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
+    # ggplot(tibble::tibble(z=z,ascN=ascN,ascJ=ascJ,mlt=elem_prod(ascJ,ascN)),aes(x=z)) +
+    #   geom_line(aes(y=ascN)) + geom_line(aes(y=ascJ)) + geom_point(aes(y=mlt))
+    s = elem_prod(ascJ,ascN)+(1.0-ascJ);
+    names(s) = as.character(z);
+    if (debug) message("Finished SelFcns::ascnormal3(...)");
+    return(s);
+}
+
+#-----------------------------------------------------------------------------------
+#' @title Calculates a 4-parameter normal selectivity curve
+#' @description Function to calculate a 4-parameter normal selectivity curve.
+#' @details Calculates 4-parameter normal function parameterized by
+#' \itemize{
+#'      \item params[1]: size at which ascending limb reaches 1
+#'      \item params[2]: width of ascending limb
+#'      \item params[3]: offset to size at which descending limb departs from 1
+#'      \item params[4]: width of descending limb
+#' }
+#' @param z      - dvector of sizes at which to compute function values
+#' @param params - dvar_vector of function parameters
+#' @param fsZ    - size at which function = 1 (i.e., fully-selected size) [double] NOTE: ignored!
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+dblnormal4<-function(z,params,refZ=0,debug=FALSE){
+    if (debug) message("Starting SelFcns::dblnormal4(...)");
+    slp = 5.0;
+    ascMnZ = params[1];#--size at which ascending limb hits 1
+    ascWdZ = params[2];#--width of ascending limb
+    dscMnZ = params[1]+params[3];#--size at which descending limb departs from 1
+    dscWdZ = params[4];#--width of descending limb
+    ascN = exp(-0.5*square((z-ascMnZ)/ascWdZ));
+    ascJ = 1.0/(1.0+exp(slp*(z-(ascMnZ))));
+    dscN = exp(-0.5*square((z-dscMnZ)/dscWdZ));
+    dscJ = 1.0/(1.0+exp(-slp*(z-(dscMnZ))));
+    s = elem_prod(elem_prod(ascJ,ascN)+(1.0-ascJ), elem_prod(dscJ,dscN)+(1.0-dscJ));
+    names(s) = as.character(z);
+    if (debug) message("Finished SelFcns::dblnormal4(...)");
+    return(s);
+}
+
+#-----------------------------------------------------------------------------------
+#' @title Calculates a 4-parameter normal selectivity curve
+#' @description Function to calculate a 4-parameter normal selectivity curve.
+#' @details Calculates 4-parameter normal function parameterized by
+#' \itemize{
+#'      \item params[1]: size at which ascending limb reaches 1
+#'      \item params[2]: width of ascending limb
+#'      \item params[3]: scaled increment to params[1] at which descending limb departs from 1
+#'      \item params[4]: width of descending limb
+#' }
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - vector of function parameters
+#' @param refZ   - max possible size (e.g., max(z))
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+dblnormal4a<-function(z,params,refZ,debug=FALSE){
+    if (debug) message("Starting SelFcns::dblnormal4a(...)");
+    slp = 5.0;
+    ascMnZ = params[1];#--size at which ascending limb hits 1
+    ascWdZ = params[2];#--width of ascending limb
+    sclInc = params[3];#--scaled size at which descending limb departs from 1
+    dscWdZ = params[4];#--width of descending limb
+    dscMnZ = (refZ-ascMnZ)*sclInc + ascMnZ;
+    ascN = exp(-0.5*square((z-ascMnZ)/ascWdZ));
+    ascJ = 1.0/(1.0+exp(slp*(z-(ascMnZ))));
+    dscN = exp(-0.5*square((z-dscMnZ)/dscWdZ));
+    dscJ = 1.0/(1.0+exp(-slp*(z-(dscMnZ))));
+    s = elem_prod(elem_prod(ascJ,ascN)+(1.0-ascJ), elem_prod(dscJ,dscN)+(1.0-dscJ));
+    names(s) = as.character(z);
+    if (debug) message("Finished SelFcns::dblnormal4a(...)");
+    return(s);
+}
+
+#-----------------------------------------------------------------------------------
+#' @title Calculates a 6-parameter normal selectivity curve
+#' @description Function to calculate a 6-parameter normal selectivity curve.
+#' @details Calculates 6-parameter normal function parameterized by
+#' \itemize{
+#'      \item params[1]: size at which ascending limb reaches 1
+#'      \item params[2]: width of ascending limb
+#'      \item params[3]: size at which descending limb departs from 1
+#'      \item params[4]: width of descending limb
+#'      \item params[5]: floor of ascending limb
+#'      \item params[6]: floor of descending limb
+#' }
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - vector of function parameters
+#' @param refZ    - ignored
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+dblnormal6<-function(z,params,refZ=0,debug=FALSE){
+    if (debug) message("Starting SelFcns::dblnormal6(...)");
+    slp = 5.0;
+    ascMnZ = params[1];#--size at which ascending limb hits 1
+    ascWdZ = params[2];#--width of ascending limb
+    dscMnZ = params[3];#--size at which descending limb departs from 1
+    dscWdZ = params[4];#--width of descending limb
+    ascFlr = params[5];#--floor of ascending limb
+    dscFlr = params[6];#--floor of descending limb
+    ascN = ascFlr+(1.0-ascFlr)*exp(-0.5*square((z-ascMnZ)/ascWdZ));
+    ascJ = 1.0/(1.0+exp(slp*(z-(ascMnZ))));
+    dscN = dscFlr+(1.0-dscFlr)*exp(-0.5*square((z-dscMnZ)/dscWdZ));
+    dscJ = 1.0/(1.0+exp(-slp*(z-(dscMnZ))));
+    s = elem_prod(elem_prod(ascJ,ascN)+(1.0-ascJ), elem_prod(dscJ,dscN)+(1.0-dscJ));
+    names(s) = as.character(z);
+    if (debug) message("Finished SelFcns::dblnormal6(...)");
+    return(s);
+}
+

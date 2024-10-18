@@ -2,7 +2,7 @@
 % Please edit documentation in R/SelectivityFunctions.R
 \name{dbllogistic5095}
 \alias{dbllogistic5095}
-\title{Calculate a double logistic function parameterized by z50 and D95=z95-z50 for ascending/descending limbs}
+\title{Calculate a logistic function parameterized by z50 and D95=z95-z50 for ascending/descending limbs}
 \usage{
 dbllogistic5095(z, params, refZ = 0, debug = FALSE)
 }
@@ -19,7 +19,7 @@ dbllogistic5095(z, params, refZ = 0, debug = FALSE)
 named vector with selectivity values at the elements of z
 }
 \description{
-Function to calculate a double logistic function parameterized by z50, z95 on ascending/descending limbs.
+Function to calculate a logistic function parameterized by z50, z95 on ascending/descending limbs.
 }
 \details{
 The parameters are

@@ -4,7 +4,7 @@
 \alias{calcSelectivity}
 \title{Calculate values for a selectivity curve}
 \usage{
-calcSelectivity(type, z, params)
+calcSelectivity(type, z, params, ref = 0, debug = FALSE)
 }
 \arguments{
 \item{type}{- the type of selectivity function to calculate}
@@ -22,12 +22,14 @@ Calculate values for a selectivity curve.
 \details{
 "type" may be one of
 \itemize{
+\item{"sel_const"}
 \item{"asclogistic"}
 \item{'asclogistic5095'}
 \item{'asclogistic50D95'}
-\item{'asclogistic50LnD95'}
-\item{'asclogisticLn50LnD95'}
 \item{'dbllogistic'}
 \item{'dbllogistic5095'}
+\item{"ascnormal"}
+\item{"ascnormal2"}
+\item{"ascnormal2a"}
 }
 }

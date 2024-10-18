@@ -41,7 +41,7 @@ compareSelFun<-function(fr,z,params,ref,title){
 
   #--test in simple objective function
   set.seed(111);
-  data = list(z=z,ref=ref,obs=selr+rnorm(length(selr),0,0.05));
+  data = list(z=z,obs=selr+rnorm(length(selr),0,0.05));
   objfn<-function(ps){
     getAll(data,ps);
     obs<-OBS(obs);

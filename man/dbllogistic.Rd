@@ -2,7 +2,7 @@
 % Please edit documentation in R/SelectivityFunctions.R
 \name{dbllogistic}
 \alias{dbllogistic}
-\title{Calculate a double logistic selectivity curve}
+\title{Calculate a logistic selectivity curve}
 \usage{
 dbllogistic(z, params, fsz = 0, debug = FALSE)
 }
@@ -19,15 +19,15 @@ dbllogistic(z, params, fsz = 0, debug = FALSE)
 named vector with selectivity values at the elements of z
 }
 \description{
-Function to calculate a double logistic selectivity curve.
+Function to calculate a logistic selectivity curve.
 }
 \details{
 The parameter values are
 \itemize{
-\item{params[1] - ascZ50   - ascending logistic size at which selectivity  = 0.5 (logit-scale mean)}
-\item{params[2] - ascSlope - ascending logistic slope at z50}
-\item{params[3] - dscZ50   - descending logistic size at which selectivity  = 0.5 (logit-scale mean)}
-\item{params[4] - dscSlope - descending logistic slope at z50}
+\item{params[1] - ascZ50   - ascending limb size at which selectivity = 0.5 (logit-scale mean)}
+\item{params[2] - ascSlope - ascending limb slope at 50\%-selected}
+\item{params[3] - dscZ50   - descending limb size at which selectivity = 0.5 (logit-scale mean)}
+\item{params[4] - dscSlope - descending limb slope at 50\%-selected}
 }
 
 If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
