@@ -1,4 +1,4 @@
-#--script to test functions meant for RTMB
+#--script to test selectivity functions meant for RTMB
 require(ggplot2);
 require(RTMB);
 dirPrj = rstudioapi::getActiveProject();
