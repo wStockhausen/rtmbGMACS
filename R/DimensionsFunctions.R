@@ -225,6 +225,46 @@ createDenseDimsMap<-function(map,debug=FALSE){
 }
 
 #'
+#' @title Expand a dimensions map by additional dimensions
+#' @description Function to expand a dimensions map by additional dimensions.
+#' @param m1 - dimensions map to expand
+#' @param m2 - dimensions map to expand by
+#' @return a dimensions map with expanded dimensions
+#' @details This function uses [dplyr::cross_join()] to cross join the two dimension maps to create
+#' a map with expanded dimensions. The two maps should not have any dimensions in common.
+#'
+#' This is *not* a S3 generic method, so you must use `expand.DimsMap(m1,m2)`.
+#'
+#' If both maps are "dense", the result is a "dense" map.
+#' If either is "sparse", the result is a "sparse" map.
+#' The other map attributes are appropriately expanded.
+#'
+#' IMPORTANT NOTE: the (sparse or dense) index of `m1` is replicated `n` times, where `n` is
+#' the number of rows in `m2`. It is the USER'S RESPONSIBILITY to re-number the index column as
+#' appropriate for further use.
+#'
+#' @export
+#'
+expand.DimsMap<-function(m1,m2){
+    m1_dmtyp<-attr(m1,"dmtyp"); #--dim type
+    m1_dmnms<-attr(m1,"dmnms"); #--dim names
+    m1_dmlvs<-attr(m1,"dmlvs"); #--dim levels
+    m1_dmlns<-attr(m1,"dmlns"); #--dim lengths
+
+    m2_dmtyp<-attr(m2,"dmtyp"); #--dim type
+    m2_dmnms<-attr(m2,"dmnms"); #--dim names
+    m2_dmlvs<-attr(m2,"dmlvs"); #--dim levels
+    m2_dmlns<-attr(m2,"dmlns"); #--dim lengths
+
+    dfr = dplyr::cross_join(m1,
+                            m2 |> dplyr::select(all_of(m2_dmnms)));
+    attr(dfr,"dmtyp") <-ifelse((m1_dmtyp=="dense")&&(m2_dmtyp=="dense"),"dense","sparse"); #--dim type
+    attr(dfr,"dmnms") <-c(m1_dmnms,m2_dmnms);#--dim names
+    attr(dfr,"dmlvs") <-c(m1_dmlvs,m2_dmlvs);#--dim levels
+    attr(dfr,"dmlns") <-c(m1_dmlns,m2_dmlns);#--dim lengths
+    return(dfr);
+}
+#'
 #' @title Create maps between sparse and dense dimension indices
 #'
 #' @description Function to create maps between sparse and dense dimension indices.

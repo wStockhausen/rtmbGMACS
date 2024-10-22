@@ -11,10 +11,10 @@ dZs = list( MALE=  list(IMMATURE=list(`NEW SHELL`=seq(25,180,5),
                                       `OLD SHELL`=seq(25,180,5)),
                           MATURE=list(`NEW SHELL`=seq(25,180,5),
                                       `OLD SHELL`=seq(25,180,5))),
-          FEMALE=list(IMMATURE=list(`NEW SHELL`=seq(25,180,5),
-                                    `OLD SHELL`=seq(25,180,5)),
-                        MATURE=list(`NEW SHELL`=seq(25,180,5),
-                                    `OLD SHELL`=seq(25,180,5))));
+          FEMALE=list(IMMATURE=list(`NEW SHELL`=seq(25,130,5),
+                                    `OLD SHELL`=seq(25,130,5)),
+                        MATURE=list(`NEW SHELL`=seq(25,130,5),
+                                    `OLD SHELL`=seq(25,130,5))));
 attr(dZs,"dmnms")<-c("x","m","s","z");
 
 #--fleets
