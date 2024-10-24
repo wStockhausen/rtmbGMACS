@@ -45,51 +45,63 @@ readParamsTable<-function(con,nl){
   return(list(nl=nl,tbl=tbl));
 }
 
-readCTL<-function(fn){
+readADMB_CtlFile<-function(fn){
   if (!file.exists(fn)) stop("File ",fn," does not exist!");
   con = file(fn,open="r");
   lst = list();
   ln=readLines(con,n=1); nl=1;
+  cat("in readCTL",nl,"\n\t",ln,"\n");
   while(ln!="END CTL FILE"){
     if (stringr::str_starts(ln,"[:blank:]*#")){
       #--skip line
+      cat("\tskipping this line\n")
     } else if (stringr::str_starts(ln,"[:blank:]*SEASONAL INTEGRATION")){
+        cat("***Reading Seasonal Integration section\n")
         res = readCTL_SeasonalIntegration(con,nl);
         nl = res$nl;
         lst[["SeasonalIntegration"]] = res$lst;
     } else if (stringr::str_starts(ln,"[:blank:]*INITIAL ABUNDANCE")){
+        cat("***Reading Initial Abundance section\n")
         res = readCTL_InitialAbundance(con,nl);
         nl = res$nl;
         lst[["InitAbd"]] = res$lst;
     } else if (stringr::str_starts(ln,"[:blank:]*ALLOMETRY")){
+        cat("***Reading Allometry section\n")
         res = readCTL_Allometry(con,nl);
         nl = res$nl;
         lst[["allom"]] = res$lst;
     } else if (stringr::str_starts(ln,"[:blank:]*RECRUITMENT")){
+        cat("***Reading Recruitment section\n")
         res = readCTL_Recruitment(con,nl);
         nl = res$nl;
         lst[["rec"]] = res$lst;
     } else if (stringr::str_starts(ln,"[:blank:]*NATURAL MORTALITY")){
+        cat("***Reading Natural Mortality section\n")
         res = readCTL_NaturalMortality(con,nl);
         nl = res$nl;
         lst[["nm"]] = res$lst;
     # } else if (stringr::str_starts(ln,"[:blank:]*GROWTH")){
+    #     cat("***Reading Growth section\n")
     #     res = readCTL_Growth(con,nl);
     #     nl = res$nl;
     #     lst[["grw"]] = res$lst;
     # } else if (stringr::str_starts(ln,"[:blank:]*MATURITY")){
+    #     cat("***Reading Maturity section\n")
     #     res = readCTL_Maturity(con,nl);
     #     nl = res$nl;
     #     lst[["mat"]] = res$lst;
     # } else if (stringr::str_starts(ln,"[:blank:]*SELECTIVITY")){
+    #     cat("***Reading Selectivity section\n")
     #     res = readCTL_Selectivity(con,nl);
     #     nl = res$nl;
     #     lst[["sel"]] = res$lst;
     # } else if (stringr::str_starts(ln,"[:blank:]*FISHING MORTALITY")){
+    #     cat("***Reading Fishing Mortality section\n")
     #     res = readCTL_FishingMortality(con,nl);
     #     nl = res$nl;
     #     lst[["fsh"]] = res$lst;
     # } else if (stringr::str_starts(ln,"[:blank:]*SURVEY INDICES")){
+    #     cat("***Reading Survey Indices section\n")
     #     res = readCTL_SurveyIndices(con,nl);
     #     nl = res$nl;
     #     lst[["srv"]] = res$lst;

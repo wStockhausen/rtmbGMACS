@@ -100,7 +100,8 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs
 #' @param debug - flag (T/F) to print debugging info
 #'
-#' @return a tibble (see [tibble::tibble()]) with attributes
+#' @return a `DimsMap` object, which is a tibble (see [tibble::tibble()]) with
+#' class "DimsMap" and attributes
 #' \itemize{
 #' \item{"dmnms" - vector of dimension names}
 #' \item{"dmlvs" - list with non-nested dimension levels, by dimension name}
@@ -169,6 +170,7 @@ createSparseDimsMap<-function(...,debug=FALSE){
     dfrp = dfr |> createDimsFactors() |>
                  dplyr::arrange(dplyr::pick((tidyselect::everything())));
     dfr = dfrp |> dplyr::mutate(sparse_idx=dplyr::row_number(),.before=1);
+    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %ni% class(dfr))]);#--add class attribute
     return(dfr);
 }
 
@@ -178,10 +180,11 @@ createSparseDimsMap<-function(...,debug=FALSE){
 #' @description Function to create an index map using all
 #' (non-nested, fully-crossed) dimension levels
 #'
-#' @param map - tibble created using [createSparseDimsMap()]
+#' @param map - a DimsMap object created using [createSparseDimsMap()]
 #' @param debug - flag (T/F) to print debugging info
 #'
-#' @return a tibble (see [tibble::tibble()]) with attributes
+#' @return a DimsMap object, which is atibble (see [tibble::tibble()]) with class "DimsMap"
+#' and attributes
 #' \itemize{
 #' \item{"dmnms" - vector of dimension names}
 #' \item{"dmlvs" - list with non-nested dimension levels, by dimension name}
@@ -221,6 +224,7 @@ createDenseDimsMap<-function(map,debug=FALSE){
     dfr = dfr |> createDimsFactors() |>
                  dplyr::arrange(dplyr::pick((tidyselect::everything())));
     dfr = dfr |> dplyr::mutate(dense_idx=dplyr::row_number(),.before=1)
+    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %ni% class(dfr))]);#--add class attribute
     return(dfr);
 }
 
@@ -229,7 +233,7 @@ createDenseDimsMap<-function(map,debug=FALSE){
 #' @description Function to expand a dimensions map by additional dimensions.
 #' @param m1 - dimensions map to expand
 #' @param m2 - dimensions map to expand by
-#' @return a dimensions map with expanded dimensions
+#' @return a dimensions map with expanded dimensions (a tibble with class "DimsMap")
 #' @details This function uses [dplyr::cross_join()] to cross join the two dimension maps to create
 #' a map with expanded dimensions. The two maps should not have any dimensions in common.
 #'
@@ -262,6 +266,7 @@ expand.DimsMap<-function(m1,m2){
     attr(dfr,"dmnms") <-c(m1_dmnms,m2_dmnms);#--dim names
     attr(dfr,"dmlvs") <-c(m1_dmlvs,m2_dmlvs);#--dim levels
     attr(dfr,"dmlns") <-c(m1_dmlns,m2_dmlns);#--dim lengths
+    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %ni% class(dfr))]);#--add class attribute
     return(dfr);
 }
 #'

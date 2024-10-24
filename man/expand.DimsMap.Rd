@@ -12,7 +12,7 @@
 \item{m2}{- dimensions map to expand by}
 }
 \value{
-a dimensions map with expanded dimensions
+a dimensions map with expanded dimensions (a tibble with class "DimsMap")
 }
 \description{
 Function to expand a dimensions map by additional dimensions.

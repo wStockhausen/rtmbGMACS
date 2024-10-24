@@ -407,7 +407,7 @@ year season value cv multiplier effort discard_mortality
  2022 2 0.1007113771376 0.2 1 0 0.8
 #------------------
 ##------------------------------------------------------------
-RELATIVE ABUNDANCE DATA
+INDEX DATA
 ##------------------------------------------------------------
 1 #--input format for relative abundance data (0:old format; 1: new format)
 3 #--number of dataframes

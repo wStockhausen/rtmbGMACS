@@ -12,7 +12,8 @@ createSparseDimsMap(..., debug = FALSE)
 \item{debug}{- flag (T/F) to print debugging info}
 }
 \value{
-a tibble (see [tibble::tibble()]) with attributes
+a `DimsMap` object, which is a tibble (see [tibble::tibble()]) with
+class "DimsMap" and attributes
 \itemize{
 \item{"dmnms" - vector of dimension names}
 \item{"dmlvs" - list with non-nested dimension levels, by dimension name}

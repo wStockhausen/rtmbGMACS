@@ -9,63 +9,56 @@
 #' \item{The initial section (prior to the Catch Data section) should be removed or commented out.}
 #' \item{The comment character "#" should be removed from the header line for input Catch Data, Relative Abundance Indices, Size Comps, Growth Data, and Environmental Indices dataframes}
 #' }
+#'
+#' The output list has an attribute "type" = "input data list" with elements
+#' \itemize{
+#'   \item{dfrCDF - list of catch data dataframes}
+#'   \item{dfrID  - list of index data dataframes}
+#'   \item{dfrZCD - list of size comps dataframes}
+#'   \item{dfrGrD - list of growth (molt increment) data dataframes}
+#'   \item{dfrMOD - list of maturity ogive data dataframes}
+#'   \item{dfrTD - list of tagging data dataframes}
+#'   \item{dfrED - list of environmental data dataframes}
+#' }
 #' @export
 #'
-readDataFile<-function(fn){
+readADMB_DataFile<-function(fn){
   if (file.exists(fn)){
     lns = readLines(fn);
-    lstCDFs = readCatchDataframes(lns);
-    lstRADs = readRelativeAbundanceData(lns);
-    lstZCs = readSizeComps(lns);
-    dfrGrw  = readGrowthData(lns);
+
+    dfrCD = readCatchData(lns);
+
+    dfrID = readIndexData(lns);
+
+    dfrZCD = readSizeComps(lns);
+
+    dfrGrD = readGrowthData(lns);#--TODO: should this return a list of dataframes?
+
     #--maturity ogives
-    lstEIs = readEnvironmentalData(lns);
+    #----TODO: add ability to read maturity ogives
+    warning("Reading maturity ogive data has not yet been implemented!");
+    dfrMOD = NULL;#--placeholder
+
+    #--tagging data
+    #----TODO: add ability to read tagging data
+    dfrTD = NULL;#--placeholder
+    warning("Reading tagging data has not yet been implemented!");
+
+    dfrED = readEnvironmentalData(lns);
   } else {
     stop(paste0("File '",fn,"' does not exist!"));
   }
-  return(list(lstCDFs=lstCDFs,lstRADs=lstRADs,dfrGrw=dfrGrw,lstEIs=lstEIs));
-}
-
-findKeyword<-function(lns,kw){
-  nlns = length(lns);
-  iln = 1;
-  while((iln<nlns)&&
-        stringr::str_starts(toupper(stringr::str_trim(lns[iln])),toupper(kw),negate=TRUE)){
-    iln=iln+1;
-  }
-  if (iln==nlns) return(NULL);#--didn't find keyword in lns
-  return(iln);
-}
-
-parseVal<-function(str,type=NULL){
-  #--split by whitespace and drop anything after comment character
-  strp1 = scan(text=str,what=character(),comment.char="#",quiet=TRUE,strip.white=TRUE);
-  #--parse remaining string
-  val = readr::parse_guess(strp1);
-  return(val);
-}
-
-#'
-#' @title Find next uncommented line
-#' @description Function to find next uncommented line in a vector of character strings.
-#' @param lns - character vector to search
-#' @param iln - index at which to start search
-#' @return index into `lns` at which the next uncommented line occurs
-#' @export
-#'
-findNextLine<-function(lns,iln){
-  nlns = length(lns);
-  while((iln<nlns)&&
-        (stringr::str_length(stringr::str_trim(lns[iln]))==0||
-        stringr::str_starts(toupper(stringr::str_trim(lns[iln])),"#"))){
-    iln=iln+1;
-  }
-  if (iln==nlns) return(NULL);#--didn't find an uncommented line
-  return(iln);
+  lst = list(dfrCD=dfrCD,dfrID=dfrID,dfrZCD=dfrZCD,
+             dfrGrD=dfrGrD,
+             dfrMOD=dfrMOD,dfrTD=dfrTD,
+             dfrED=dfrED);
+  attr(lst,"type") = "input data list";
+  return(lst);
 }
 
 #'
 #' @title Read a catch data frame in GMACS input format 1
+#' @importFrom dplyr mutate
 #'
 readCatchDataFrameFormat1<-function(lnsp){
   nlnsp = length(lnsp);
@@ -85,7 +78,7 @@ readCatchDataFrameFormat1<-function(lnsp){
   ilnp = findNextLine(lnsp,ilnp+1);
   nr = parseVal(lnsp[ilnp]);
   ilnp = findNextLine(lnsp,ilnp+1);
-  dfr = readDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
+  dfr = parseTextToDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
           dplyr::mutate(f=fleet,x=x,m=m,s=s,
                         catch_type=tolower(catch_type),
                         units_type=tolower(units_type));
@@ -93,8 +86,10 @@ readCatchDataFrameFormat1<-function(lnsp){
 }
 
 #'
-#' @title Read Catch Data section of input data file
-readCatchDataframes<-function(lns){
+#' @title Read the Catch Data section of an input data file
+#' @return a tibble (see [tibble::tibble]) with attribute "type" = "catch data dataframe"
+#' @importFrom dplyr bind_rows
+readCatchData<-function(lns){
   nlns = length(lns);
   iln = findKeyword(lns,"Catch Data");
   if (is.null(iln)) return(NULL);
@@ -113,15 +108,18 @@ readCatchDataframes<-function(lns){
       iln = res$iln+1+iln;
     }
   } else {
-
+    #TODO: read other formats?
   }
-  return(lst);
+  dfr = dplyr::bind_rows(lst);
+  attr(dfr,"type") = "catch data dataframe";
+  return(dfr);
 }
 
 #'
-#' @title Read a catch data frame in GMACS input format 1
+#' @title Read an index data frame in GMACS input format 1
+#' @importFrom dplyr mutate
 #'
-readRelativeAbundanceDataFrameFormat1<-function(lnsp){
+readIndexDataFrameFormat1<-function(lnsp){
   nlnsp = length(lnsp);
   ilnp = 1;
   ilnp = findNextLine(lnsp,ilnp+1);
@@ -139,7 +137,7 @@ readRelativeAbundanceDataFrameFormat1<-function(lnsp){
   ilnp = findNextLine(lnsp,ilnp+1);
   nr = parseVal(lnsp[ilnp]);
   ilnp = findNextLine(lnsp,ilnp+1);
-  dfr = readDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
+  dfr = parseTextToDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
           dplyr::mutate(f=fleet,x=x,m=m,s=s,
                         catch_type=tolower(catch_type),
                         units_type=tolower(units_type));
@@ -147,11 +145,13 @@ readRelativeAbundanceDataFrameFormat1<-function(lnsp){
 }
 
 #'
-#' @title Read Relative Abundance Data section of input data file
+#' @title Read the Index Data section of an input data file
+#' @return a tibble (see [tibble::tibble]) with attribute "type" = "relative abundance data dataframe"
+#' @importFrom dplyr bind_rows
 #'
-readRelativeAbundanceData<-function(lns){
+readIndexData<-function(lns){
   nlns = length(lns);
-  iln = findKeyword(lns,"Relative Abundance Data");
+  iln = findKeyword(lns,"Index Data");
   if (is.null(iln)) return(NULL);
   #--read input format
   iln = findNextLine(lns,iln+1);
@@ -163,18 +163,21 @@ readRelativeAbundanceData<-function(lns){
   iln = iln+1;
   if (input_format==1){
     for (iRAD in 1:nRADs) {
-      res = readRelativeAbundanceDataFrameFormat1(lns[iln:nlns]);
+      res = readIndexDataFrameFormat1(lns[iln:nlns]);
       lst[[iRAD]] = res$dfr;
       iln = res$iln+1+iln;
     }
   } else {
-
+    #TODO: read other formats?
   }
-  return(lst);
+  dfr = dplyr::bind_rows(lst);
+  attr(dfr,"type") = "relative abundance dataframes";
+  return(dfr);
 }
 
 #'
-#' @title Read a catch data frame in GMACS input format 1
+#' @title Read a size comps frame in GMACS input format 1
+#' @importFrom dplyr mutate
 #'
 readSizeCompsDataFrameFormat1<-function(lnsp){
   nlnsp = length(lnsp);
@@ -194,14 +197,16 @@ readSizeCompsDataFrameFormat1<-function(lnsp){
   ilnp = findNextLine(lnsp,ilnp+1);
   nc = parseVal(lnsp[ilnp]);
   ilnp = findNextLine(lnsp,ilnp+1);
-  dfr = readDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
+  dfr = parseTextToDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
           dplyr::mutate(f=fleet,x=x,m=m,s=s,
                         catch_type=tolower(catch_type));
   return(list(dfr=dfr,iln=ilnp+nr-1));
 }
 
 #'
-#' @title Read Size Comps section of input data file
+#' @title Read the Size Comps section of an input data file
+#' @return a tibble (see [tibble::tibble]) with attribute "type" = "size comps dataframe"
+#' @importFrom dplyr bind_rows
 #'
 readSizeComps<-function(lns){
   nlns = length(lns);
@@ -222,13 +227,17 @@ readSizeComps<-function(lns){
       iln = res$iln+1+iln;
     }
   } else {
-
+    #--TODO: read other formats?
   }
-  return(lst);
+  dfr = dplyr::bind_rows(lst);
+  attr(dfr,"type") = "size comps dataframe";
+  return(dfr);
 }
 
 #'
-#' @title Read Growth Data section of input data file
+#' @title Read the Growth Data section of an input data file
+#' @return a tibble (see [tibble::tibble]) with attribute "type" = "growth data dataframe"
+#' @import dplyr
 #'
 readGrowthData<-function(lns){
   nlns = length(lns);
@@ -244,19 +253,22 @@ readGrowthData<-function(lns){
   lst = list();
   xs = c("male","female");
   if (input_format==1){
-  dfr = readDataframe(lns,iln,nObs,col_names=TRUE) |>
+  dfr = parseTextToDataframe(lns,iln,nObs,col_names=TRUE) |>
           dplyr::rowwise() |>
           dplyr::mutate(x=xs[sex]) |>
           dplyr::ungroup() |>
           dplyr::select(x,premolt_size,molt_inc,cv=CV);
   } else {
-
+    #TODO: read other formats?
   }
+  attr(dfr,"type") = "growth data dataframe";
   return(dfr);
 }
 
 #'
-#' @title Read Growth Data section of input data file
+#' @title Read the Environmental Data section of an input data file
+#' @return a tibble (see [tibble::tibble]) with attribute "type" = "environmental data dataframes"
+#' @import dplyr
 #'
 readEnvironmentalData<-function(lns){
   nlns = length(lns);
@@ -270,12 +282,12 @@ readEnvironmentalData<-function(lns){
   if (nEIs==0) return(NULL);
   iln = findNextLine(lns,iln+1);
   if (input_format==1){
-    dfr1 = readDataframe(lns,iln,nEIs);
+    dfr1 = parseTextToDataframe(lns,iln,nEIs);
     iln = iln+nEIs;
     iln = findNextLine(lns,iln+1);
     #--determine number of rows in environmental indices dataframe
     nr = 0; for (rw in 1:nrow(dfr1)) nr = nr + (dfr1$`stop-year`-dfr1$`start-year`+1);
-    dfr2 = readDataframe(lns,iln,nr);
+    dfr2 = parseTextToDataframe(lns,iln,nr);
     #--convert merged dataframe into list of individual dataframes, by env. index
     #--NOTE: possibly a dplyr function to do this in one step
     strEIs = dfr2 |> dplyr::distinct(`index/name`) |> dplyr::pull(`index/name`);
@@ -284,22 +296,11 @@ readEnvironmentalData<-function(lns){
       lst[[strEI]] = dfr2 |> dplyr::filter(`index/name`==strEI);
     }
   } else {
-
+    #TODO: read other formats?
   }
-  return(lst);
-}
-
-#'
-#' @title Read dataframe
-#'
-readDataframe<-function(lns,iln,nlns,col_names=TRUE){
-  if (col_names) nlns = nlns+1;
-  lnsp = stringr::str_split_i(stringr::str_trim(lns[iln:(iln+nlns-1)]),"#",1);#--remove trailing comments
-  lnsp = stringr::str_replace_all(lnsp,"\\s+"," ");                           #--replace all white space with single space
-  dfr = readr::read_delim(I(stringr::str_trim(lnsp)),
-                        delim=" ",
-                        comment="#",
-                        col_names=col_names);
+  dfr = dplyr::bind_rows(lst);
+  attr(dfr,"type") = "environmental data dataframe";
   return(dfr);
 }
+
 

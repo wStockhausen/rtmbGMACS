@@ -7,12 +7,13 @@
 createDenseDimsMap(map, debug = FALSE)
 }
 \arguments{
-\item{map}{- tibble created using [createSparseDimsMap()]}
+\item{map}{- a DimsMap object created using [createSparseDimsMap()]}
 
 \item{debug}{- flag (T/F) to print debugging info}
 }
 \value{
-a tibble (see [tibble::tibble()]) with attributes
+a DimsMap object, which is atibble (see [tibble::tibble()]) with class "DimsMap"
+and attributes
 \itemize{
 \item{"dmnms" - vector of dimension names}
 \item{"dmlvs" - list with non-nested dimension levels, by dimension name}
