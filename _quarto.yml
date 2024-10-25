@@ -6,6 +6,7 @@ project:
     - website/02_PopDyMod.qmd
     - website/03_ModelDimensions.qmd
     - website/04_FunctionsAndParametersSpecification.qmd
+    - website/05_InputFiles.qmd
 
 execute:
   freeze: auto
@@ -19,7 +20,7 @@ website:
 
   page-footer:
     right: "This page is built with [Quarto](https://quarto.org/)."
-    left: "&copy; 2024-05-26"
+    left: "&copy; 2024-10-25"
 
   sidebar:
     # logo: "images/openscapes_hex.png"
@@ -48,6 +49,8 @@ website:
         text: Model Dimensions
       - href: website/04_FunctionsAndParametersSpecification.qmd
         text: Functions and Parameters Specification
+      - href: website/05_InputFiles.qmd
+        text: Input files
       # - explore.qmd
       # - section: quarto-workflows/index.qmd
       #   contents:
