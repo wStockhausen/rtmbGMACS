@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://wstockhausen.github.io/rtmbGMACS/website/04_FunctionsAndParametersSpecification.html</loc>
-    <lastmod>2024-05-27T15:40:24.062Z</lastmod>
-  </url>
-  <url>
-    <loc>https://wstockhausen.github.io/rtmbGMACS/website/02_PopDyMod.html</loc>
-    <lastmod>2024-05-27T15:40:24.062Z</lastmod>
+    <loc>https://wstockhausen.github.io/rtmbGMACS/website/03_ModelDimensions.html</loc>
+    <lastmod>2024-10-25T19:09:13.507Z</lastmod>
   </url>
   <url>
     <loc>https://wstockhausen.github.io/rtmbGMACS/website/01_Intro.html</loc>
-    <lastmod>2024-05-27T15:40:24.062Z</lastmod>
+    <lastmod>2024-10-25T19:09:13.507Z</lastmod>
   </url>
   <url>
-    <loc>https://wstockhausen.github.io/rtmbGMACS/website/03_ModelDimensions.html</loc>
-    <lastmod>2024-05-27T15:40:24.062Z</lastmod>
+    <loc>https://wstockhausen.github.io/rtmbGMACS/website/04_FunctionsAndParametersSpecification.html</loc>
+    <lastmod>2024-10-25T19:09:13.507Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wstockhausen.github.io/rtmbGMACS/website/05_ADMB-InputFiles.html</loc>
+    <lastmod>2024-10-25T19:09:13.507Z</lastmod>
+  </url>
+  <url>
+    <loc>https://wstockhausen.github.io/rtmbGMACS/website/02_PopDyMod.html</loc>
+    <lastmod>2024-10-25T19:09:13.507Z</lastmod>
   </url>
 </urlset>

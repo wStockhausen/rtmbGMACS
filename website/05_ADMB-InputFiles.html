@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="William T. Stockhausen">
 
-<title>Introduction – rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</title>
+<title>Using ADMB Input Files – rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,7 +31,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../website/02_PopDyMod.html" rel="next">
+<link href="../website/04_FunctionsAndParametersSpecification.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -82,7 +83,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../website/01_Intro.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../website/05_ADMB-InputFiles.html">Using ADMB Input files</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -112,7 +113,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../website/01_Intro.html" class="sidebar-item-text sidebar-link active">
+  <a href="../website/01_Intro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction</span></a>
   </div>
 </li>
@@ -136,7 +137,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../website/05_ADMB-InputFiles.html" class="sidebar-item-text sidebar-link">
+  <a href="../website/05_ADMB-InputFiles.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Using ADMB Input files</span></a>
   </div>
 </li>
@@ -150,23 +151,42 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#software-architecture" id="toc-software-architecture" class="nav-link active" data-scroll-target="#software-architecture">Software architecture</a></li>
+  <li><a href="#admb-input-files" id="toc-admb-input-files" class="nav-link active" data-scroll-target="#admb-input-files">ADMB input files</a>
+  <ul class="collapse">
+  <li><a href="#the-gmacs.dat-file" id="toc-the-gmacs.dat-file" class="nav-link" data-scroll-target="#the-gmacs.dat-file">The “gmacs.dat” file</a></li>
+  <li><a href="#the-dat-file" id="toc-the-dat-file" class="nav-link" data-scroll-target="#the-dat-file">The “dat” file</a></li>
+  <li><a href="#the-ctl-file" id="toc-the-ctl-file" class="nav-link" data-scroll-target="#the-ctl-file">The “ctl” file</a></li>
+  <li><a href="#the-prj-file" id="toc-the-prj-file" class="nav-link" data-scroll-target="#the-prj-file">The “prj” file</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/website/01_Intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/website/05_ADMB-InputFiles.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Introduction</h1>
+<h1 class="title">Using ADMB Input Files</h1>
 </div>
 
 
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">William T. Stockhausen </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Alaska Fisheries Science Center
+          </p>
+      </div>
+  </div>
 
 <div class="quarto-title-meta">
 
-    
+      
   
     
   </div>
@@ -176,13 +196,85 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>The purpose of rtmbGMACS is to provide a population modeling framework for commercially-fished crustacean stocks. Stock assessment models developed using rtmbGMACS can be fit to fishery, survey, and biological data to estimate various population processes (e.g., recruitment, growth, and mortality) and population size in order to determine sustainable fishing limits and targets.</p>
-<p>Here, the modeling framework is referred to as “gmacs” while the R package is referred to “rtmbGMACS”. The <em>R</em> package provides functions to set up data inputs to a gmacs model, with associated likelihood functions, select functional forms for various population processes, define estimable parameters and associated priors or penalties, run the model, create plots and tables from a fitted model, and compare multiple models.</p>
-<section id="software-architecture" class="level2">
-<h2 class="anchored" data-anchor-id="software-architecture">Software architecture</h2>
-<p>The rtmbGMACS <em>R</em> package allows the user to construct rather general size-structured population dynamics models, as well as “observation” models for predicting data values and associated likelihood functions to characterize model fit, define various characteristics (e.g., value, hyper parameters and prior probability function) of the resulting set of model parameters, calculate the population state and predict observations through time based on the parameter values, and calculate individual and total likelihood components.</p>
+<!--NOTE: for scalar variables,    use: *var*   (italics)  
+          for vectors/matrices,etc use: ***V*** (bold-italics) 
+          for functions            use: **fcn** (bold) 
+          for verbatim code        use: `code` 
+-->
+<section id="admb-input-files" class="level2">
+<h2 class="anchored" data-anchor-id="admb-input-files">ADMB input files</h2>
+<p>The ADMB version of gmacs required four files to define and run a model: the “gmacs.dat” file, a data file (the “dat” file), a control file (the “ctl” file), and a projection file (the “prj” file). As discussed below, these files can be read using functions available in the rtmbGMACS package, simplifying conversion of models from ADMB to RTMB.</p>
+<section id="the-gmacs.dat-file" class="level3">
+<h3 class="anchored" data-anchor-id="the-gmacs.dat-file">The “gmacs.dat” file</h3>
+<p>A ADMB “gmacs.dat” can be read using the <code>readADMB_DatFile</code> function. This file specifies the filenames of the dat, ctl, and prj files for a model run, as well as other information such as stock name, units of weight and abundance, and various options for running the ADMB model. The <code>readADMB_DatFile</code> function returns the information from this file as a named list, with elements</p>
+<ul>
+<li><code>input files</code>: a character vector with the path/filenames for the “dat”, “ctl”, and “prj” files</li>
+<li><code>units</code>: a named character vector specifying units for biomass (<code>wgt</code>) and abundance (<code>num</code>)</li>
+<li><code>stock</code>: the name of the crab stock</li>
+<li><code>jitter info</code>: a numeric vector with elements
+<ul>
+<li>(1): a flag indicating whether (1) or not (0) to jitter the initial parameter values</li>
+<li>(2): the standard deviation for the jitter randomization</li>
+</ul></li>
+<li><code>variances to export</code>: a numeric vector with values indicating whether (1) or not (0) to include uncertainty estimates for
+<ul>
+<li>reference points</li>
+<li>recruits</li>
+<li>SSB</li>
+<li>Fbar: mean F</li>
+<li>OutDynB0: dynamic B0 output</li>
+</ul></li>
+<li><code>retro peel</code>: the number of years to “peel back” the model end year for a retrospective model run</li>
+<li><code>other</code>: a named list with elements specifying other options for the model run</li>
+</ul>
+<p>The returned list has a “type” attribute set to “admb dat file inputs”.</p>
+</section>
+<section id="the-dat-file" class="level3">
+<h3 class="anchored" data-anchor-id="the-dat-file">The “dat” file</h3>
+<p>The ADMB “dat” file includes all the data to be included in an ADMB gmacs model run. The ADMB version of gmacs is capable of including the following data types in the model optimization:</p>
+<ul>
+<li>fishery catch and effort time series data</li>
+<li>index (survey or fishery cpue) biomass and abundance time series data</li>
+<li>size composition data</li>
+<li>growth (molt increment) data</li>
+<li>maturity ogive data</li>
+<li>tagging data (for growth)</li>
+<li>environmental data time series</li>
+</ul>
+<p>Data files created for the ADMB version of gmacs can be read using the package function <code>readADMB_DataFile</code>. The result is a named list of dataframes (tibbles, actually) representing the input data. Elements include</p>
+<ul>
+<li>dfrCD: dataframe with all fishery catch time series data</li>
+<li>dfrID: dataframe with all index time series data</li>
+<li>dfrZCD: dataframe with all size comps data</li>
+<li>dfrGrD: dataframe with all growth data</li>
+<li>dfrMOD: dataframe with all maturity ogive data</li>
+<li>dfrTD: dataframe with all tagging data</li>
+<li>dfrED: dataframe with all environmental data time series</li>
+<li>effort data?? &lt;-TODO</li>
+</ul>
+<p>The returned list has a “type” attribute set to “admb input data list”.</p>
+</section>
+<section id="the-ctl-file" class="level3">
+<h3 class="anchored" data-anchor-id="the-ctl-file">The “ctl” file</h3>
+<p>The ADMB “ctl” file describes the model parameterization, allowing the user to choose functions to describe model processes, specify which parameters are estimated or fixed, assign time blocks and priors, and define random walk behavior or environmental covariate structure. A function to convert the ADMB gmacs parameterization to an equivalent rtmbGMACS parameterization will be developed in the future.</p>
+</section>
+<section id="the-prj-file" class="level3">
+<h3 class="anchored" data-anchor-id="the-prj-file">The “prj” file</h3>
+<p>The ADMB “prj” file describes how projections (if any) should be conducted after a model has been optimized. the <code>readADMB_PrjFile</code> function can be used to read “prj” files and returns a named list with elements</p>
+<ul>
+<li>optMSY: integer flag indicating whether to use MSY or an MSY proxy</li>
+<li>dfrOptsFixedF: dataframe indicating which fleets have F’s fixed for the OFL calculations</li>
+<li>dfrOptsTBs: dataframe with time blocks for the OFL calculations</li>
+<li>dfrOptsOFL: dataframe with the OFL calculation options</li>
+<li>dfrOptsPrj: dataframe with the projection options</li>
+<li>dfrOptsHSs: dataframe with the state harvest strategy options</li>
+<li>optMaxMCMC: max number of MCMC draws</li>
+<li>optFullDiagnostics: flag to print full diagnostics</li>
+</ul>
+<p>The returned list has a “type” attribute set to “admb prj file inputs”.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -752,11 +844,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../website/04_FunctionsAndParametersSpecification.html" class="pagination-link" aria-label="Functions and Parameters Specification">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Functions and Parameters Specification</span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../website/02_PopDyMod.html" class="pagination-link" aria-label="Population Dynamics">
-        <span class="nav-page-text">Population Dynamics</span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
@@ -767,7 +859,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/website/01_Intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/website/05_ADMB-InputFiles.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
 </div>

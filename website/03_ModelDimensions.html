@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.554">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="William Stockhausen">
 
-<title>rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB - Model Dimensions</title>
+<title>Model Dimensions – rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -34,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -108,6 +108,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -117,13 +146,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../website/03_ModelDimensions.html">Model Dimensions</a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -135,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB</a> 
+      <a href="../">rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
@@ -172,6 +201,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Functions and Parameters Specification</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../website/05_ADMB-InputFiles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Using ADMB Input files</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -184,10 +219,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#model-dimensions" id="toc-model-dimensions" class="nav-link active" data-scroll-target="#model-dimensions">Model dimensions</a>
   <ul class="collapse">
+  <li><a href="#intrinsic-model-dimensions" id="toc-intrinsic-model-dimensions" class="nav-link" data-scroll-target="#intrinsic-model-dimensions">Intrinsic model dimensions</a></li>
+  <li><a href="#user-dimensions" id="toc-user-dimensions" class="nav-link" data-scroll-target="#user-dimensions">User dimensions</a>
+  <ul class="collapse">
   <li><a href="#sparse-dimension-maps" id="toc-sparse-dimension-maps" class="nav-link" data-scroll-target="#sparse-dimension-maps">Sparse dimension maps</a></li>
   <li><a href="#dense-dimension-maps" id="toc-dense-dimension-maps" class="nav-link" data-scroll-target="#dense-dimension-maps">Dense dimension maps</a></li>
-  </ul></li>
   <li><a href="#aggregating-over-model-dimensions" id="toc-aggregating-over-model-dimensions" class="nav-link" data-scroll-target="#aggregating-over-model-dimensions">Aggregating over model dimensions</a></li>
+  </ul></li>
+  <li><a href="#canonical-dimensions-format" id="toc-canonical-dimensions-format" class="nav-link" data-scroll-target="#canonical-dimensions-format">Canonical dimensions format</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/wStockhausen/rtmbGMACS/edit/main/website/03_ModelDimensions.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/wStockhausen/rtmbGMACS/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -224,12 +264,90 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           for functions            use: **fcn** (bold) 
           for verbatim code        use: `code` 
 -->
-<section id="model-dimensions" class="level2">
-<h2 class="anchored" data-anchor-id="model-dimensions">Model dimensions</h2>
-<p>Model dimensions consist of year (<em>y</em>), season (<em>s</em>), and a set of categories ({<em>c</em>}) into which the population is divided (e.g., sex and size). For a given year, population abundance is integrated across seasons within the year and different processes can occur in different seasons. Levels within a given population category can be nested within another category (e.g., different size classes might be defined for males and females if they exhibited substantially different growth patterns). Two types of model dimensions are distinguished: <em>sparse</em> and <em>dense</em>. A set of dimensions is characterized as <em>sparse</em> when different levels of one dimension are nested within the levels of another dimension such that the resulting set of levels has fewer members in it than the set of dimensions resulting from a complete crossing of all unique dimension levels. The latter set of (fully-crossed) dimensions is characterized as <em>dense</em>.</p>
-<p>On the R side of things, a special dataframe (actually, a tibble) referred to as a “dimension map” is used to characterize any set of dimensions, either sparse or dense.The first column in the model dimensions map is simply the row number associated with the unique combination of dimension levels the row reflects. It also provides the index into the population abundance vector for that combination of dimensions (and thus allows the extraction of the associated dimension levels given the index value). The remaining columns correspond to individual dimensions; for each column, the value for each row is the level (as a factor) of the associated dimension. Rows are ordered by the combination of factor levels across the dimensions, with levels changing the fastest in the right-most column.</p>
-<p>A dimensions map also has three non-standard attributes: <code>dmnms</code>, <code>dmlvs</code>, and <code>dmlns</code>:</p>
+<section id="model-dimensions" class="level1">
+<h1>Model dimensions</h1>
+<section id="intrinsic-model-dimensions" class="level2">
+<h2 class="anchored" data-anchor-id="intrinsic-model-dimensions">Intrinsic model dimensions</h2>
+<p>The RTMB version of the GMACS framework makes a distinction between <em>intrinsic</em> model dimensions and <em>user</em> dimensions. Intrinsic model dimensions constitute the set of dimensions with which every GMACS model is defined internally. The following table lists the <em>intrinsic</em> dimensions in the GMACS framework:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>  tbl <span class="ot">=</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(<span class="sc">~</span>id,<span class="sc">~</span>description,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"y"</span>,<span class="st">"year"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"s"</span>,<span class="st">"season"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"r"</span>,<span class="st">"region (spatial area)"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"x"</span>,<span class="st">"sex"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"m"</span>,<span class="st">"maturity state"</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"a"</span>,<span class="st">"age (post-recruitment)"</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"p"</span>,<span class="st">"post-molt age"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"z"</span>,<span class="st">"size"</span>);</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  tbl <span class="sc">|&gt;</span> kableExtra<span class="sc">::</span><span class="fu">kbl</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options=</span><span class="st">"striped"</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">latex_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>,<span class="st">"scaled down"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-MD-IntrinsicDims" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-MD-IntrinsicDims-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Intrinsic dimensions defined in the GMACS framework.
+</figcaption>
+<div aria-describedby="tbl-MD-IntrinsicDims-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table table-striped do-not-create-environment cell caption-top table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">id</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">y</td>
+<td style="text-align: left;">year</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">s</td>
+<td style="text-align: left;">season</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">r</td>
+<td style="text-align: left;">region (spatial area)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">x</td>
+<td style="text-align: left;">sex</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">m</td>
+<td style="text-align: left;">maturity state</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">age (post-recruitment)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">p</td>
+<td style="text-align: left;">post-molt age</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">z</td>
+<td style="text-align: left;">size</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Users of the original (i.e., ADMB) version of GMACS will note that “shell condition” is absent as a dimension: post-molt age can provide a somewhat more finely-grained characterization of shell age than simply “new shell”/“old shell”. Including age and post-molt age as dimensions also allows an explicit characterization of age-based processes (e.g., maximum age limits). Maximum age or post-molt age bins can be defined as terminal or accumulator bins.</p>
+</section>
+<section id="user-dimensions" class="level2">
+<h2 class="anchored" data-anchor-id="user-dimensions">User dimensions</h2>
+<p>User dimensions consist of subsets of the intrinsic dimensions and are used as a shorthand to define dimensions for a particular model, parameter set, or dataset. Within the GMACS code, user dimensions <span class="math inline">\(\mathbb{U}\)</span> are expanded to the intrinsic dimensions <span class="math inline">\(\mathbb{I}\)</span> in a fashion similar to a right join <span class="math inline">\(\mathbb{U} \ltimes \mathbb{I}\)</span>. When defining a model’s dimensions, the user’s given dimensions are expanded to the set of intrinsic dimensions, with non-specified dimensions having a size of 1 and a default value or label.</p>
+<p>For a given year, population abundance is integrated across seasons within the year and different processes (e.g., natural mortality, growth, fishing, surveys) can occur in different seasons. Model dimensions setup consists of specifying the years of interest (<span class="math inline">\(y\)</span>), the within-years seasons (<span class="math inline">\(s\)</span>) over which the model will be integrated, and a set of categories (<span class="math inline">\(\{c\}\)</span>) into which the population is divided (e.g., region, sex, and size). When specifying model dimensions, levels within a given population category can be nested within another category (e.g., different size classes might be defined for males and females if, for example, they exhibited substantially different growth patterns). In addition to intrinsic and user model dimensions, two other types of model dimensions are distinguished: <em>sparse</em> and <em>dense</em>. A set of dimensions is characterized as <em>sparse</em> when different levels of one dimension are nested within the levels of another dimension such that the resulting set of levels has fewer members in it than the set of dimensions resulting from a complete crossing of all unique dimension levels. The latter set of (fully-crossed) dimensions is characterized as <em>dense</em>.</p>
+<p>On the R side of things, a special dataframe (actually, a tibble) referred to as a “dimension map” is used to characterize any set of dimensions, either intrinsic or user, sparse or dense.The first column in the model dimensions map is simply the row number associated with the unique combination of dimension levels the row reflects. It also provides the index into the population abundance vector for that combination of dimensions (and thus allows the extraction of the associated dimension levels given the index value). The remaining columns correspond to individual dimensions; for each column, the value for each row is the level (as a factor) of the associated dimension. Rows are ordered by the combination of factor levels across the dimensions, with levels changing the fastest in the right-most column.</p>
+<p>A dimensions map also has four non-standard attributes: <code>dmtyp</code>, <code>dmnms</code>, <code>dmlvs</code>, and <code>dmlns</code>:</p>
 <ul>
+<li><code>dmtyp</code> identifies the type of dimensions (intrinsic or user, sparse or dense)</li>
 <li><code>dmnms</code> is a character vector with the dimension names.</li>
 <li><code>dmlvs</code> is a named list of character vectors comprising the unique levels for each dimension.</li>
 <li><code>dmlns</code> is a named integer vector with the length (number of unique levels) of each dimension.</li>
@@ -238,40 +356,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Most model quantities are represented as vectors, and thus have associated dimensions maps in order to be able to identify the dimension levels associated with each index value.</p>
 <section id="sparse-dimension-maps" class="level3">
 <h3 class="anchored" data-anchor-id="sparse-dimension-maps">Sparse dimension maps</h3>
-<p>Sparse dimensions are defined using the R function <strong>createSparseDimsMap</strong>. As an example (<a href="#tbl-ExSparseDimsMap" class="quarto-xref">Table&nbsp;1</a>), the following creates a set of dimensions encompassing year (<em>y</em>), season(<em>s</em>), sex (<em>x</em>), and size (<em>z</em>), with different size classes for males and females. Note that the “dimension name(s)” must be added as an attribute <code>dmnms</code> to the vector or list defining the levels.</p>
+<p>Sparse dimensions are defined using the R function <strong>createSparseDimsMap</strong>. As an example (<a href="#tbl-ExSparseDimsMap" class="quarto-xref">Table&nbsp;2</a>), the following creates a set of dimensions encompassing year (<em>y</em>), season(<em>s</em>), sex (<em>x</em>), and size (<em>z</em>), with different size classes for males and females. Note that the “dimension name(s)” must be added as an attribute <code>dmnms</code> to the vector or list defining the levels.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Create the individual dimensions as vectors or lists (for nested dimensions)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; --assign the attribute "dmnms", the dimension name(s) (plural if nested)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model years</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>vYs <span class="ot">=</span> <span class="dv">2001</span><span class="sc">:</span><span class="dv">2005</span>;                  <span class="fu">attr</span>(vYs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"y"</span>;</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model seasons</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>vSs <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"fall"</span>,<span class="st">"spring"</span>);         <span class="fu">attr</span>(vSs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"s"</span>;</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model sexes</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>vXs <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"MALE"</span>,<span class="st">"FEMALE"</span>);         <span class="fu">attr</span>(vXs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"x"</span>;</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model sizes, nested with sexes</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>vZs <span class="ot">=</span> <span class="fu">list</span>(  <span class="at">MALE=</span><span class="fu">seq</span>(<span class="dv">40</span>,<span class="dv">60</span>,<span class="dv">5</span>),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">FEMALE=</span><span class="fu">seq</span>(<span class="dv">25</span>,<span class="dv">50</span>,<span class="dv">5</span>));  <span class="fu">attr</span>(vZs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"x"</span>,<span class="st">"z"</span>);</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;--create the dimensions "map"</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>dmsSparse <span class="ot">=</span> <span class="fu">createSparseDimsMap</span>(<span class="at">y=</span>vYs,<span class="at">s=</span>vSs,<span class="at">x=</span>vXs,<span class="at">z=</span>vZs);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>v0: y 
-     2001 2002 2003 2004 2005 
-v0: s 
-     fall spring 
-v0: x 
-     MALE FEMALE 
-v0: z </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dmsSparse <span class="sc">|&gt;</span> kableExtra<span class="sc">::</span><span class="fu">kbl</span>(<span class="at">booktabs=</span><span class="cn">TRUE</span>,<span class="at">longtable=</span><span class="cn">TRUE</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="tbl-ExSparseDimsMap" class="cell quarto-float anchored">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Create the individual dimensions as vectors or lists (for nested dimensions)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; --assign the attribute "dmnms", the dimension name(s) (plural if nested)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model years</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>vYs <span class="ot">=</span> <span class="dv">2001</span><span class="sc">:</span><span class="dv">2005</span>;                  <span class="fu">attr</span>(vYs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"y"</span>;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model seasons</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>vSs <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"fall"</span>,<span class="st">"spring"</span>);         <span class="fu">attr</span>(vSs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"s"</span>;</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model sexes</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>vXs <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"MALE"</span>,<span class="st">"FEMALE"</span>);         <span class="fu">attr</span>(vXs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"x"</span>;</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model sizes, nested with sexes</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>vZs <span class="ot">=</span> <span class="fu">list</span>(  <span class="at">MALE=</span><span class="fu">seq</span>(<span class="dv">40</span>,<span class="dv">60</span>,<span class="dv">5</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">FEMALE=</span><span class="fu">seq</span>(<span class="dv">25</span>,<span class="dv">50</span>,<span class="dv">5</span>));  <span class="fu">attr</span>(vZs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"x"</span>,<span class="st">"z"</span>);</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;--create the dimensions "map"</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>dmsSparse <span class="ot">=</span> <span class="fu">createSparseDimsMap</span>(<span class="at">y=</span>vYs,<span class="at">s=</span>vSs,<span class="at">x=</span>vXs,<span class="at">z=</span>vZs);</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>dmsSparse <span class="sc">|&gt;</span> kableExtra<span class="sc">::</span><span class="fu">kbl</span>(<span class="at">booktabs=</span><span class="cn">TRUE</span>,<span class="at">longtable=</span><span class="cn">TRUE</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-ExSparseDimsMap" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ExSparseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Example sparse dimensions map.
+Table&nbsp;2: Example sparse dimensions map.
 </figcaption>
 <div aria-describedby="tbl-ExSparseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div>
-<table class="do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th style="text-align: right;" data-quarto-table-cell-role="th">sparse_idx</th>
@@ -1058,24 +1166,22 @@ Table&nbsp;1: Example sparse dimensions map.
 
 </div>
 </div>
-</div>
 </figure>
 </div>
 </div>
 </section>
 <section id="dense-dimension-maps" class="level3">
 <h3 class="anchored" data-anchor-id="dense-dimension-maps">Dense dimension maps</h3>
-<p>Given a sparse dimensions map <code>dmsSparse</code>, the associated dense map can be created using the R function <strong>createFullDimsMap</strong>:</p>
+<p>Given a sparse dimensions map <code>dmsSparse</code>, the associated dense map can be created using the R function <strong>createDenseDimsMap</strong>:</p>
 <div class="cell">
-<div id="tbl-ExDenseDimsMap" class="cell quarto-float anchored">
+<div id="tbl-ExDenseDimsMap" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ExDenseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2: Example dense dimensions map (first 20 rows) corrseponding to the previous sparse dimensions map.
+Table&nbsp;3: Example dense dimensions map (first 20 rows) corrseponding to the previous sparse dimensions map.
 </figcaption>
 <div aria-describedby="tbl-ExDenseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div>
-<table class="do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th style="text-align: right;" data-quarto-table-cell-role="th">dense_idx</th>
@@ -1232,35 +1338,32 @@ Table&nbsp;2: Example dense dimensions map (first 20 rows) corrseponding to the 
 
 </div>
 </div>
-</div>
 </figure>
 </div>
 </div>
 <p>In the above example, the size (number of rows) of the resulting dense dimensions map (160) is larger than that of the nested dimensions map (110) because of the different size bins defined for males and females.</p>
 </section>
-</section>
-<section id="aggregating-over-model-dimensions" class="level2">
-<h2 class="anchored" data-anchor-id="aggregating-over-model-dimensions">Aggregating over model dimensions</h2>
-<p>Data fit in gmacs typically represent quantities aggregated over some combination of population categories, so it is necessary to determine the mapping from model indices to data indices. The function <strong>createAggregatorMap</strong> provides the required mapping of 1-d indices from one dimensions map to another, as illustrated in the following example (<a href="#tbl-Ex2" class="quarto-xref">Table&nbsp;3</a>) using the dimensions map <code>dmsDense</code> from the previous example:</p>
+<section id="aggregating-over-model-dimensions" class="level3">
+<h3 class="anchored" data-anchor-id="aggregating-over-model-dimensions">Aggregating over model dimensions</h3>
+<p>Data fit in GMACS typically represent quantities aggregated over some combination of population categories, so it is necessary to determine the mapping from model indices to data indices. The function <strong>createAggregatorMap</strong> provides the required mapping of 1-d indices from one dimensions map to another, as illustrated in the following example (<a href="#tbl-Ex2" class="quarto-xref">Table&nbsp;4</a>) using the dimensions map <code>dmsDense</code> from the previous example:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Example of how to create an aggregator map using "dmsDense" from above</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; to aggregate by year (y) and sex (x) over season (s) and size (z). </span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Create dimensions map with only y and x</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  aggDims <span class="ot">=</span> <span class="fu">keepDims</span>(dmsDense,<span class="at">keep=</span><span class="fu">c</span>(<span class="st">"y"</span>,<span class="st">"x"</span>));<span class="co">#--keeps only y and x dimensions, recreates 1-d vector index</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Create aggregator map from y,x,s,z to y,x</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  aggMap  <span class="ot">=</span> <span class="fu">createAggregatorMap</span>(dmsDense,aggDims,<span class="at">keepOrigDims=</span><span class="cn">TRUE</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Example of how to create an aggregator map using "dmsDense" from above</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; to aggregate by year (y) and sex (x) over season (s) and size (z). </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Create dimensions map with only y and x</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  aggDims <span class="ot">=</span> <span class="fu">keepDims</span>(dmsDense,<span class="at">keep=</span><span class="fu">c</span>(<span class="st">"y"</span>,<span class="st">"x"</span>));<span class="co">#--keeps only y and x dimensions, recreates 1-d vector index</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Create aggregator map from y,x,s,z to y,x</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  aggMap  <span class="ot">=</span> <span class="fu">createAggregatorMap</span>(dmsDense,aggDims,<span class="at">keepOrigDims=</span><span class="cn">TRUE</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><code>idx_to</code> is the vector index for <code>aggMap</code>, <code>idx_from</code> is the vector index for <code>dmsDense</code>.</p>
 <div class="cell">
-<div id="tbl-Ex2" class="cell quarto-float anchored">
+<div id="tbl-Ex2" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-Ex2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3: Example aggregator map (from indices <code>idx_frm</code> to indices <code>idx_to</code>).
+Table&nbsp;4: Example aggregator map (from indices <code>idx_frm</code> to indices <code>idx_to</code>).
 </figcaption>
 <div aria-describedby="tbl-Ex2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div>
-<table class="do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th style="text-align: right;" data-quarto-table-cell-role="th">idx_to</th>
@@ -2558,12 +2661,16 @@ Table&nbsp;3: Example aggregator map (from indices <code>idx_frm</code> to indic
 
 </div>
 </div>
-</div>
 </figure>
 </div>
 </div>
+</section>
+</section>
+<section id="canonical-dimensions-format" class="level2">
+<h2 class="anchored" data-anchor-id="canonical-dimensions-format">Canonical dimensions format</h2>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -2746,18 +2853,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -2789,7 +2885,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp("https:\/\/wstockhausen\.github\.io\/rtmbGMACS\/");
@@ -2797,7 +2915,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -3136,7 +3254,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>© 2024-05-26</p>
+<p>© 2024-10-25</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

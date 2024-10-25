@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.554">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB - Population Dynamcs Vignette</title>
+<title>Population Dynamics – rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -71,7 +71,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -109,13 +109,13 @@ window.Quarto = {
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../website/02_PopDyMod.html">Population Dynamics</a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -127,7 +127,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB</a> 
+      <a href="../">rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
@@ -164,6 +164,12 @@ window.Quarto = {
  <span class="menu-text">Functions and Parameters Specification</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../website/05_ADMB-InputFiles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Using ADMB Input files</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -183,7 +189,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Population Dynamcs Vignette</h1>
+<h1 class="title">Population Dynamics</h1>
 </div>
 
 
@@ -202,12 +208,14 @@ window.Quarto = {
 
 <section id="population-model-description" class="level2">
 <h2 class="anchored" data-anchor-id="population-model-description">Population model description</h2>
-<p>The gmacs population model integrates the abundance of individuals in various discrete population categories over time based on assumptions regarding population processes consisting of recruitment, growth, maturation, natural mortality, and fishing mortality. Typical population categories might be sex and size, but it is possible to define an arbitrary number of categories (e.g., region, sex, maturity state, shell condition, and size). Although crustaceans cannot typically be aged, age could be included as a population category if population processes such as maturation were thought to have a strong age dependence.</p>
-<p>Population abundance in gmacs is represented as vector, <span class="math inline">\(\mathbf{n}\)</span>, with elements <span class="math inline">\(n_c\)</span>, where <span class="math inline">\(c\)</span> is a 1-dimensional index across the combination of population categories. The temporal nature of the population is represented by <span class="math inline">\(\mathbf{n}_t\)</span>, a vector representing the abundance in each category at time <span class="math inline">\(t\)</span> (i.e., a vector with elements <span class="math inline">\(\mathbf{n}_{t_c}\)</span>):</p>
-<p><span id="eq-1"><span class="math display">\[ \frac{d\mathbf{n}_t}{dt} = \left[ \mathbf{T}_t-(\mathbf{M}_t+\mathbf{F}_t) \right]*\mathbf{n}_t  \tag{1}\]</span></span></p>
-<p>where <span class="math inline">\(\mathbf{T}_t\)</span> is a <span class="math inline">\(c\)</span> x <span class="math inline">\(c\)</span> matrix representing transition rates between population categories (e.g., growth or movement) at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\mathbf{M}_t\)</span> is a similarly-sized diagonal matrix representing natural mortality at time <span class="math inline">\(t\)</span>, and <span class="math inline">\(\mathbf{M}_t\)</span> is a similarly-sized diagonal matrix representing fishing mortality at time <span class="math inline">\(t\)</span>. For gmacs, individual time steps represent seasons within a year and rates within a time step are assumed to be constant. Thus, eq. <a href="#eq-1" class="quarto-xref">1</a> can be integrated to obtain</p>
-<p><span id="eq-2"><span class="math display">\[\mathbf{n}_{n+1} = e^{\mathbf{A}_t \delta t_s}*\mathbf{n}_t \tag{2}\]</span></span></p>
-<p>where <span class="math inline">\(\delta t_s\)</span> is the time step from <span class="math inline">\(t\)</span> to <span class="math inline">\(t+1\)</span> corresonding to season <span class="math inline">\(s\)</span>, and <span class="math inline">\(\mathbf{A}_t=\left[ \mathbf{T}_t-(\mathbf{M}_t+\mathbf{F}_t) \right]\)</span>. In practice, when <span class="math inline">\(\mathbf{T}_t\)</span> represents growth processes, these are regarded as discrete-time processes with a season length of zero, so that</p>
+<p>The GMACS population model integrates the abundance of individuals in various discrete population categories over time based on assumptions regarding population processes consisting of recruitment, growth, maturation, natural mortality, and fishing mortality. Typical population categories might be sex and size, but it is possible to define a model with up to six categories, including region, sex, maturity state, age, post-molt age, and size. Although crustaceans cannot typically be aged, age (and post-molt age) can be included as a population category if population processes such as maturation or natural mortality are thought to have a strong age dependence.</p>
+<p>Population abundance in GMACS is represented as vector, <span class="math inline">\(\mathbf{n}\)</span>, with elements <span class="math inline">\(n_c\)</span>, where <span class="math inline">\(c\)</span> is a 1-dimensional index across the combination of population categories. The temporal nature of the population is represented by <span class="math inline">\(\mathbf{n}(t)\)</span>, a vector representing the abundance in each category at time <span class="math inline">\(t\)</span> (i.e., a vector with elements <span class="math inline">\(n_c(t)\)</span>).</p>
+<p>Heuristically, the population is integrated through time based on the following differential equation:</p>
+<p><span id="eq-1"><span class="math display">\[ \frac{d\mathbf{n}}{dt} = \left[ \mathbf{T}(t)-(\mathbf{M}(t)+\mathbf{F}(t)) \right]*\mathbf{n}(t) + \mathbf{R}(t)  \tag{1}\]</span></span></p>
+<p>where <span class="math inline">\(\mathbf{T}(t)\)</span> is a <span class="math inline">\(c\)</span> x <span class="math inline">\(c\)</span> matrix representing transition rates between population categories (e.g., growth or movement) at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\mathbf{M}(t)\)</span> is a similarly-sized diagonal matrix representing natural mortality at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\mathbf{F}(t)\)</span> is a similarly-sized diagonal matrix representing fishing mortality at time <span class="math inline">\(t\)</span>, and <span class="math inline">\(\mathbf{R}(t)\)</span> is a <span class="math inline">\(c\)</span> x 1 vector representing the rate of recruitment at time <span class="math inline">\(t\)</span> of new crab into each population category.</p>
+<p>Assuming the rates in eq. {-eq-1} are constant across a timestep <span class="math inline">\(\delta t\)</span>, eq. <a href="#eq-1" class="quarto-xref">1</a> can be integrated to obtain</p>
+<p><span id="eq-2"><span class="math display">\[\mathbf{n}_{t+\delta t} = e^{\mathbf{A}_t \delta t_s}*\mathbf{n}_t + \mathbf{R}_t \cdot \delta t \tag{2}\]</span></span></p>
+<p>where <span class="math inline">\(\mathbf{A}_t=\left[ \mathbf{T}_t-(\mathbf{M}_t+\mathbf{F}_t) \right]\)</span>. To meet the assumption of constant rates across the integration time step <span class="math inline">\(\delta t\)</span>, the In practice, when <span class="math inline">\(\mathbf{T}_t\)</span> represents growth processes, these are regarded as discrete-time processes with a season length of zero, so that</p>
 <p><span id="eq-3"><span class="math display">\[ \mathbf{n}_{t+1} = \mathbf{T}_t \cdot \mathbf{n}_t  \tag{3}\]</span></span></p>
 <p>for seasons in which growth occurs and</p>
 <p><span id="eq-4"><span class="math display">\[ \mathbf{n}_{t+1} = e^{-\left[ \mathbf{M}_t+\mathbf{F}_t \right]\cdot \delta t} \cdot \mathbf{n}_t \tag{4}\]</span></span></p>
@@ -407,18 +415,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -450,7 +447,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp("https:\/\/wstockhausen\.github\.io\/rtmbGMACS\/");
@@ -458,7 +477,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -797,7 +816,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>© 2024-05-26</p>
+<p>© 2024-10-25</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.554">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="William Stockhausen">
 
-<title>rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB - Model Functions and Parameters</title>
+<title>Model Functions and Parameters – rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -31,6 +31,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../website/05_ADMB-InputFiles.html" rel="next">
 <link href="../website/03_ModelDimensions.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -71,7 +72,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -109,13 +110,13 @@ window.Quarto = {
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../website/04_FunctionsAndParametersSpecification.html">Functions and Parameters Specification</a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -127,7 +128,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB</a> 
+      <a href="../">rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
@@ -164,6 +165,12 @@ window.Quarto = {
  <span class="menu-text">Functions and Parameters Specification</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../website/05_ADMB-InputFiles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Using ADMB Input files</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -175,7 +182,7 @@ window.Quarto = {
    
   <ul>
   <li><a href="#model-processes-functions-and-parameters" id="toc-model-processes-functions-and-parameters" class="nav-link active" data-scroll-target="#model-processes-functions-and-parameters">Model processes, functions and parameters</a></li>
-  <li><a href="#ctl-file-syntax" id="toc-ctl-file-syntax" class="nav-link" data-scroll-target="#ctl-file-syntax">CTL file syntax</a>
+  <li><a href="#ctl-file-syntax-under-development" id="toc-ctl-file-syntax-under-development" class="nav-link" data-scroll-target="#ctl-file-syntax-under-development">CTL file syntax (UNDER DEVELOPMENT)</a>
   <ul class="collapse">
   <li><a href="#function-and-parameter-specification" id="toc-function-and-parameter-specification" class="nav-link" data-scroll-target="#function-and-parameter-specification">Function and parameter specification</a></li>
   </ul></li>
@@ -241,22 +248,22 @@ window.Quarto = {
 </ul>
 <p>Each of these processes can be included in the final model using selections among a number of possible functional forms, each with associated parameters defined using a hierarchical structure. In this hierarchical structure, “top-level” parameters can be fixed or estimated as fixed effects and time-variation can be added through annually-varying offsets (as fixed or random effects) which can, in turn, be linear functions of environmental covariates.</p>
 </section>
-<section id="ctl-file-syntax" class="level2">
-<h2 class="anchored" data-anchor-id="ctl-file-syntax">CTL file syntax</h2>
+<section id="ctl-file-syntax-under-development" class="level2">
+<h2 class="anchored" data-anchor-id="ctl-file-syntax-under-development">CTL file syntax (UNDER DEVELOPMENT)</h2>
 <p>Both functions and parameters for all processes are defined in the “CTL” file (the actual filename of which is arbitrary). The CTL file is a text file: comments follow a “#” symbol while function and parameter specifications are made using white space-delimited tables with a header line with column names and a final line specifying “END TABLE”. Sections defining individual processes are delimited by a line starting with the name of the process to be defined (e.g.&nbsp; “RECRUITMENT”) and a line indicating the end of the process definition (e.g., “END RECRUITMENT”).</p>
 <section id="function-and-parameter-specification" class="level3">
 <h3 class="anchored" data-anchor-id="function-and-parameter-specification">Function and parameter specification</h3>
-<p>Functions and parameters within a process definition section are defined using table structures that are read in as tibbles..</p>
+<p>Functions and parameters within a process definition section are defined using table structures that are read in as tibbles.</p>
 <section id="functions" class="level4">
 <h4 class="anchored" data-anchor-id="functions">Functions</h4>
 <p>Function tables start a header line with a <code>fcn_id</code> column followed by other column names specific to the process being defined, ending with a <code>label</code> column. Rows following the header line specify the functions that combine to define the process for a specified time block and (possibly) combination of population classes. <a href="#tbl-Ex1" class="quarto-xref">Table&nbsp;1</a> provides an example table for the recruitment process.</p>
-<div id="tbl-Ex1" class="quarto-float anchored">
+<div id="tbl-Ex1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-Ex1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;1: Example table of function definitions for the recruitment process.
 </figcaption>
 <div aria-describedby="tbl-Ex1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 8%">
 <col style="width: 21%">
@@ -322,13 +329,13 @@ Table&nbsp;1: Example table of function definitions for the recruitment process.
 <section id="reference-level-parameters" class="level5">
 <h5 class="anchored" data-anchor-id="reference-level-parameters">Reference-level parameters</h5>
 <p>The reference-level parameters are defined in tables similar to <a href="#tbl-Ex2" class="quarto-xref">Table&nbsp;2</a>, which is an example that defines the <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> parameters for the recruitment-at-size gamma functions from <a href="#tbl-Ex1" class="quarto-xref">Table&nbsp;1</a>.</p>
-<div id="tbl-Ex2" class="quarto-float anchored">
+<div id="tbl-Ex2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-Ex2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;2: Example table of reference-level parameters.
 </figcaption>
 <div aria-describedby="tbl-Ex2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 6%">
 <col style="width: 7%">
@@ -520,13 +527,13 @@ Table&nbsp;2: Example table of reference-level parameters.
 <section id="parameter-offsets" class="level5">
 <h5 class="anchored" data-anchor-id="parameter-offsets">Parameter offsets</h5>
 <p>If parameter offsets are defined for any reference parameter, then a table defining these offsets needs to follow the table defining the reference parameters. The annually-varying parameter offsets (i.e., the <span class="math inline">\(\delta p_{t,c}\)</span>) are defined in tables similar to <a href="#tbl-Ex3" class="quarto-xref">Table&nbsp;3</a>, which follows on from <a href="#tbl-Ex2" class="quarto-xref">Table&nbsp;2</a>:</p>
-<div id="tbl-Ex3" class="quarto-float anchored">
+<div id="tbl-Ex3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-Ex3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;3: Example table of offset-level parameters.
 </figcaption>
 <div aria-describedby="tbl-Ex3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 6%">
 <col style="width: 6%">
@@ -620,13 +627,13 @@ Table&nbsp;3: Example table of offset-level parameters.
 <section id="covariates" class="level5">
 <h5 class="anchored" data-anchor-id="covariates">Covariates</h5>
 <p>If covariates are defined for any reference parameter, then a table defining the associated parameters needs to follow the table(s) defining the reference parameters and any offset parameters. The annually-varying covariate effects (i.e., the <span class="math inline">\(\alpha_e \cdot v_{e,t} + \beta_e\)</span>) are defined for the reference parameters in tables similar to <a href="#tbl-Ex4" class="quarto-xref">Table&nbsp;4</a>, which follows on from <a href="#tbl-Ex2" class="quarto-xref">Table&nbsp;2</a>:</p>
-<div id="tbl-Ex4" class="quarto-float anchored">
+<div id="tbl-Ex4" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-Ex4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4: Example table of covariate-level parameters.
 </figcaption>
 <div aria-describedby="tbl-Ex4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 8%">
 <col style="width: 5%">
@@ -961,18 +968,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1004,7 +1000,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp("https:\/\/wstockhausen\.github\.io\/rtmbGMACS\/");
@@ -1012,7 +1030,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -1342,13 +1360,16 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../website/05_ADMB-InputFiles.html" class="pagination-link" aria-label="Using ADMB Input files">
+        <span class="nav-page-text">Using ADMB Input files</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>© 2024-05-26</p>
+<p>© 2024-10-25</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
