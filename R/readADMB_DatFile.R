@@ -35,7 +35,7 @@ readADMB_DatFile<-function(fn,nFlts){
     if (exists("iln",where=.GlobalEnv)) old_iln = iln;
     iln<<-1;
     #--get input files
-    lst1$inp_files = parseLines(lns,names=c("data","ctl","prj"));
+    lst1$`input files` = parseLines(lns,names=c("data","ctl","prj"));
     #--get units
     lst1$units = parseLines(lns,names=c("wgt","num"));
     #--get stock name
@@ -43,17 +43,18 @@ readADMB_DatFile<-function(fn,nFlts){
     #--get jitter info
     lst1$`jitter info` = parseLines(lns,names=c("jitter info"));
     #--flags to output variances
-    lst1$`export_variances` = parseLines(lns,names=c("Reference points",
-                                                     "Recruits",
-                                                     "SSB",
-                                                     "Fbar",
-                                                     "OutDynB0"));
+    lst1$`variances to export` = parseLines(lns,
+                                            names=c("reference points",
+                                                    "recruits",
+                                                    "SSB",
+                                                    "Fbar",
+                                                    "OutDynB0"));
     #--retrospective peel
-    lst1$`retro_peel` = parseLines(lns,names=c("retro_peel"));
+    lst1$`retro peel` = parseLines(lns,names=c("retro peel"));
     #--other quantities
     lst1$`other` = parseLines(lns,names=c("max phase",
                                           "max num fcn calls",
-                                          "calcRefPts",
+                                          "calc reference points",
                                           "use pin file",
                                           "verbose"));
     if (!is.na(old_iln)) {

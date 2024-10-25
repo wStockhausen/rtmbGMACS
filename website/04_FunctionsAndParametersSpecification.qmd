@@ -50,7 +50,7 @@ can be fixed or estimated as fixed effects and time-variation
 can be added through annually-varying offsets (as fixed or random effects) which 
 can, in turn, be linear functions of environmental covariates.
 
-## CTL file syntax
+## CTL file syntax (UNDER DEVELOPMENT)
 
 Both functions and parameters for all processes are defined in the "CTL" file 
 (the actual filename of which is arbitrary). The CTL file is a text file: comments 
@@ -64,7 +64,7 @@ delimited by a line starting with the name of the process to be defined (e.g.
 ### Function and parameter specification 
 
 Functions and parameters within a process definition section are defined using 
-table structures that are read in as tibbles.. 
+table structures that are read in as tibbles. 
 
 #### Functions
 
