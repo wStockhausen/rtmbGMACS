@@ -1,6 +1,0 @@
-NOTE on adding qmd files:
-
-Add new files to _quarto.yml under
-  project/render
-and
-  website/sidebar/contents/

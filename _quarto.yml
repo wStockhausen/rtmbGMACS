@@ -6,14 +6,14 @@ project:
     - website/02_PopDyMod.qmd
     - website/03_ModelDimensions.qmd
     - website/04_FunctionsAndParametersSpecification.qmd
-    - website/05_InputFiles.qmd
+    - website/05_ADMB-InputFiles.qmd
 
 execute:
   freeze: auto
 
 website:
   page-navigation: true
-  title: "rtmbGMACS: the Generealized Model for Assessing Crustacean Stocks ported to RTMB"
+  title: "rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB"
   site-url: "https://wstockhausen.github.io/rtmbGMACS/"
   repo-url: https://github.com/wStockhausen/rtmbGMACS
   repo-actions: [edit, issue]
@@ -49,8 +49,8 @@ website:
         text: Model Dimensions
       - href: website/04_FunctionsAndParametersSpecification.qmd
         text: Functions and Parameters Specification
-      - href: website/05_InputFiles.qmd
-        text: Input files
+      - href: website/05_ADMB-InputFiles.qmd
+        text: Using ADMB Input files
       # - explore.qmd
       # - section: quarto-workflows/index.qmd
       #   contents:

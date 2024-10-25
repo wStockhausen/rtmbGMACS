@@ -22,7 +22,7 @@ The input ADMB GMACS file should be modified in the following manner:
 \item{The comment character "#" should be removed from the header line for input Catch Data, Relative Abundance Indices, Size Comps, Growth Data, and Environmental Indices dataframes}
 }
 
-The output list has an attribute "type" = "input data list" with elements
+The output list has an attribute "type" = "admb input data list" with elements
 \itemize{
   \item{dfrCDF - list of catch data dataframes}
   \item{dfrID  - list of index data dataframes}

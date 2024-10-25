@@ -170,7 +170,7 @@ createSparseDimsMap<-function(...,debug=FALSE){
     dfrp = dfr |> createDimsFactors() |>
                  dplyr::arrange(dplyr::pick((tidyselect::everything())));
     dfr = dfrp |> dplyr::mutate(sparse_idx=dplyr::row_number(),.before=1);
-    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %ni% class(dfr))]);#--add class attribute
+    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %in% class(dfr))]);#--add class attribute
     return(dfr);
 }
 
@@ -198,7 +198,7 @@ createSparseDimsMap<-function(...,debug=FALSE){
 #' The first column ("dense_idx") contains the 1-d index associated
 #' with each combination of the full dimension levels.
 #'
-#' @example inst/examples/example-createFullIndexMap.R
+#' @example inst/examples/example-createDenseDimsMap.R
 #'
 #' @importFrom dplyr cross_join mutate row_number
 #' @importFrom stringr str_sub str_subset
@@ -224,7 +224,7 @@ createDenseDimsMap<-function(map,debug=FALSE){
     dfr = dfr |> createDimsFactors() |>
                  dplyr::arrange(dplyr::pick((tidyselect::everything())));
     dfr = dfr |> dplyr::mutate(dense_idx=dplyr::row_number(),.before=1)
-    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %ni% class(dfr))]);#--add class attribute
+    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %in% class(dfr))]);#--add class attribute
     return(dfr);
 }
 
@@ -266,7 +266,7 @@ expand.DimsMap<-function(m1,m2){
     attr(dfr,"dmnms") <-c(m1_dmnms,m2_dmnms);#--dim names
     attr(dfr,"dmlvs") <-c(m1_dmlvs,m2_dmlvs);#--dim levels
     attr(dfr,"dmlns") <-c(m1_dmlns,m2_dmlns);#--dim lengths
-    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %ni% class(dfr))]);#--add class attribute
+    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %in% class(dfr))]);#--add class attribute
     return(dfr);
 }
 #'

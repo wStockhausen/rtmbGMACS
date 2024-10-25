@@ -10,7 +10,7 @@
 #' \item{The comment character "#" should be removed from the header line for input Catch Data, Relative Abundance Indices, Size Comps, Growth Data, and Environmental Indices dataframes}
 #' }
 #'
-#' The output list has an attribute "type" = "input data list" with elements
+#' The output list has an attribute "type" = "admb input data list" with elements
 #' \itemize{
 #'   \item{dfrCDF - list of catch data dataframes}
 #'   \item{dfrID  - list of index data dataframes}
@@ -52,7 +52,7 @@ readADMB_DataFile<-function(fn){
              dfrGrD=dfrGrD,
              dfrMOD=dfrMOD,dfrTD=dfrTD,
              dfrED=dfrED);
-  attr(lst,"type") = "input data list";
+  attr(lst,"type") = "admb input data list";
   return(lst);
 }
 
