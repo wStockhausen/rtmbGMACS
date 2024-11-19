@@ -3,6 +3,7 @@
 dirPrj = rstudioapi::getActiveProject();
 source(file.path(dirPrj,"R","DimensionsUtilities.R"),local=TRUE);
 source(file.path(dirPrj,"R","DimensionsFunctions.R"),local=TRUE);
+source(file.path(dirPrj,"R","generics.R"),local=TRUE);
 source(file.path(dirPrj,"R","ragged_array.R"),local=TRUE);
 
 #--define dimensions
@@ -33,7 +34,7 @@ zp  = ragged_array(z,dfrDZsp);        #--subset a ragged array using a subset of
 zp1 = ragged_array(z,dfrDZsp1);       #--subset a ragged array using a subset of its dimensions
 y[1];     #--subset a ragged array by index
 as.vector(zp);
-zpp=zp[20:30]; #--subset a ragged array by vector of index
+zp[20:30]; #--subset a ragged array by vector of index
 
 #--convert a ragged_array to a tibble
 #----TODO: include vector name somehow?
@@ -42,7 +43,7 @@ tblZP1 = as_tibble.ragged_array(zp1);
 print(tblZP1);
 
 #--test expanding a vector or ragged_array
-yy = expand(zp1,dfrDYs);
+yy = expand.ragged_array(zp1,dfrDYs);
 as_tibble.ragged_array(yy);
 str(yy);
 

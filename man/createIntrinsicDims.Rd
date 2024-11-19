@@ -2,7 +2,7 @@
 % Please edit documentation in R/DimensionsFunctions.R
 \name{createIntrinsicDims}
 \alias{createIntrinsicDims}
-\title{Create the intrinsic model dimensions from the user model dimension}
+\title{Create the intrinsic model dimensions from the user model dimensions}
 \usage{
 createIntrinsicDims(udfr)
 }
@@ -17,8 +17,16 @@ Function to create the intrinsic model dimensions from the user model dimension.
 }
 \details{
 The user dimensions defined by `udfr` are expanded to the full set of
-intrinsic model dimensions ("r","x","m","a","p","z"), with default values
-added for intrinsic dimensions undefined in the user dimensions.
+intrinsic model dimensions ("y","s","r","x","m","a","p","z"), with default values
+("all") added for intrinsic dimensions undefined in the user dimensions.
+   * `y` - year index
+   * `s` - season index
+   * `r` - region index
+   * `x` - sex index
+   * `m` - maturity state index
+   * `a` - age index
+   * `p` - post-molt age (or shell condition) index
+   * `z` - size index
 }
 \examples{
 #--create user dimensions----

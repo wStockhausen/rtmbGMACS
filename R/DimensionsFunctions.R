@@ -163,6 +163,7 @@ createSparseDimsMap<-function(...,debug=FALSE){
         dmsl[[n]] = levels(dfr[[n]]);
         dmsi[n]   = length(dmsl[[n]]);
     }
+    if (is.null(dfr)) return(NULL);
     attr(dfr,"dmtyp") <-"sparse"; #--dim type
     attr(dfr,"dmnms") <-dmsn;#--dim names
     attr(dfr,"dmlvs") <-dmsl;#--dim levels
@@ -266,9 +267,69 @@ expand.DimsMap<-function(m1,m2){
     attr(dfr,"dmnms") <-c(m1_dmnms,m2_dmnms);#--dim names
     attr(dfr,"dmlvs") <-c(m1_dmlvs,m2_dmlvs);#--dim levels
     attr(dfr,"dmlns") <-c(m1_dmlns,m2_dmlns);#--dim lengths
-    class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %in% class(dfr))]);#--add class attribute
+    class(dfr) = c("DimsMap",class(dfr)[!(class(dfr) %in% "DimsMap")]);#--add class attribute
     return(dfr);
 }
+
+#'
+#' @title Test if an object is a DimsMap
+#'
+#' @description Function to test if an object is a DimsMap.
+#'
+#' @param x - object to test
+#'
+#' @return logical
+#'
+#' @details None.
+#'
+#' @export
+#'
+is.DimsMap<-function(x){
+  return(inherits(x,"DimsMap"))
+}
+
+#'
+#' @title Test if an object is a sparse DimsMap
+#'
+#' @description Function to test if an object is a sparse DimsMap.
+#'
+#' @param x - object to test
+#'
+#' @return logical
+#'
+#' @details None.
+#'
+#' @export
+#'
+is.SparseDimsMap<-function(x){
+  res = FALSE;
+  if (inherits(x,"DimsMap")){
+    if (attr(dfr,"dmtyp")=="sparse") res = TRUE;
+  }
+  return(res);
+}
+
+#'
+#' @title Test if an object is a dense DimsMap
+#'
+#' @description Function to test if an object is a dense DimsMap.
+#'
+#' @param x - object to test
+#'
+#' @return logical
+#'
+#' @details None.
+#'
+#' @export
+#'
+is.DenseDimsMap<-function(x){
+  res = FALSE;
+  if (inherits(x,"DimsMap")){
+    if (attr(dfr,"dmtyp")=="dense") res = TRUE;
+  }
+  return(res);
+}
+
 #'
 #' @title Create maps between sparse and dense dimension indices
 #'
@@ -312,7 +373,7 @@ createDimsMaps<-function(...,debug=FALSE){
 }
 
 #'
-#' @title Create the intrinsic model dimensions from the user model dimension
+#' @title Create the intrinsic model dimensions from the user model dimensions
 #'
 #' @description Function to create the intrinsic model dimensions from the user model dimension.
 #'
@@ -321,9 +382,16 @@ createDimsMaps<-function(...,debug=FALSE){
 #' @return a dataframe representing the intrinsic model dimensions.
 #'
 #' @details The user dimensions defined by `udfr` are expanded to the full set of
-#' intrinsic model dimensions ("r","x","m","a","p","z"), with default values
-#' added for intrinsic dimensions undefined in the user dimensions.
-#'
+#' intrinsic model dimensions ("y","s","r","x","m","a","p","z"), with default values
+#' ("all") added for intrinsic dimensions undefined in the user dimensions.
+#'    * `y` - year index
+#'    * `s` - season index
+#'    * `r` - region index
+#'    * `x` - sex index
+#'    * `m` - maturity state index
+#'    * `a` - age index
+#'    * `p` - post-molt age (or shell condition) index
+#'    * `z` - size index
 #' @example inst/examples/example-createIntrinsicDimensions.R
 #'
 #' @importFrom dplyr mutate select
@@ -333,12 +401,14 @@ createDimsMaps<-function(...,debug=FALSE){
 createIntrinsicDims<-function(udfr){
   #--intrinsic dimensions info
   idmnms = c("y","s","r","x","m","a","p","z");
-  idefs  = c(r="default",
-             x="undetermined",
-             m="undetermined",
-             a="undetermined",
-             p="undetermined",
-             z="undetermined");
+  idefs  = c(y="all",
+             s="all",
+             r="all",
+             x="all",
+             m="all",
+             a="all",
+             p="all",
+             z="all");
 
   #--user dimensions info
   utype  = attr(udfr,"dmtyp");  #--user dimensions type (sparse or dense)

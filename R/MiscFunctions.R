@@ -1,7 +1,21 @@
-#--utility functions translated from ADMB
+#--miscellaneuos functions, including ADMB replacements
+
+#'
+#' @title Calculate variable on logit scale
+#' @description Function to calculate variable on logit scale.
+#' @param x - variable
+#' @return vector log(x/(1-x)) with same names as x
+#' @details inverse of logisitc function
+#' @export
+#'
+logit<-function(x){
+  y = log(x/(1-x));
+  names(y) = names(x);
+  return(y);
+}
 #'
 #' @title Square a variable
-#' @description Function to square a variable.
+#' @description ADMB-equivalent function to square a variable.
 #' @param x - variable to square
 #' @return vector x*x with same names as x
 #' @details Substitution for ADMB `square` function.
@@ -14,7 +28,7 @@ square<-function(x){
 }
 #'
 #' @title Exponentiate a variable
-#' @description Function to exponentiate a variable.
+#' @description ADMB-equivalent  to exponentiate a variable.
 #' @param x - variable to exponentiate
 #' @return vector x*x with same names as x
 #' @details Substitution for ADMB `mfexp` function.
@@ -27,7 +41,7 @@ mfexp<-function(x){
 }
 #'
 #' @title Calculate the element-wise product of two variables
-#' @description Function to calculate the element-wise product of two variables.
+#' @description ADMB-equivalent to calculate the element-wise product of two variables.
 #' @param x - variable (vector, matrix, etc.)
 #' @param y - variable conformable to x
 #' @return (unnamed) object x*y
@@ -41,7 +55,7 @@ elem_prod<-function(x,y){
 }
 #'
 #' @title Calculate the element-wise division of two variables
-#' @description Function to calculate the element-wise division of two variables.
+#' @description ADMB-equivalent to calculate the element-wise division of two variables.
 #' @param x - numerator variable (vector, matrix, etc.)
 #' @param y - divisor variable conformable to x
 #' @return (unnamed) object x/y

@@ -15,7 +15,7 @@
 new_ragged_array<-function(x,dfrDims){
   stopifnot(is.data.frame(dfrDims));
   n = nrow(dfrDims);
-  y = as.vector(m);
+  y = as.vector(x);
   if (n<length(y)) y = y[1:n];
   if (n>length(y)) y = rep_len(y,length.out=n);
   ra = structure(y,dfrDims=dfrDims,class=unique(c("ragged_array",class(x))));
@@ -38,10 +38,39 @@ new_ragged_array<-function(x,dfrDims){
   dfrDims = attr(x,"dfrDims") |>
               dplyr::filter(dplyr::row_number() %in% i);
   dfrDims[[1]] = 1:length(i);
+  if (class(x)[1])
   ra = new_ragged_array(unclass(x)[i],dfrDims);
   return(ra);
 }
 
+#'
+#' @title Assign values to a ragged_array object
+#' @description Assign values to ragged_array object by an index vector or DimsMap.
+#' @param x - the LHS ragged array object in the assignment
+#' @param y - a ragged array, vector of indices, or DimsMap by which to assign values from `value` into `x`
+#' @return the LHS ragged_array object
+#' @details TODO!
+#'
+#' @export
+#'
+`[<-.ragged_array`<-function(x,y,value){
+  cat("#--in [<-.ragged_array\n")
+  if (is.ragged_array(y)) {
+    #--replace values per dim values of y
+  } else
+  if (is.DimsMap(y)) {
+    #--replace values per indexes represented by y
+  } else if (is.vector(y)){
+    cat("#--y is vector\n")
+    #--replace value at sparse_idx = y
+    dfrDimsX = attr(x,"dfrDims");
+    for (yy in y){
+      rw_idx = which(dfrDimsX[[1]]==yy);
+      if (rw_idx>0) x[[rw_idx]] <- value;
+    }
+  }
+  return(x);
+}
 #'
 #' @title Test if an object is a ragged_array
 #' @description Function to test if an object is a ragged_array.
@@ -52,6 +81,19 @@ new_ragged_array<-function(x,dfrDims){
 #'
 `is.ragged_array`<-function(x){
   return(inherits(x,"ragged_array"));
+}
+
+#'
+#' @title Display structure of a ragged_array
+#' @description Function to display structure of a ragged_array.
+#' @param x - the object
+#' @return TRUE or FALSE
+#' @details Returns TRUE of the object inherits from class "ragged_array".
+#' @export
+#'
+`str.ragged_array`<-function(x,...){
+  cat("# A ragged_array: \n")
+  str(as_tibble.ragged_array(x));
 }
 
 #'
@@ -110,7 +152,7 @@ as.vector.ragged_array<-function(x,mode="any"){
 #' expand.DimsMap, then the vector underlying `x` is suitably replicated across
 #' the dimensions in `y`.
 #'
-#' Thisis an S3 generic method, so just use `expand(x,y)`.
+#' This is an S3 generic method, so just use `expand(x,y)`.
 #' @export
 #'
 `expand.ragged_array`<-function(x,y){
@@ -121,12 +163,12 @@ as.vector.ragged_array<-function(x,mode="any"){
   dfrDimsA = attr(x,"dfrDims");
   dmnmsA   = attr(dfrDimsA,"dmnms");
   dmnmsB   = attr(dfrDims,"dmnms");
-  dmnmsC   = unique(dmnmsA,dmnmsB);
+  dmnmsC   = unique(c(dmnmsA,dmnmsB));
   dfrDimsC = expand.DimsMap(dfrDimsA,dfrDims);
   z = as.vector(x)[dfrDimsC$sparse_idx];
   dfrDimsC$sparse_idx = 1:nrow(dfrDimsC);
   z = new_ragged_array(unclass(z),dfrDimsC);
-  return(y)
+  return(z);
 }
 
 #'
@@ -171,9 +213,23 @@ ragged_array<-function(x,
         y = new_ragged_array(x,dfrDims);
       }
     } else {
-      stop("Attempting to create a ragged_array object from a ",class(x)[1]," object but dfrDims is NULL.")
+      if (is.vector(x)) {
+        dfrDims = createSparseDimsMap(i=1:length(x));
+        y = new_ragged_array(x,dfrDims);
+      }
+      warning("Creating a ragged_array object from a ",class(x)[1]," object but dfrDims is NULL.")
     }
   }
   return(y);
 }
+
+getDimIndices<-function(x){
+      dfrDimsX = attr(x,"dfrDims") |>
+                   dplyr::select(!1);
+      return(dfrDimsX);
+}
+
+
+
+
 

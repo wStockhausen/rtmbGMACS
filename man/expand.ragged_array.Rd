@@ -22,5 +22,5 @@ S3 method to expand a ragged_array using a dimensions map.
 expand.DimsMap, then the vector underlying `x` is suitably replicated across
 the dimensions in `y`.
 
-Thisis an S3 generic method, so just use `expand(x,y)`.
+This is an S3 generic method, so just use `expand(x,y)`.
 }

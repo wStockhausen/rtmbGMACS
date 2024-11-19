@@ -104,3 +104,26 @@ createAggregatorMap<-function(dms_frm,dms_to,keepOrigDims=FALSE){
 }
 #aggMap = createAggregatorMap(dfrSparse,kept)
 
+getSubset.DimsMap<-function(dm,...){
+  cat("length =",...length(),"\n")
+  if (...length()==1){
+    y = ...elt(1);
+    if (is.DimsMap(y)) {
+      return(dm |> dplyr::inner_join(y |> dplyr::select(!1)));
+    } else
+    if (...names()[1]=="row") {return(dm[y,]);} else
+    if (...names()[1]=="idx") {
+      idx = names(x)[1];
+      return(dm |> dplyr::filter(.data[[idx]]==y));
+    } else {
+      cat("evaluating single element dots list as DimsMap\n");
+      y = createSparseDimsMap(rlang::list2(...));
+      return(dm |> dplyr::inner_join(y |> dplyr::select(!1)));
+    }
+  } else {
+    cat("evaluating multiple element dots list\n");
+    y = createSparseDimsMap(...);
+    return(dm |> dplyr::inner_join(y |> dplyr::select(!1)));
+  }
+  return(NULL);
+}
