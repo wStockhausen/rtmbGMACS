@@ -32,7 +32,26 @@ inputs$dims = dims;
 
 ##--set up options----
 options = list();
-options$initN = "noPop"; #--add options: "unfished", "equilibrium", "estimated"
+###--options: initial N----
+options$initN = "zeroPop"; #--add options: "unfished", "equilibrium", "estimated"
+###--options: Recruitment----
+#opts_rec = ??
+###--options: Natural Mortality----
+#opts_nm = ??
+###--options: Growth----
+#opts_grw = ??
+###--options: Selectivity/Retention----
+#opts_sel = ??
+###--options: Fishery characteristics----
+#opts_fsh = ??
+###--options: Survey characteristics----
+#opts_srv = ??
+###--options: Movement----
+#opts_mov = ??
+
+###--non-data likelihood components----
+
+###--add to `inputs`
 inputs$options = options;
 
 ##--set up data----
@@ -43,8 +62,8 @@ inputs$data = data;
 param_info = list();
 tblPrcs = tibble::tibble();
 ###--initial abundance----
-if (options$initN=="noPop"){
-  param_info[["initN"]] = NULL;#--no parameters because option = "noPop"
+if (options$initN=="zeroPop"){
+  param_info[["initN"]] = NULL;#--no parameters because option = "zeroPop"
 } else
 if (options$initN=="unfished"){
   stop("not implemented yet.")
@@ -57,7 +76,9 @@ if (options$initN=="estimated"){
   idxRef = getSubset.DimsMap(dmsN,x=dims$x_["male"],m=dims$m_["mature"],
                              p=dims$p_["new shell"],z=dims$zb["102.5"])[[1]];
   pNdevs = vector("numeric",nrow(dmsN));
-} else
+} else {
+  stop(paste0("Initial N (options$initN) option '",options$initN,"' not recognized."));
+}
 
 ###--recruitment----
 #####--pRec_lnRbar: ln-scale mean recruitment, millions----
@@ -90,13 +111,17 @@ inputs$param_info = params; rm(params);
 ####--growth|molt----
 ####--combined----
 ###--maturity
-options$terminal_molt = TRUE;
+opts_maturity = list()
+opts_maturity$postmolt      = TRUE;#--maturity determined by postmolt size
+opts_maturity$terminal_molt = TRUE;#--undergoes terminal molt
+options$maturity = opts_maturity;
 ###--selectivity----
 ###--fishing mortality----
 ###--survey catchability----
 ###--ageing
 ###--movement
 
+inputs$options = options;
 
 #--define parameters list
 param_list = list();
@@ -107,5 +132,6 @@ if (inputs$testing) {
 }
 
 #--make objective function
+##--`inputs` list is implicit
 obj = MakeADFun(obj_fun,param_list,random=NULL,map=list(),silent=FALSE);
 

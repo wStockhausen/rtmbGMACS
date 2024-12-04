@@ -29,7 +29,7 @@ with the name "inputs". \code{inputs} should have the structure
 
 Example
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{inputs = list(data=NULL,options=NULL,testing=TRUE);
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{inputs = list(dims=NULL,data=NULL,options=NULL,testing=TRUE);
 params = list(dummy=0.0);
 obj = MakeADFun(objfun,params,silent=TRUE);
 opt = nlminb(obj$par, obj$fn, obj$gr);

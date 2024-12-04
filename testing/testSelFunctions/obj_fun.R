@@ -57,7 +57,7 @@ obj_fun<-function(params){
   ##--Fishery characteristics----
   ###--will calculate capture, handling mortality, and retention rates
   ###--for all fisheries
-  lstFRs = calcFshRates(dims,options,params,lstSelFcns,verbose);
+  # lstFRs = calcFshRates(dims,options,params,lstSelFcns,verbose);
 
   ##--Survey characteristics----
   ###--will calculate selectivity, q for all surveys
@@ -70,26 +70,26 @@ obj_fun<-function(params){
   for (y_ in dims$y_){ #--loop over years
     for (s_ in dims$s_){ #--loop over seasons win years
       if (verbose) cat("y, s =",y_,s_,"\n");
-      #--instantaneous processes happen at beginning of season in order
-      ##--growth
-      ##--surveys
-      ##--fishing mortality
-      totFM = AD(vector("numeric",length(N)));
-      for (f in 1:nFsh){
-        totFCR = totFM + lstFMs[[f]];
-      }
-      N = totFM %*% N;
-      ##--movement
-      N = M %*% N;
-
-      #--continuous processes happen throughout season
-      ##--natural mortality rate
-      diag_NMRs = getNaturalMortalityRates(y_,s_,lstNMRs);
-      ##--fishery catch rates
-      lst_FCRs = getFisheryCatchRates(y_,s_);#--list with diagonal matrices for fishery catch rates
-      #--update N for continuous processes
-      diag_MR = AD(vector("numeric",length(N)));
-      N = exp(-diag_MR*dt[s_]) %*% N;
+      # #--instantaneous processes happen at beginning of season in order
+      # ##--growth
+      # ##--surveys
+      # ##--fishing mortality
+      # totFM = AD(vector("numeric",length(N)));
+      # for (f in 1:nFsh){
+      #   totFCR = totFM + lstFMs[[f]];
+      # }
+      # N = totFM %*% N;
+      # ##--movement
+      # N = M %*% N;
+      #
+      # #--continuous processes happen throughout season
+      # ##--natural mortality rate
+      # diag_NMRs = getNaturalMortalityRates(y_,s_,lstNMRs);
+      # ##--fishery catch rates
+      # lst_FCRs = getFisheryCatchRates(y_,s_);#--list with diagonal matrices for fishery catch rates
+      # #--update N for continuous processes
+      # diag_MR = AD(vector("numeric",length(N)));
+      # N = exp(-diag_MR*dt[s_]) %*% N;
     } #--end seasons loop (s_)
   } #--end years loop (y_)
 
@@ -129,4 +129,22 @@ calcInitN<-function(dims,options,params,verbose){
   }
   if (verbose) cat("finished calcInitN\n");
   return(initN);
+}
+#'
+#' @title Calculate all selectivity/retention functions
+#' @description Function to calculate all selectivity/retention functions.
+#' @param dims - model dimensions list
+#' @param options - model options list
+#' @param params - model parameters list
+#' @param verbose - flag to print diagnostic info
+#' @return list with
+#' @details Options for calculating selectivity/retention functions include:
+#' \itemize{
+#'  \item{?? - ??}
+#' }
+#' @export
+#'
+calcSelFcns<-function(dims,options,params,verbose){
+  if (verbose) cat("starting calcSelFcns\n");
+  for (i in)
 }

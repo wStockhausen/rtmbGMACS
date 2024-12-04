@@ -40,8 +40,10 @@ obj_fun<-function(params){
   ##--initial N's----
   initN = calcInitN(dims,options,params,verbose);
   REPORT(initN);
+  ADREPORT(initN);
 
   ##--Recruitment----
+  lstRec = calcRecruitment(dims,options,params,verbose);
 
   ##--Natural mortality----
 
@@ -52,12 +54,12 @@ obj_fun<-function(params){
 
   ##--Selectivity/Retention----
   ###--will calculate all selectivity curves
-  lstSelFcns = calcSelFcns(dims,options$sel_fcns,sel_params,verbose);
+  #lstSelFcns = calcSelFcns(dims,options$sel_fcns,sel_params,verbose);
 
   ##--Fishery characteristics----
   ###--will calculate capture, handling mortality, and retention rates
   ###--for all fisheries
-  lstFRs = calcFshRates(dims,options,params,lstSelFcns,verbose);
+  #lstFRs = calcFshRates(dims,options,params,lstSelFcns,verbose);
 
   ##--Survey characteristics----
   ###--will calculate selectivity, q for all surveys

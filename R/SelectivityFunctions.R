@@ -20,11 +20,15 @@
 #' \item{"ascnormal"}
 #' \item{"ascnormal2"}
 #' \item{"ascnormal2a"}
+#' \item{"ascnormal3"}
+#' \item{"dblnormal4"}
+#' \item{"dblnormal4a"}
+#' \item{"dblnormal6"}
 #' }
 #'
 #'@export
 #'
-calcSelectivity<-function(type,z,params,ref=0,debug=FALSE){
+calcSelFcn<-function(type,z,params,ref=0,debug=FALSE){
     if (debug) message('sel function =',type);
     if (type=='const_sel'){
         res<-const_sel(z,params,ref,debug);
@@ -94,8 +98,8 @@ const_sel<-function(z, params,ref=0,debug=FALSE){
 #'
 #'@details The parameter values are
 #'\itemize{
-#' \item{params[1] - z50   - size at which selectivity = 0.5 (logit-scale mean)}
-#' \item{params[2] - slope - slope at z50}
+#' \item{params[1] - pZ50 - size at which selectivity = 0.5 (logit-scale mean)}
+#' \item{params[2] - pWdZ - width (1/slope) at z50}
 #'}
 #'
 #'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
@@ -105,7 +109,7 @@ const_sel<-function(z, params,ref=0,debug=FALSE){
 #'
 asclogistic<-function(z,params,fsz=0,debug=FALSE){
     z50   = params[1];
-    slope = params[2];
+    slope = 1.0/params[2];
     res <- 1.0/(1.0+exp(-slope*(z-z50)));
     scl <-1;
     if (fsz>0){
@@ -114,7 +118,7 @@ asclogistic<-function(z,params,fsz=0,debug=FALSE){
         scl<-1.0/max(res);
     }
     res<-scl*res;
-    names(res)<-as.character(z);
+    names(res)<-as.character(z);#--TODO: does this work with ADs?
     return(res)
 }
 #-----------------------------------------------------------------------------------
@@ -450,7 +454,7 @@ dblnormal4<-function(z,params,refZ=0,debug=FALSE){
     return(s);
 }
 
-#-----------------------------------------------------------------------------------
+#--dblnormal4a-----
 #' @title Calculates a 4-parameter normal selectivity curve
 #' @description Function to calculate a 4-parameter normal selectivity curve.
 #' @details Calculates 4-parameter normal function parameterized by
@@ -485,7 +489,7 @@ dblnormal4a<-function(z,params,refZ,debug=FALSE){
     return(s);
 }
 
-#-----------------------------------------------------------------------------------
+#--dblnormal6-----
 #' @title Calculates a 6-parameter normal selectivity curve
 #' @description Function to calculate a 6-parameter normal selectivity curve.
 #' @details Calculates 6-parameter normal function parameterized by
