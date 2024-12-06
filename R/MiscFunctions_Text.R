@@ -12,8 +12,8 @@
 #' @export
 #'
 extractLines<-function(txt,start,end){
-  s = stringr::str_which(txt,regex(paste0("^",start),ignore_case=TRUE));
-  e = stringr::str_which(txt,regex(paste0("^",end),ignore_case=TRUE));
+  s = stringr::str_which(txt,stringr::regex(paste0("^",start),ignore_case=TRUE));
+  e = stringr::str_which(txt,stringr::regex(paste0("^",end),ignore_case=TRUE));
   return(txt[(s+1):(e-1)]);
 }
 

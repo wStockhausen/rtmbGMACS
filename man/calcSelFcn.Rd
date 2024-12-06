@@ -31,5 +31,9 @@ Calculate values for a selectivity curve.
 \item{"ascnormal"}
 \item{"ascnormal2"}
 \item{"ascnormal2a"}
+\item{"ascnormal3"}
+\item{"dblnormal4"}
+\item{"dblnormal4a"}
+\item{"dblnormal6"}
 }
 }

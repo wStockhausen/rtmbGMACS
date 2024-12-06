@@ -2,7 +2,7 @@
 #' @title Read allometry info
 #' @description Function to read allometry info.
 #' @param conn - connection (or filename) to read from
-#' @param debug - flag to print extra info
+#' @param verbose - flag to print extra info
 #' @return nested list with elements (see **Details**)
 #' @details If `option` = "function", the returned list has elements
 #' \itemize{
@@ -55,94 +55,128 @@
 #' @md
 #' @export
 #'
-readParamInfo_Allometry<-function(conn,debug=FALSE){
+readParamInfo_Allometry<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
           extractLines(start="ALLOMETRY",end="END");
   iln = 1;
   #--parse input format option----
-  if (debug) cat("reading 'function' option info\n");
+  if (verbose) cat("reading 'function' option info\n");
   lst     = extractTextSection(lns,1,1);
   option  = (stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--input format option
   if (tolower(option)=="function"){
     #--parse "function" input option info----
     ##--parse function definitions----
-    if (debug) cat("reading function info\n");
+    if (verbose) cat("reading function info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
     nFcns   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of functions
     lst     = extractTextSection(lns,nFcns+1,lst$end+1);
     dfrFcns = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ function defs
+    if (verbose) print(dfrFcns);
     lst     = extractTextSection(lns,1,lst$end+1);
     nLvls   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of reference levels
     if (nLvls>0){
-      if (debug) cat("reading function reference levels info\n");
+      if (verbose) cat("reading function reference levels info\n");
       lst    = extractTextSection(lns,nLvls+1,lst$end+1);
       dfrRefLvls = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ function reference levels
+      if (verbose) print(dfrRefLvls);
     } else {dfrRefLvls=NULL;}
 
     ##--parse parameter information (as necessary)----
     ###--Main parameters----
-    if (debug) cat("reading main parameters info\n");
+    if (verbose) cat("reading main parameters info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
     nMPs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of main parameters
     if (nMPs>0){
       lst     = extractTextSection(lns,nMPs+1,lst$end+1);
       dfrMPs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ main parameter defs
+      if (verbose) print(dfrMPs);
     } else {dfrMPs=NULL;}
 
     ###--parse offset parameters----
-    if (debug) cat("reading offset parameters info\n");
+    if (verbose) cat("reading offset parameters info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
     nOPs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of offset parameters
     if (nOPs>0){
       lst     = extractTextSection(lns,nOPs+1,lst$end+1);
       dfrOPs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ offset parameter defs
+      if (verbose) print(dfrOPs);
     } else {dfrOPs=NULL;}
 
     ###--parse "devs" parameters----
-    if (debug) cat("reading devs parameters info\n");
+    if (verbose) cat("reading devs parameters info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
     nDPs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of devs parameters
     if (nDPs>0){
       lst     = extractTextSection(lns,nDPs+1,lst$end+1);
       dfrDPs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ devs parameter defs
+      if (verbose) print(dfrDPs);
       ###--reference levels----
       lst     = extractTextSection(lns,1,lst$end+1);
       nLvls_DPs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of devs reference level defs
       if (nLvls_DPs>0){
-        if (debug) cat("reading devs parameter referece levels info\n");
+        if (verbose) cat("reading devs parameter referece levels info\n");
         lst     = extractTextSection(lns,nLvls_DPs+1,lst$end+1);
         dfrRefLvls_DPs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ devs reference level def
+        if (verbose) print(dfrRefLvls_DPs);
       } else {dfrRefLvls_DPs=NULL;}
     } else {dfrDPs=NULL; nLvls_DPs=0; dfrRefLvls_DPs=NULL;}
 
-    ###--parse environmental covariates----
-    if (debug) cat("reading environmental covariates info\n");
+    ###--parse parameter-related environmental covariates----
+    if (verbose) cat("reading parameter-related environmental covariates info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
-    nECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariates
-    if (nECs>0){
-      lst     = extractTextSection(lns,nECs+1,lst$end+1);
-      dfrECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate defs
+    nPECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariates
+    if (verbose) cat("reading",nPECs,"parameter-related environmental covariate definitions.")
+    if (nPECs>0){
+      lst     = extractTextSection(lns,nPECs+1,lst$end+1);
+      dfrPECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate defs
+      if (verbose) print(dfrPECs);
       ###--reference levels----
       lst     = extractTextSection(lns,1,lst$end+1);
-      nLvls_ECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariate reference level defs
-      if (nLvls_ECs>0){
-        if (debug) cat("reading environmental covariate reference levels info\n");
-        lst     = extractTextSection(lns,nLvls_ECs+1,lst$end+1);
-        dfrRefLvls_ECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate reference level def
-      } else {dfrRefLvls_ECs=NULL;}
-    } else {dfrECs=NULL; nLvls_ECs=0; dfrRefLvls_ECs=NULL;}
+      nLvls_PECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariate reference level defs
+      if (verbose) cat("will read",nLvls_PECs,"parameter-related environmental covariate reference levels.")
+      if (nLvls_PECs>0){
+        if (verbose) cat("reading parameter-related environmental covariate reference levels info\n");
+        lst     = extractTextSection(lns,nLvls_PECs+1,lst$end+1);
+        dfrRefLvls_PECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate reference level def
+        if (verbose) print(dfrRefLvls_PECs);
+      } else {dfrRefLvls_PECs=NULL;}
+    } else {dfrPECs=NULL; nLvls_PECs=0; dfrRefLvls_PECs=NULL;}
+
+    ###--parse function-related environmental covariates----
+    if (verbose) cat("reading function-related environmental covariates info\n");
+    lst     = extractTextSection(lns,1,lst$end+1);
+    nFECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariates
+    if (verbose) cat("reading",nFECs,"function-related environmental covariate definitions.")
+    if (nFECs>0){
+      lst     = extractTextSection(lns,nFECs+1,lst$end+1);
+      dfrFECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate defs
+      if (verbose) print(dfrFECs);
+      ###--reference levels----
+      lst     = extractTextSection(lns,1,lst$end+1);
+      nLvls_FECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariate reference level defs
+      if (verbose) cat("will read",nLvls_FECs,"function-related environmental covariate reference levels.")
+      if (nLvls_FECs>0){
+        if (verbose) cat("reading function-related environmental covariate reference levels info\n");
+        lst     = extractTextSection(lns,nLvls_FECs+1,lst$end+1);
+        dfrRefLvls_FECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate reference level def
+        if (verbose) print(dfrRefLvls_FECs);
+      } else {dfrRefLvls_FECs=NULL;}
+    } else {dfrFECs=NULL; nLvls_FECs=0; dfrRefLvls_FECs=NULL;}
 
     ##--parse functional priors----
-    if (debug) cat("reading functional priors info\n");
+    if (verbose) cat("reading functional priors info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
     nFPs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of functional priors
+    if (verbose) cat("will read",nFPs,"functional priors definitions.")
     if (nFPs>0){
-      lst     = extractTextSection(lns,nFPs+1,lst$end+1);
-      dfrFPs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate defs
+      if (verbose) cat("Reading functional priors info with",nFPs,"rows.");
+      dfrFPs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ functional priors defs
+      if (verbose) print(dfrFPs);
     } else {dfrFPs=NULL;}
 
     ##--create output list----
+    if (verbose) cat("creating output list\n");
     out = list(option=option,
                Fcns=list(n=nFcns,dfr=dfrFcns,
                          reflvls=list(n=nLvls,dfr=dfrRefLvls)),        #--functions
@@ -150,13 +184,15 @@ readParamInfo_Allometry<-function(conn,debug=FALSE){
                OPs=list(n=nOPs,dfr=dfrOPs),                            #--offset parameters
                DPs=list(n=nDPs,dfr=dfrDPs,
                         reflvls=list(n=nLvls_DPs,dfr=dfrRefLvls_DPs)), #--devs parameters
-               ECs=list(n=nECs,dfr=dfrECs,
-                        reflvls=list(n=nLvls_ECs,dfr=dfrRefLvls_ECs)), #--env. covars
+               PECs=list(n=nPECs,dfr=dfrPECs,
+                        reflvls=list(n=nLvls_PECs,dfr=dfrRefLvls_PECs)), #--parameter-level env. covars
+               FECs=list(n=nFECs,dfr=dfrFECs,
+                        reflvls=list(n=nLvls_FECs,dfr=dfrRefLvls_FECs)), #--function-level env. covars
                FPs=list(n=nFPs,dfr=dfrFPs)                             #--functional priors
                );
   } else if (tolower(option)=="data") {
     #--parse "data" input option info----
-    if (debug) cat("reading 'data' option info\n");
+    if (verbose) cat("reading 'data' option info\n");
     lst  = extractTextSection(lns,1,lst$end+1);
     nRws = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of rows to read
     lst  = extractTextSection(lns,1,lst$end+1);
@@ -172,19 +208,8 @@ readParamInfo_Allometry<-function(conn,debug=FALSE){
   }
   return(out);
 }
-dirPrj = rstudioapi::getActiveProject();
-source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
-conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.txt");
-res = readParamInfo_Allometry(conn,TRUE);
-
-# dfrp = res$dfr |> dplyr::select(!c(z,value));
-# dfrv = res$dfr |> dplyr::select(value);
-# lst = list();
-# for (r in 1:nrow(res$dfr)){
-#   lst[[r]] =  dfrp[r,] |>
-#              dplyr::cross_join(
-#                tibble::as_tibble(eval(parse(text=dfrv[r,]))) |> tidyr::pivot_longer(tidyselect::everything(),names_to="z")
-#              )
-# }
-# dfrpp = dplyr::bind_rows(lst);
+# dirPrj = rstudioapi::getActiveProject();
+# source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
+# conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.txt");
+# res = readParamInfo_Allometry(conn,TRUE);
 

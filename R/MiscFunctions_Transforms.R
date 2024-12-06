@@ -19,3 +19,4 @@ tf_none<-function(x){
 tf_g2kg<-function(x){
   return(x/1000.0);
 }
+tf_log<-function(x){return(log(x));}

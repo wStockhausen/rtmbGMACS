@@ -7,8 +7,9 @@
 #' @importFrom tibble tibble
 #' @importFrom tidyr expand_grid
 #' @export
-alls_GetLevels<-function(dims){
-  lstLvls = attr(dims$dmsN,"dmlvs",exact=TRUE);
+alls_GetLevels<-function(dims,verbose=FALSE){
+  if (verbose) message("in alls_GetLevels.");
+  lstLvls = attr(dims,"dmlvs",exact=TRUE);
   lst = list();
   for (lvl in names(lstLvls)){
     lst[[lvl]] = dplyr::bind_rows(
@@ -17,6 +18,7 @@ alls_GetLevels<-function(dims){
                  );
     names(lst[[lvl]])[2] = lvl;
   }
+  if(verbose) print(lst);
   return(lst)
 }
 
@@ -26,15 +28,46 @@ alls_GetLevels<-function(dims){
 #' @param dfr - dataframe with dimensions to expand from "all" to levels
 #' @param lstAlls - list returned by [alls_GetLevels()]
 #' @return expanded dataframe
-#' @importFrom dplyr
+#' @importFrom rlang data_sym
+#' @import dplyr
 #' @export
-alls_ExpandInDataframe<-function(dfr,lstAlls){
+alls_ExpandInDataframe<-function(dfr,lstAlls,verbose=FALSE){
+  if (verbose) message("in alls_ExpandInDataframe.");
   dfrp = dfr;
-  for (lvl in names(lstAlls)){
+  lvls  = names(lstAlls);
+  lvlsp = lvls[lvls %in% names(dfr)];
+  lvlsa = lvls[!(lvls %in% names(dfr))];
+  #--process levels present
+  if (verbose) message("\tprocessing levels present in dfr");
+  for (lvl in lvlsp){
+    if (verbose) message(paste0("\tprocessing level '",lvl,"'."));
+    lvl_sym = rlang::data_sym(lvl);
+    dfrp = dfrp |> dplyr::mutate("{lvl}":=as.character(!!lvl_sym)) |>
+              dplyr::left_join(lstAlls[[lvl]],relationship="many-to-many");
+    if (verbose) {
+      message("after left-join.")
+      print(dfrp);
+    }
     dfrp = dfrp |>
-              dplyr::left_join(lstAlls[[lvl]],relationship="many-to-many") |>
-              dplyr::mutate("{lvl}":=value) |>
+              dplyr::mutate("{lvl}":=ifelse(is.na(value),!!lvl_sym,value)) |>
               dplyr::select(!value);
+    if (verbose) {
+      message("after mutate and dropping 'value' column")
+      print(dfrp);
+    }
+  }
+  #--process levels absent from dfr
+  for (lvl in lvlsa){
+    lvl_sym = rlang::sym(lvl);
+    dfrpp = lstAlls[[lvl]] |> dplyr::select(tidyselect::all_of(lvl)) |> dplyr::filter(tolower(!!lvl_sym)!="all");
+    dfrp = dfrp |> dplyr::cross_join(dfrpp)
+  }
+  #--rearrange columns so "dimensions" are last
+  cols = c(names(dfr)[!(names(dfr) %in% names(lstAlls))],names(lstAlls));
+  dfrp = dfrp |> dplyr::select(tidyselect::all_of(cols));
+  if (verbose) {
+    message("finished dfr:");
+    print(dfrp);
   }
   return(dfrp);
 }

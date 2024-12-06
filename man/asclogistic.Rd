@@ -24,8 +24,8 @@ Function to calculate an ascending logistic function parameterized by z50 and sl
 \details{
 The parameter values are
 \itemize{
-\item{params[1] - z50   - size at which selectivity = 0.5 (logit-scale mean)}
-\item{params[2] - slope - slope at z50}
+\item{params[1] - pZ50 - size at which selectivity = 0.5 (logit-scale mean)}
+\item{params[2] - pWdZ - width (1/slope) at z50}
 }
 
 If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
