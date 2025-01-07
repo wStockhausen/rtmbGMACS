@@ -38,6 +38,8 @@ fcn_idx  par_idx param       y      r     x      m      tform      IV       LB  
 1 #--number of reference levels
   dev_idx  param   y     x   
      2       pB  2021   male
+###--RE covariance definitions
+##--TBD!! dev_idx type ???
 
 ##--parameter-level environmental covariates----
 ###--definitions
