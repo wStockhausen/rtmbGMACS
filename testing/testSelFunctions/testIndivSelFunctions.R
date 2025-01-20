@@ -2,7 +2,7 @@
 require(ggplot2);
 require(RTMB);
 dirPrj = rstudioapi::getActiveProject();
-source(file.path(dirPrj,"R/MiscADMBfunctions.R"),local=TRUE);
+source(file.path(dirPrj,"R/MiscFunctions.R"),local=TRUE);
 source(file.path(dirPrj,"R/SelectivityFunctions.R"),local=TRUE);
 source(file.path(dirPrj,"R/getDFR_sdreport.R"),local=TRUE);
 source(file.path(dirPrj,"testing/compareSelFun.R"),local=TRUE);
@@ -125,6 +125,117 @@ refZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
 ggplot(tibble::tibble(z=z,s=dblnormal6(z,params,refZ)),aes(x=z,y=s)) + geom_line();
 compareSelFun(dblnormal6,z,params,refZ,title="dblnormal6(z,p,refZ)");
 
+#--sel function: stackedLogistic1(z,p,refZ)----
+params = c(0.2,  #--omega: -weighting factor on the first curve
+            75,  #--mnZ1: size at inflection point for 1st logistic curve
+            10,  #--sdZ1: sd for 1st logistic curve
+           145,  #--mnZ2: size at inflection point for 2nd logistic curve
+            10); #--sdZ2: sd for 2nd logistic curve
+refZ  = 185;     #--not used
+#--set `f` to function in global environment to be tested
+ggplot(tibble::tibble(z=z,s=stackedLogistic1(z,params,refZ)),aes(x=z,y=s)) + geom_line();
+compareSelFun(stackedLogistic1,z,params,refZ,title="stackedLogistic1(z,p,refZ)");
+
+#--sel function: selSpline(z,p,knots)----
+#--set up a spline curve
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+refZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+nk = 6; ik = seq(from=1,to=nz,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selSpline(z,params,knots);
+refZ  = 185;     #--not used
+#--set `f` to function in global environment to be tested
+dfr1 = tibble::tibble(z=z,s=selSpline(z,params,knots));
+dfr2 = tibble::tibble(z=z,s=yz);
+dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
+ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
+  geom_point(data=dfr2,colour="blue") +
+  geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
+compareSelFun(selSpline,z,params,knots,title="selSpline(z,params,knots)");
+
+#--sel function: selClmpSpline(z,p,knots)----
+#--set up a spline curve "clamped" on both ends
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+nk = 6; ik = seq(from=3,to=nz-3,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selClmpSpline(z,params,knots);
+refZ  = 185;     #--not used
+#--set `f` to function in global environment to be tested
+dfr1 = tibble::tibble(z=z,s=selSpline(z,params,knots));
+dfr2 = tibble::tibble(z=z,s=yz);
+dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
+ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
+  geom_point(data=dfr2,colour="blue") +
+  geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
+compareSelFun(selClmpSpline,z,params,knots,title="selClmpSpline(z,params,knots)");
+
+#--sel function: selClmpSplineLeft(z,p,knots)----
+#--set up a spline curve "clamped" on left end
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+nk = 6; ik = seq(from=3,to=nz-3,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selClmpSplineLeft(z,params,knots);
+refZ  = 185;     #--not used
+#--set `f` to function in global environment to be tested
+dfr1 = tibble::tibble(z=z,s=selSpline(z,params,knots));
+dfr2 = tibble::tibble(z=z,s=yz);
+dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
+ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
+  geom_point(data=dfr2,colour="blue") +
+  geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
+compareSelFun(selClmpSplineLeft,z,params,knots,title="selClmpSplineLeft(z,params,knots)");
+
+#--sel function: selClmpSplineRight(z,p,knots)----
+#--set up a spline curve "clamped" on left end
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+nk = 6; ik = seq(from=3,to=nz-3,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selClmpSplineRight(z,params,knots);
+refZ  = 185;     #--not used
+#--set `f` to function in global environment to be tested
+dfr1 = tibble::tibble(z=z,s=selSpline(z,params,knots));
+dfr2 = tibble::tibble(z=z,s=yz);
+dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
+ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
+  geom_point(data=dfr2,colour="blue") +
+  geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
+compareSelFun(selClmpSplineRight,z,params,knots,title="selClmpSplineRight(z,params,knots)");
 
 
 

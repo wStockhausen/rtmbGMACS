@@ -24,6 +24,7 @@
 #' \item{"dblnormal4"}
 #' \item{"dblnormal4a"}
 #' \item{"dblnormal6"}
+#' \item{"stackedlogistic"}
 #' }
 #'
 #'@export
@@ -102,19 +103,20 @@ const_sel<-function(z, params,ref=0,debug=FALSE){
 #' \item{params[2] - pWdZ - width (1/slope) at z50}
 #'}
 #'
-#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+#'If `refZ`>0, `refZ`=fully-selected size.
+#'if `refZ`<0, function is normalized to max.
 #'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
-asclogistic<-function(z,params,fsz=0,debug=FALSE){
-    z50   = params[1];
-    slope = 1.0/params[2];
-    res <- 1.0/(1.0+exp(-slope*(z-z50)));
-    scl <-1;
-    if (fsz>0){
-        scl<-(1.0+exp(-slope*(fsz-z50)));
-    } else if (fsz<0){
+asclogistic<-function(z,params,refZ=0,debug=FALSE){
+    z50  <- params[1];
+    slope<- 1.0/params[2];
+    res  <- 1.0/(1.0+exp(-slope*(z-z50)));
+    scl  <-1;
+    if (refZ>0){
+        scl<-(1.0+exp(-slope*(refZ-z50)));
+    } else if (refZ<0){
         scl<-1.0/max(res);
     }
     res<-scl*res;
@@ -146,8 +148,8 @@ asclogistic<-function(z,params,fsz=0,debug=FALSE){
 #'@export
 #'
 asclogistic5095<-function(z,params,refZ=0,debug=FALSE){
-  z50 = params[1];
-  slope = log(19.0)/(params[2]-params[1]);
+  z50 <- params[1];
+  slope <- log(19.0)/(params[2]-params[1]);
   return(asclogistic(z,c(z50,slope),refZ,debug));
 }
 #-----------------------------------------------------------------------------------
@@ -169,13 +171,14 @@ asclogistic5095<-function(z,params,refZ=0,debug=FALSE){
 #' \item{params[2] - z95-z50 - difference between sizes at 95\% and 50\%-selected}
 #'}
 #'
-#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
-#'if `refZ`=0, no re-scaling is done.
+#'If `refZ`>0, `refZ`=fully-selected size.
+#'If `refZ`<0, function is normalized to max.
+#'If `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
 asclogistic50D95<-function(z,params,refZ=0,debug=FALSE){
-    slope = log(19.0)/params[2];
+    slope <- log(19.0)/params[2];
     return(asclogistic(z,c(params[1],slope),refZ,debug));
 }
 #-----------------------------------------------------------------------------------
@@ -197,23 +200,24 @@ asclogistic50D95<-function(z,params,refZ=0,debug=FALSE){
 #' \item{params[4] - dscSlope - descending limb slope at 50\%-selected}
 #'}
 #'
-#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+#'If `refZ`>0, `refZ`=fully-selected size.
+#'if `refZ`<0, function is normalized to max.
 #'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
-dbllogistic<-function(z,params,fsz=0,debug=FALSE){
+dbllogistic<-function(z,params,refZ=0,debug=FALSE){
   #cat(z,'\n')
   #cat('z50, lnD = ',z50,lnD,'\n')
-  ascZ50   = params[1];
-  ascSlope = params[2];
-  dscZ50   = params[3];
-  dscSlope = params[4];
+  ascZ50   <- params[1];
+  ascSlope <- params[2];
+  dscZ50   <- params[3];
+  dscSlope <- params[4];
   res <- 1.0/(1.0+exp(-ascSlope*(z-ascZ50)))*1.0/(1.0+exp(dscSlope*(z-dscZ50)));
   scl <-1;
-  if (fsz>0){
-      scl<-(1.0+exp(-ascSlope*(fsz-ascZ50)))*(1.0+exp(dscSlope*(fsz-dscZ50)));
-  } else if (fsz<0){
+  if (refZ>0){
+      scl<-(1.0+exp(-ascSlope*(refZ-ascZ50)))*(1.0+exp(dscSlope*(refZ-dscZ50)));
+  } else if (refZ<0){
       scl<-1.0/max(res);
   }
   res<-scl*res;
@@ -241,7 +245,8 @@ dbllogistic<-function(z,params,fsz=0,debug=FALSE){
 #'  \item{params[4] - descending limb size at 50\% selected}
 #' }
 #'
-#'If `refZ`>0, fsz=fully-selected size. if `refZ`<0, function is normalized to max.
+#'If `refZ`>0, refZ is the fully-selected size.
+#'if `refZ`<0, function is normalized to max.
 #'if `refZ`=0, no re-scaling is done.
 #'
 #'@export
@@ -432,7 +437,7 @@ ascnormal3<-function(z,params,refZ=0,debug=FALSE){
 #' }
 #' @param z      - dvector of sizes at which to compute function values
 #' @param params - dvar_vector of function parameters
-#' @param fsZ    - size at which function = 1 (i.e., fully-selected size) [double] NOTE: ignored!
+#' @param refZ   - size at which function = 1 (i.e., fully-selected size) [double] NOTE: ignored!
 #'
 #' @return - named vector of selectivity values
 #' @export
@@ -525,5 +530,217 @@ dblnormal6<-function(z,params,refZ=0,debug=FALSE){
     names(s) = as.character(z);
     if (debug) message("Finished SelFcns::dblnormal6(...)");
     return(s);
+}
+
+#--stackedLogistic1-----
+#' @title Calculates a 5-parameter "stacked" logistic selectivity curve
+#' @description Function to calculate a 5-parameter "stacked" logistic selectivity curve.
+#' @details Calculates 5-parameter "stacked" logistic selectivity curve parameterized by
+#' \itemize{
+#'      \item params[1]: weighting factor on the first curve
+#'      \item params[2]: size at inflection point for 1st logistic curve
+#'      \item params[3]: sd for 1st logistic curve
+#'      \item params[4]: size at inflection point for 2nd logistic curve
+#'      \item params[5]: sd for the 2nd logistic curve
+#' }
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - vector of function parameters
+#' @param refZ   - ignored
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+stackedLogistic1<-function(z,params,refZ=0,debug=FALSE){
+    if (debug) message("Starting SelFcns::stackedLogistic(...)");
+    omega = params[1];#--weighting factor on the first curve
+    mnZ1  = params[2];#--size at inflection point for 1st logistic curve
+    sdZ1  = params[3];#--sd for 1st logistic curve
+    mnZ2  = params[4];#--size at inflection point for 2nd logistic curve
+    sdZ2  = params[5];#--sd for 2nd logistic curve
+    s1<-asclogistic(z,c(mnZ1,sdZ1),refZ=0,FALSE);
+    s2<-asclogistic(z,c(mnZ2,sdZ2),refZ=0,FALSE);
+    s<-omega*s1 + (1-omega)*s2;
+    names(s) = as.character(z);
+    if (debug) message("Finished SelFcns::stackedLogistic1(...)");
+    return(s);
+}
+
+#--stackedLogistic2-----
+#' @title Calculates a 6-parameter "stacked" logistic selectivity curve
+#' @description Function to calculate a 6-parameter "stacked" logistic selectivity curve.
+#' @details Calculates 6-parameter "stacked" logistic selectivity curve parameterized by
+#' \itemize{
+#'      \item params[1]: asymptote for 1st logistic curve
+#'      \item params[2]: size at inflection point for 1st logistic curve
+#'      \item params[3]: sd for 1st logistic curve
+#'      \item params[4]: asymptote for complete stacked curve
+#'      \item params[5]: size at inflection point for 2nd logistic curve
+#'      \item params[6]: sd for the 2nd logistic curve
+#' }
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - vector of function parameters
+#' @param refZ   - ignored
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+stackedLogistic2<-function(z,params,refZ=0,debug=FALSE){
+    if (debug) message("Starting SelFcns::stackedLogistic(...)");
+    asm1  = params[1];#--asymptote for 1st logistic curve
+    mnZ1  = params[2];#--size at inflection point for 1st logistic curve
+    sdZ1  = params[3];#--sd for 1st logistic curve
+    asmT  = params[4];#--asymptote for complete stacked curve
+    mnZ2  = params[5];#--size at inflection point for 2nd logistic curve
+    sdZ2  = params[6];#--sd for 2nd logistic curve
+    s1<-asclogistic(z,c(mnZ1,sdZ1),refZ=0,FALSE);
+    s2<-asclogistic(z,c(mnZ2,sdZ2),refZ=0,FALSE);
+    s<-asm1*s1 + (asmT-asm1)*s2;
+    names(s) = as.character(z);
+    if (debug) message("Finished SelFcns::stackedLogistic2(...)");
+    return(s);
+}
+
+#--selSpline-----
+#' @title Calculates a selectivity curve using a spline function
+#' @description Function to calculate a selectivity curve using a spline function.
+#' @details Calculates a selectivity curve using a spline function based on
+#' [RTMB::splinefun()]. The values in the `params` vector are the logit-scale
+#' values at the knots. The first `n` values in the `consts` vector are the knots,
+#' where `n` is th length of `params`.
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - logit-scale vector of function parameters
+#' @param consts - vector of knots
+#'
+#' @return - named vector of selectivity values
+#' @export
+#'
+selSpline<-function(z,params,consts,debug=FALSE){
+  if (debug) message("Starting SelFcns::selSpline(...)");
+  nk = length(params);
+  xk = consts[1:nk];
+  yk = params;
+  yk = exp(yk)/(1.0+exp(yk));
+  sf = RTMB::splinefun(xk,yk,"natural");#--returns a function
+  s = sf(z);#--values of sf evaluated at z
+  names(s) = as.character(z);
+  if (debug) message("Finished SelFcns::selSpline(...)");
+  return(s);
+}
+
+#--selClmpSpline-----
+#' @title Calculates a selectivity curve using a clamped spline function
+#' @description Function to calculate a selectivity curve using a clamped spline function.
+#' @details Calculates a selectivity curve using a clamped spline function based on
+#' [RTMB::splinefun()]. The values in the `params` vector are the logit-scale
+#' values at the knots. The first `n` values in the `consts` vector are the knots,
+#' where `n` is th length of `params`. The spline is "clamped" at both ends
+#' by adding `nr` extra knots at each end with values equal to the first (lower knots)
+#' or last (upper knots) values in `param`. The separation of the extra knots is
+#' taken as `1/(nr+1)` times the minimum separation in the `z` vector. Any values extrapolated
+#' for `z` values less than the first extra knot (or greater than the last extra knot)
+#' will be the same as the the inverse logit-transformed value of the first (last) value
+#' of the `param` vector.
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - logit-scale vector of function parameters (values at knots)
+#' @param consts - vector of knots
+#'
+#' @return - named vector of selectivity values at `z`
+#' @importFrom RTMB splinefun
+#' @export
+#'
+selClmpSpline<-function(z,params,consts,debug=FALSE){
+  if (debug) message("Starting SelFcns::selClmpSpline(...)");
+  nr = 10; #--number of values to repeat
+  dk = min(diff(z))/(nr+1);
+  nk = length(params);
+  xk = c(consts[1]-dk*rev(1:nr),consts[1:nk],consts[nk]+dk*(1:nr));
+  yk = c(rep(params[1],nr),params,rep(params[nk],nr));
+  #--testing with stats:
+  #  sf = stats::splinefun(xk,yk,"fmm");#--returns a function
+  #  sf(z,2); sf(z,1);sf(z,0);
+  sf = RTMB::splinefun(xk,yk,"natural");#--returns a function
+  s = sf(z);#--logit-scale values of sf evaluated at z
+  s = exp(s)/(1.0+exp(s));
+  names(s) = as.character(z);
+  if (debug) message("Finished SelFcns::selClmpSpline(...)");
+  return(s);
+}
+
+#--selClmpSplineRight-----
+#' @title Calculates a selectivity curve using a right-clamped spline function
+#' @description Function to calculate a selectivity curve using a right-clamped spline function.
+#' @details Calculates a selectivity curve using a right-clamped spline function based on
+#' [RTMB::splinefun()]. The values in the `params` vector are the logit-scale
+#' values at the knots. The first `n` values in the `consts` vector are the knots,
+#' where `n` is th length of `params`. The spline is "clamped" at the righthand end
+#' by adding `nr` extra knots at the end with values equal to the
+#' last (upper knots) values in `param`. The separation of the extra knots is
+#' taken as `1/(nr+1)` the minimum separation in the `z` vector. Any values extrapolated
+#' for `z` values greater than the last extra knot
+#' will be the same as the the inverse logit-transformed value of the last value
+#' of the `param` vector.
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - logit-scale vector of function parameters (values at knots)
+#' @param consts - vector of knots
+#'
+#' @return - named vector of selectivity values at `z`
+#' @importFrom RTMB splinefun
+#' @export
+#'
+selClmpSplineRight<-function(z,params,consts,debug=FALSE){
+  if (debug) message("Starting SelFcns::selClmpSplineRight(...)");
+  nr = 10; #--number of values to repeat
+  dk = min(diff(z))/(nr+1);
+  nk = length(params);
+  xk = c(consts[1:nk],consts[nk]+dk*(1:nr));
+  yk = c(params,rep(params[nk],nr));
+  #--testing with stats:
+  #  sf = stats::splinefun(xk,yk,"fmm");#--returns a function
+  #  sf(z,2); sf(z,1);sf(z,0);
+  sf = RTMB::splinefun(xk,yk,"natural");#--returns a function
+  s = sf(z);#--logit-scale values of sf evaluated at z
+  s = exp(s)/(1.0+exp(s));
+  names(s) = as.character(z);
+  if (debug) message("Finished SelFcns::selClmpSplineRight(...)");
+  return(s);
+}
+
+#--selClmpSplineLeft-----
+#' @title Calculates a selectivity curve using a left-clamped spline function
+#' @description Function to calculate a selectivity curve using a left-clamped spline function.
+#' @details Calculates a selectivity curve using a clamped spline function based on
+#' [RTMB::splinefun()]. The values in the `params` vector are the logit-scale
+#' values at the knots. The first `n` values in the `consts` vector are the knots,
+#' where `n` is th length of `params`. The spline is "clamped" at the left end
+#' by adding `nr` extra knots at each end with values equal to `param[1]`.
+#' The separation of the extra knots is
+#' taken as `1/(nr+1)` times the minimum separation in the `z` vector. Any values extrapolated
+#' for `z` values less than the first extra knot
+#' will be the same as the the inverse logit-transformed value of the first value
+#' of the `param` vector.
+#' @param z      - vector of sizes at which to compute function values
+#' @param params - logit-scale vector of function parameters (values at knots)
+#' @param consts - vector of knots
+#'
+#' @return - named vector of selectivity values at `z`
+#' @importFrom RTMB splinefun
+#' @export
+#'
+selClmpSplineLeft<-function(z,params,consts,debug=FALSE){
+  if (debug) message("Starting SelFcns::selClmpSplineLeft(...)");
+  nr = 10; #--number of values to repeat
+  dk = min(diff(z))/(nr+1);
+  nk = length(params);
+  xk = c(consts[1]-dk*rev(1:nr),consts[1:nk]);
+  yk = c(rep(params[1],nr),params);
+  #--testing with stats:
+  #  sf = stats::splinefun(xk,yk,"fmm");#--returns a function
+  #  sf(z,2); sf(z,1);sf(z,0);
+  sf = RTMB::splinefun(xk,yk,"natural");#--returns a function
+  s = sf(z);#--logit-scale values of sf evaluated at z
+  s = exp(s)/(1.0+exp(s));
+  names(s) = as.character(z);
+  if (debug) message("Finished SelFcns::selClmpSplineLeft(...)");
+  return(s);
 }
 
