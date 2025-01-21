@@ -20,7 +20,7 @@ website:
 
   page-footer:
     right: "This page is built with [Quarto](https://quarto.org/)."
-    left: "&copy; 2024-10-25"
+    left: "&copy; 2025-01-21"
 
   sidebar:
     # logo: "images/openscapes_hex.png"
