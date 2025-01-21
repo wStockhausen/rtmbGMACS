@@ -23,7 +23,7 @@ for (r in 1:nrow(dfrDXYIs)){
   x = rnorm(1,rw[[1]],1);
   raObs[rw]
 }
-raObs = |
+#--raObs = | <--??
 # How to:
 #--1. map parameters to the same values using the "map" argument to MakeADFun
 #--2. turn parameters on-and-off using the "map" argument to MakeADFun

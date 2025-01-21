@@ -146,5 +146,5 @@ calcInitN<-function(dims,options,params,verbose){
 #'
 calcSelFcns<-function(dims,options,params,verbose){
   if (verbose) cat("starting calcSelFcns\n");
-  for (i in)
+  #  for (i in)
 }

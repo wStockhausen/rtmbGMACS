@@ -74,7 +74,7 @@ spcs_LnM = list(
           3 ,  "MALE",  "MATURE", "model",  1  ,"add" ,"normal",log(0.23) ,  0.4, "none"  ,
           4 ,"FEMALE",  "MATURE", "model",  1  ,"add" ,"normal",log(0.23) ,  0.4, "none"  ),
   pe_pars  = tibble::tribble(
-      ~prc_idx,~idx, ~par , ~transf, ~ival , ~lb , ~ub, ~phs, ~RE?,
+      ~prc_idx,~idx, ~par , ~transf, ~ival , ~lb , ~ub, ~phs, ~`RE?`,
           1   ,  1 ,"mean", "none",   0   ,  -1 ,   1,   -1, FALSE,
           1   ,  2 ,"sd"  , "none",   1   , -10 ,  10,    5, FALSE),
   prc_lnks = tibble::tribble(
@@ -83,7 +83,7 @@ spcs_LnM = list(
           3   ,   2 ,"model", "NPGO" ,  0  , -5 ,  5 ,   4  , "normal",  0 ,  1 ,"mult"
     ),
   params = tibble::tribble(
-      ~prc_idx, ~idx , ~par ,   ~TB  , ~base, ~transf ,  ~ival  ,   ~lb   ,  ~ub   , ~phs , ~prType, ~pr1,~pr2, ~RE? ,
+      ~prc_idx, ~idx , ~par ,   ~TB  , ~base, ~transf ,  ~ival  ,   ~lb   ,  ~ub   , ~phs , ~prType, ~pr1,~pr2, ~`RE?`,
           1,      1  ,  "p" , "model",   0  , "none"  ,log(0.23), log(0.1),log( 1.0),   4 ,"normal",  0  ,  1 , FALSE,
           3,      2  ,  "dp", "model",   0  , "none"  ,log(1.00), log(0.1),log(10.0),   4 ,"normal",  0  ,  1 , FALSE,
           4,      3  ,  "dp", "model",   0  , "none"  ,log(1.00), log(0.1),log(10.0),   4 ,"normal",  0  ,  1 , FALSE),
