@@ -1,0 +1,83 @@
+---
+title: "Population Dynamics"
+crossref: 
+  fig-title: Figure
+  tbl-title: Table
+comment: "#>"
+collapse: true
+toc: true
+format: 
+  html: 
+    html-math-method: mathjax
+tbl-cap-location: top
+fig-cap-location: bottom
+#prefer-html: true
+keep-md: false
+keep-yaml: false
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+```{r links, include=FALSE}
+  hl_ADMB  = "http://www.admb-project.org";
+  hl_GMACS = "https://github.com/GMACS-project/GMACS_Assessment_code";
+  hl_R     = "https://www.r-project.org/";
+  hl_RTMB  = "https://github.com/kaskr/RTMB";
+  hl_TMB   = "https://kaskr.github.io/adcomp";
+  bbrkc = "https://meetings.npfmc.org/CommentReview/DownloadFile?p=b98b90b2-88ab-43c2-9487-c12cdb4e0a25.pdf&fileName=BBRKC%20SAFE%202022%20Final.pdf";
+  snow_crab = "https://meetings.npfmc.org/CommentReview/DownloadFile?p=fca55335-ad34-4896-9b1e-4c09aa8342ce.pdf&fileName=EBS%20Snow%20SAFE%20FINAL.pdf";
+```
+
+## Population model description 
+
+The GMACS population model integrates the abundance of individuals in various discrete population categories over time based on assumptions regarding population processes consisting of recruitment, growth, maturation, natural mortality, and fishing mortality. Typical population categories might be sex and size, but it is possible to define a model with up to six categories, including region, sex, maturity state, age, post-molt age, and size. Although crustaceans cannot typically be aged, age (and post-molt age) can be included as a population category if population processes such as maturation or natural mortality are thought to have a strong age dependence.
+
+Population abundance in GMACS is represented as vector, $\mathbf{n}$, with elements $n_c$, where $c$ is a 1-dimensional index across the combination of population categories. The temporal nature of the population is represented by $\mathbf{n}(t)$, a vector representing the abundance in each category at time $t$ (i.e., a vector with elements $n_c(t)$).
+
+Heuristically, the population is integrated through time based on the following differential equation:
+
+$$ \frac{d\mathbf{n}}{dt} = \left[ \mathbf{T}(t)-(\mathbf{M}(t)+\mathbf{F}(t)) \right]*\mathbf{n}(t) + \mathbf{R}(t) $$ {#eq-1}
+
+where $\mathbf{T}(t)$ is a $c$ x $c$ matrix representing transition rates between population categories (e.g., growth or movement) at time $t$, $\mathbf{M}(t)$ is a similarly-sized diagonal matrix representing natural mortality at time $t$, $\mathbf{F}(t)$ is a similarly-sized diagonal matrix representing fishing mortality at time $t$, and $\mathbf{R}(t)$ is a $c$ x 1 vector representing the rate of recruitment at time $t$ of new crab into each population category. 
+
+Assuming the rates in eq. {-eq-1} are constant across a timestep $\delta t$, eq. [-@eq-1] can be integrated to obtain
+
+$$\mathbf{n}_{t+\delta t} = e^{\mathbf{A}_t \delta t_s}*\mathbf{n}_t + \mathbf{R}_t \cdot \delta t$$ {#eq-2}
+ 
+where $\mathbf{A}_t=\left[ \mathbf{T}_t-(\mathbf{M}_t+\mathbf{F}_t) \right]$. To meet the assumption of constant rates across the integration time step $\delta t$, the In practice, when $\mathbf{T}_t$ represents growth processes, these are regarded as discrete-time processes with a season length of zero, so that 
+
+$$ \mathbf{n}_{t+1} = \mathbf{T}_t \cdot \mathbf{n}_t $$ {#eq-3}
+ 
+for seasons in which growth occurs and 
+
+$$ \mathbf{n}_{t+1} = e^{-\left[ \mathbf{M}_t+\mathbf{F}_t \right]\cdot \delta t} \cdot \mathbf{n}_t$$ {#eq-4}
+
+for seasons with non-zero lengths in which mortality occurs.
+
+Recruitment, the addition of new individuals to the model population categories, is also considered a discrete-time process associated with a season of zero length, so 
+
+$$ \mathbf{n_{t+1}} = \mathbf{r}_t+\mathbf{n}_t $$ {#eq-5}
+
+when recruitment occurs, where $\mathbf{r}_t$ is a vector of length $c$.
+
+At an annual time step $y$, the integration across $n_s$ seasons $s$ can be represented as 
+
+$$ \mathbf{n}_{y+1,s=1} = \{ \prod_{s \in {s_a}} \mathbf{\Lambda}_{y,s} \} \cdot \{ \mathbf{r}_y + \cdot \{ \prod_{s \in {s_b}} \mathbf{\Lambda}_{y,s} \} \cdot \mathbf{n}_{y,s=1} \}$$ {#eq-6}
+
+where $s_a$ are seasons after recruitment occurs and $s_b$ are seasons before recruitment occurs. This can be represented more compactly as 
+
+$$ \mathbf{n_{y+1}} = \mathfrak{\mathbf{A}}_y \cdot \{\mathbf{r}_y + \mathfrak{\mathbf{B}}_y \cdot \mathbf{n}_y \}$$ {#eq-7}
+
+where the season subscript has been dropped ($s=1$) from the $\mathbf{n}$'s. 
+
+Assuming that the terms in @eq-7 can be replaced by equilibrium equivalents (e.g., appropriate longterm averages), the equilibrium population size structure $<\mathbf{n}>$ is given by 
+
+$$ <\mathbf{n}> = [<\mathfrak{\mathbf{A}}>^{-1} - <\mathfrak{\mathbf{B}}>]^{-1} <\mathbf{r}>$$ {#eq-eq_soln}
+
+where $<  >$ is the expected value operator.
+

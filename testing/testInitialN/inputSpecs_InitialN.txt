@@ -1,0 +1,61 @@
+#--rtmbGMACS initial N specifications----
+  INITIAL_N
+#--calculation options
+##--"zero_pop" - no parameters
+##--"steady-state_unfished"
+##--"steady-state_fished"
+##--"free_parameters_v1" - freely estimated parameters
+##--"free_parameters_v2" - freely estimated parameters
+free_parameters_v2 #--selected calculation option
+
+#--specifications for calculation options
+#--dimensions are region (r), sex (x), maturity state (m), age (shell condition)(a), and size (z)
+
+##--option = zero_pop: no specifications needed
+
+##--option = steady-state_unfished:
+# 1 #--number of parameters defined
+#  idx  param  r    IV    LB    UB    phz   PriorType  Pr1    Pr2
+#   1    lnR0  EBS   7     0    10      1      none      0     999
+
+##--option = steady-state_fished:
+# 1 #--number of parameters defined
+#  idx  param   r    IV    LB    UB    phz   PriorType  Pr1    Pr2
+#   1  lnRini  EBS    7     0    10      1      none      0     999
+
+##--option = free_parameters_v1:
+# 6 #--number of rows to read
+####--values on ln-scale
+# r     x        m          a                 z                    IV               LB    UB    phz   PriorType  Pr1    Pr2
+# EBS    male  immature  new_shell  seq(27.5, 57.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+# EBS    male    mature  new_shell  seq(62.5,182.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+# EBS    male    mature  old_shell  seq(62.5,182.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+# EBS  female  immature  new_shell  seq(27.5, 42.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+# EBS  female    mature  new_shell  seq(42.5,132.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+# EBS  female    mature  old_shell  seq(42.5,132.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+
+##--option = free_parameters_v2:
+##--ln-scale total nitial population abundance
+ IV    LB     UB     phz   PriorType  Pr1    Pr2
+  7     0     10      2     none      0      999
+##--ln-scale relative initial population abundance
+###--reference size class
+ r     x        m            a        z
+ EBS  male    mature     new_shell  137.5
+ 6  #--number of rows to read
+###--values on ln-scale, will be normalized to sum to 1
+ r     x        m          a                 z                      IV             LB    UB    phz   PriorType  Pr1    Pr2
+ EBS    male  immature  new_shell  seq(27.5,57.5,5)   -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+ EBS    male    mature  new_shell  seq(62.5,182.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+ EBS    male    mature  old_shell  seq(62.5,182.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+ EBS  female  immature  new_shell  seq(27.5,42.5,5)   -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+ EBS  female    mature  new_shell  seq(42.5,132.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+ EBS  female    mature  old_shell  seq(42.5,132.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
+
+END
+
+
+
+
+
+

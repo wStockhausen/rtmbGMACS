@@ -1,0 +1,11 @@
+NOTE on modifying the website
+
+update the current date at website/page-footer/left
+
+adding new qmd files
+  Add new files to _quarto.yml under
+    project/render
+  and
+    website/sidebar/contents/
+
+

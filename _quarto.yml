@@ -1,0 +1,77 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - website/01_Intro.qmd
+    - website/02_PopDyMod.qmd
+    - website/03_ModelDimensions.qmd
+    - website/04_FunctionsAndParametersSpecification.qmd
+    - website/05_ADMB-InputFiles.qmd
+
+execute:
+  freeze: auto
+
+website:
+  page-navigation: true
+  title: "rtmbGMACS: the Generalized Model for Assessing Crustacean Stocks, ported to RTMB"
+  site-url: "https://wstockhausen.github.io/rtmbGMACS/"
+  repo-url: https://github.com/wStockhausen/rtmbGMACS
+  repo-actions: [edit, issue]
+
+  page-footer:
+    right: "This page is built with [Quarto](https://quarto.org/)."
+    left: "&copy; 2025-01-21"
+
+  sidebar:
+    # logo: "images/openscapes_hex.png"
+    # pinned: true
+    # align: center
+    # tools:
+    #   - icon: globe
+    #     href: https://openscapes.org
+    #     text: "Openscapes.org"
+    #   - icon: github
+    #     href: https://github.com/openscapes/quarto-website-tutorial
+    #     text: "Quarto website tutorial"
+    #   - icon: twitter
+    #     href: https://twitter.com/openscapes
+    #     text: "Openscapes Twitter"
+
+    style: "docked"
+    search: true
+    collapse-level: 1
+    contents:
+      - href: website/01_Intro.qmd
+        text: Introduction
+      - href: website/02_PopDyMod.qmd
+        text: Population Dynamics
+      - href: website/03_ModelDimensions.qmd
+        text: Model Dimensions
+      - href: website/04_FunctionsAndParametersSpecification.qmd
+        text: Functions and Parameters Specification
+      - href: website/05_ADMB-InputFiles.qmd
+        text: Using ADMB Input files
+      # - explore.qmd
+      # - section: quarto-workflows/index.qmd
+      #   contents:
+      #     - quarto-workflows/browser.md
+      #     - quarto-workflows/rstudio.qmd
+      #     - quarto-workflows/jupyter.md
+      # - learning-more.qmd
+      # - href: transition-from-rmarkdown.qmd
+      #   text: Transition from Rmd
+
+
+format:
+  html:
+    theme:
+      light: [cosmo, theme.scss] # from https://github.com/sta210-s22/website/blob/main/_quarto.yml
+      dark: [cosmo, theme-dark.scss]
+    code-copy: true
+    code-overflow: wrap
+    toc: true
+
+
+filters:
+#  - include-files.lua
+  - quarto

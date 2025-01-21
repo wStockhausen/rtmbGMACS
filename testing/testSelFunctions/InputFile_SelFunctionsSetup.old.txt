@@ -1,0 +1,22 @@
+#--rtmbGMACS selectivity functions specifications----
+##--
+1 #--number of selectivity/retention functions to define
+##--function 1----
+#fcn_idx  type       num_pars
+1    asclogistic5095    2
+###--main parameters----
+par_name  IV   LB     UB   PriorType  Pr1  Pr1  Phz  Time_Block  RW_Type  RW_Time_Block  RW_Sigma  Num_Env_Covars  Env_Link  Env_Time_Block
+z50       80   40    120   none        0   999   1
+####--Env covar parameters----
+par_name  IV   LB     UB   PriorType  Pr1  Pr1  Phz  Time_Block  RW_Type  RW_Time_Block  RW_Sigma  Num_Env_Covars  Env_Link  Env_Time_Block
+z50       80   40    120   none        0   999   1
+####--Env covar parameters----
+##--function 2----
+#fcn_idx  type       num_functions  num_pars
+2     pre-specified       1            32
+##size/value
+fcn_idx 27.5 32.5 37.5 42.5 47.5 52.5 57.5 62.5 67.5 72.5 77.5 82.5 87.5 92.5 97.5 102.5 107.5 112.5 117.5 122.5 127.5 132.5 137.5 142.5 147.5 152.5 157.5 162.5 167.5 172.5 177.5 182.5 #--year
+  1982  0.07681795834302847 0.09980829231251821 0.1365610991253582 0.16090060864144873 0.2188207839672158 0.29542068784503467 0.2562075275693814 0.27578969152414257 0.3421483046507837 0.40169803652701136 0.42253873660345015 0.4464761968684763 0.4452252625696555 0.4350243239908305 0.42492499891034785 0.42774610438308497 0.4320463121548869 0.4598346921883049 0.47758784838705576 0.5073855669186867 0.5166235459455137 0.524606612554269 0.48898640387007636 0.5326681909523229 0.47582012708482474 0.49879770513832405 0.49879770513832405 0.49879770513832405 0.49879770513832405 0.49879770513832405 0.49879770513832405 0.49879770513832405 #-- 1982
+
+##--application
+fcn_idx  fleet  time_block   region  sex  maturity  age  size_block

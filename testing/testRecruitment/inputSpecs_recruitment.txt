@@ -1,0 +1,63 @@
+#--rtmbGMACS recruitment specifications----
+  RECRUITMENT
+2 #--number of recruitment-specific time blocks to define
+#--recruitment-specific time blocks
+name   time_block  label
+tbRec1  1948:1974  spin-up_period
+ #--normal model period
+tbRec2  1975:2024  normal_period
+
+##--total recruitment----
+2  #--number of time series
+###--time series----
+fcn_idx    type       main_pars  label
+  1       noSR          1:2      spin-up_period_recruitment
+  2       noSR        c(2,3)     normal_period_recruitment
+###--main parameters----
+par_idx par_name  IV   LB     UB   PriorType  Pr1  Pr2  Phz  RW_Type    idx_RW_pars   RW_Time_Block  RW_Sigma  Num_Env_Covars  Env_Link  Env_Time_Block  label
+1        pLnR      7     0    15    none       0   999   1     AR1          1           tbRec1        0.5           0           none        none       spin-up_period
+2      pLnSigmaR  -1   -10    10    none       0   999  -1    none          0           none           0            0           none        none       model_period
+3        pLnR      7     0    15    none       0   999   1     AR0          0           tbRec2        0.5           0           none        none        normal_period
+####--RW parameters----
+par_idx  rw_par  IV  LB  UB  Phz   label
+1         pRho   0   -1  1   -1    recruitment_autocorrelation
+####--Env covar parameters----
+
+##--sex ratio----
+2  #--number of time series
+fcn_idx   type      main_pars  label
+1       logit          1         spin-up_period_male_sex_ratio
+2       logit          2         normal_period_male_sex_ratio
+###--main parameters----
+par_idx  par_name      IV   LB     UB   PriorType  Pr1  Pr2  Phz  RW_Type  idx_RW_pars   RW_Time_Block  RW_Sigma  RW_REs?   Num_Env_Covars  Env_Link  Env_Time_Block      label
+  1      pLgtMXR       0    -1     1     none       0   999  -1    none        0          none           0        FALSE           0           none        none         male_sex_ratio
+  2      pLgtMXR       0    -1     1      AR1       0   999   1     AR1        1          tbRec2         0.1      TRUE            0           none        none         male_sex_ratio
+####--RW parameters----
+par_idx  rw_par  IV  LB  UB  Phz   label
+1         pRho   0   -1  1   -1    recruitment_autocorrelation
+####--Env covar parameters----
+
+##--recruitment size distribution
+1  #--number of size distributions
+fcn_idx  time_block  function    main_pars  label
+   1      tbAll       gamma         1:2      size_distribution
+###--main parameters----
+par_idx par_name  IV   LB     UB   PriorType  Pr1  Pr2  Phz  RW_Type  idx_RW_pars   RW_Time_Block  RW_Sigma  RW_REs?  Num_Env_Covars  Env_Link  Env_Time_Block  label
+   1     pMnZ     35   25     45   none        0   999   1    none        0             TB1          0.5      FALSE        0           none        none       mean_size
+   2     pWdZ     10    5     25   none        0   999   1    none        0             TB1          0.5      FALSE        0           none        none       width
+####--RW parameters----
+####--Env covar parameters----
+
+##--process specifications----
+2 #--number of process specifications
+time_block   s    r      x        m         a                z        idxFcn_TotalRec  idxFcn_SexRatio  idxFcn_SizeDistribution
+tbRec1       1   all    all   immature  new_shell   seq(27.5,57.5,5)         1                1                    1
+tbRec2       1   all  female  immature  new_shell   seq(37.5,57.5,5)         2                2                    1
+
+END
+
+
+
+
+
+
