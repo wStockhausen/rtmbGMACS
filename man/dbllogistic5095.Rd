@@ -30,6 +30,7 @@ The parameters are
  \item{params[4] - descending limb size at 50\% selected}
 }
 
-If `refZ`>0, fsz=fully-selected size. if `refZ`<0, function is normalized to max.
+If `refZ`>0, refZ is the fully-selected size.
+if `refZ`<0, function is normalized to max.
 if `refZ`=0, no re-scaling is done.
 }

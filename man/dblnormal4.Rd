@@ -11,7 +11,7 @@ dblnormal4(z, params, refZ = 0, debug = FALSE)
 
 \item{params}{- dvar_vector of function parameters}
 
-\item{fsZ}{- size at which function = 1 (i.e., fully-selected size) [double] NOTE: ignored!}
+\item{refZ}{- size at which function = 1 (i.e., fully-selected size) [double] NOTE: ignored!}
 }
 \value{
 - named vector of selectivity values

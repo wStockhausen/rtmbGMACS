@@ -4,16 +4,16 @@
 \alias{asclogistic}
 \title{Calculate an ascending logistic function parameterized by z50 and slope}
 \usage{
-asclogistic(z, params, fsz = 0, debug = FALSE)
+asclogistic(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
 \item{z}{- vector of sizes at which to compute selectivities}
 
 \item{params}{- 2-element vector with selectivity function parameters}
 
-\item{debug}{- flag (T/F) to print debugging messages}
-
 \item{refZ}{- reference size}
+
+\item{debug}{- flag (T/F) to print debugging messages}
 }
 \value{
 named vector with selectivity values at the elements of z
@@ -28,6 +28,7 @@ The parameter values are
 \item{params[2] - pWdZ - width (1/slope) at z50}
 }
 
-If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+If `refZ`>0, `refZ`=fully-selected size.
+if `refZ`<0, function is normalized to max.
 if `refZ`=0, no re-scaling is done.
 }

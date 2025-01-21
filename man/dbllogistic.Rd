@@ -4,16 +4,16 @@
 \alias{dbllogistic}
 \title{Calculate a logistic selectivity curve}
 \usage{
-dbllogistic(z, params, fsz = 0, debug = FALSE)
+dbllogistic(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
 \item{z}{- vector of sizes at which to compute selectivity curve}
 
 \item{params}{- 4-element vector of selectivity function parameters}
 
-\item{debug}{- flag (T/F) to print debugging messages}
-
 \item{refZ}{- reference size}
+
+\item{debug}{- flag (T/F) to print debugging messages}
 }
 \value{
 named vector with selectivity values at the elements of z
@@ -30,6 +30,7 @@ The parameter values are
 \item{params[4] - dscSlope - descending limb slope at 50\%-selected}
 }
 
-If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
+If `refZ`>0, `refZ`=fully-selected size.
+if `refZ`<0, function is normalized to max.
 if `refZ`=0, no re-scaling is done.
 }

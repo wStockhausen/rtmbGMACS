@@ -38,7 +38,13 @@ conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data.txt");
 res = readParamInfo_Allometry(conn,verbose=FALSE);
 res1 = extractParameters_Allometry(res,dims$dms_yrxmaz,verbose=FALSE);
 sel_dims = (dims$dms_yrxmaz |> dplyr::filter(y==2021))[1:3,];#--just extract values at 3 dimension combinations
-sel_pars = calcWatZ_data(sel_dims,res1$dfrAll,res1$params);
+sel_pars = calcWatZ_data(sel_dims,res1$dfrDims2Pars,res1$params);
 dplyr::bind_cols(sel_dims,par_val=sel_pars)
+# A tibble: 3 × 8
+#     sparse_idx y    r     x      m        a         z       par_vals
+#        <int> <fct> <fct> <fct>  <fct>    <fct>     <fct>      <dbl>
+# 1      11777 2021  EBS   female immature new_shell 27    0.00000605
+# 2      11778 2021  EBS   female immature new_shell 32    0.00000976
+# 3      11779 2021  EBS   female immature new_shell 37    0.0000147
 }\if{html}{\out{</div>}}
 }

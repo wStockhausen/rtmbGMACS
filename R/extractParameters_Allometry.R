@@ -202,6 +202,7 @@ extractParameters_Allometry<-function(lst,
 # res  = readParamInfo_Allometry(conn,verbose=FALSE);
 # res1 = extractParameters_Allometry(res,dims$dms_yrxmaz,verbose=FALSE);
 #
+if (FALSE){
 #--"function" option-----------
 conn = file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.function.txt");
 res  = readParamInfo_Allometry(conn,verbose=FALSE);
@@ -235,3 +236,4 @@ res1 = extractParameters_Allometry(res,dims$dms_yrxmaz,verbose=FALSE);
 #         dplyr::nest_join(res1$dfrFECs |> dplyr::select(!c(fcn,link_type,IV,LB,UB,phz,PriorType,Pr1,Pr2)),name="fcov_idxs");
 # }
 # head(dfrf);
+}

@@ -28,6 +28,7 @@ The parameter values are
 \item{params[2] - z95-z50 - difference between sizes at 95\% and 50\%-selected}
 }
 
-If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
-if `refZ`=0, no re-scaling is done.
+If `refZ`>0, `refZ`=fully-selected size.
+If `refZ`<0, function is normalized to max.
+If `refZ`=0, no re-scaling is done.
 }

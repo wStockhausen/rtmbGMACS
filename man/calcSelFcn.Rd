@@ -35,5 +35,6 @@ Calculate values for a selectivity curve.
 \item{"dblnormal4"}
 \item{"dblnormal4a"}
 \item{"dblnormal6"}
+\item{"stackedlogistic"}
 }
 }

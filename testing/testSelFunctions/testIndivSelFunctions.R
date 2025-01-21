@@ -188,7 +188,7 @@ ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
 compareSelFun(selClmpSpline,z,params,knots,title="selClmpSpline(z,params,knots)");
 
 #--sel function: selClmpSplineLeft(z,p,knots)----
-#--set up a spline curve "clamped" on left end
+#--set up a spline curve "clamped" on the left end
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
             0.5, #--scaled increment to params[1] at which descending limb departs from 1
@@ -213,7 +213,7 @@ ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
 compareSelFun(selClmpSplineLeft,z,params,knots,title="selClmpSplineLeft(z,params,knots)");
 
 #--sel function: selClmpSplineRight(z,p,knots)----
-#--set up a spline curve "clamped" on left end
+#--set up a spline curve "clamped" on the right end
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
             0.5, #--scaled increment to params[1] at which descending limb departs from 1

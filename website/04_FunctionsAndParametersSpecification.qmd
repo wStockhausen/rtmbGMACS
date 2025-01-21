@@ -15,6 +15,7 @@ fig-cap-location: bottom
 prefer-html: true
 keep-md: false
 keep-yaml: false
+echo: false 
 ---
 
 <!--NOTE: for scalar variables,    use: *var*   (italics)  
@@ -24,7 +25,9 @@ keep-yaml: false
 -->
 
 ```{r setup,echo=FALSE}
+  suppressPackageStartupMessages(require(RTMB));
   suppressPackageStartupMessages(require(rtmbGMACS));
+  suppressPackageStartupMessages(require(ggplot2));
 ```
 
 ## Model processes, functions and parameters
@@ -216,6 +219,160 @@ In @tbl-Ex4:
 ## Maturity {#sec-Mat}
 
 ## Selectivity {#sec-Sel}
+
+A number of 1-dimensional functions, listed in the subsections below, can be used to describe size-specific fishery or survey catchability, as well as fishery retention, by fleet and population categories. All have the the signature 
+
+$$ s = fcn(z,params,consts) $$ 
+
+where `s` is an advector with the same number of elements as the vector `z`, representing the selectivity at 
+the values of the vector `z`, `fcn` is the function, `params` is an advector representing the function parameters, 
+and `consts` is a vector representing any required constants.
+
+```{r defCompareSelFun}
+#|results: hide
+#'
+#' @title Compare a gmacs selectivity function in R and AD contexts
+#' @description Function to compare a gmacs selectivity function in R and AD contexts.
+#'
+#' @param fr - gmacs selectivity function
+#' @param z - vector of sizes at which to evaluate selectivity function
+#' @param params - vector of "true" parameter values for function
+#' @param consts - vector of constants
+#' @param title - plot title
+#' @param verbose - flag (T/F) to print/plot extra information
+#'
+#' @return nothing
+#'
+#' @details This function:
+#' \enumerate{
+#'   \item calculates `fr` using normal R evaluation
+#'   \item creates an RTMB tape of the function and evaluates it in an AD context
+#'   \item prints the tape information and jacobian (if verbose=TRUE)
+#'   \item adds noise to the "data" created in 1.
+#'   \item creates an RTMB objective function to fit the data
+#'   \item fits the data using nlminb
+#'   \item prints out the estimated parameters (if verbose=TRUE)
+#'   \item returns a ggplot2 with a comparison of the R, AD, observed and estimated values
+#' }
+#'
+#' See testing/testSelFunctions.R for example usage.
+#'
+#' @export
+#'
+compareSelFun<-function(fr,z,params,consts,title,verbose=TRUE){
+  if (verbose) cat("\n#----------------------------------------------------------\n")
+  if (verbose) cat("#  testing",title,"\n");
+  selr = fr(z,params,consts);#--evaluate using normal R evaluation
+  pg = ggplot(tibble::tibble(z=z,s=selr),aes(x=z,y=s)) +
+        geom_point() + geom_line() +
+        scale_y_continuous(limits=c(min(c(0,selr)),NA)) +
+        labs(subtitle="normal R");
+  if (verbose) print(pg);
+
+  #--make RTMB tape
+  f<-function(p){fr(z,p,consts)};#--"reduce" function to parameters-only for AD taping
+  F = MakeTape(f,numeric(length(params)));
+  if (verbose) show(F);     #--just FYI
+  selad = F(params);        #--evaluate using RTMB AD methods
+  if (verbose) print(F$jacobian(params));#--print the jacobian (for fun)
+
+  #--test in simple objective function
+  set.seed(111);
+  data = list(z=z,obs=selr+rnorm(length(selr),0,0.05));
+  objfn<-function(ps){
+    getAll(data,ps);
+    obs<-OBS(obs);
+
+    prd_sel = fr(z,pars,consts);
+    REPORT(prd_sel);
+
+    obs %~% dnorm(prd_sel,1); #--adds -log-likelihood to hidden variable `.nll`
+  }
+  #--create model----
+  mdl = MakeADFun(objfn,parameters=list(pars=params));
+  if (verbose) {
+    print(mdl$par);
+    print(mdl$fn(params));
+    print(mdl$gr(params));
+  }
+  #--optimize the model----
+  #----(won't exactly reproduce `params`, but should be close)
+  opt = nlminb(mdl$par,mdl$fn,mdl$gr,hessian=mdl$he);
+  if (verbose) {
+    print(opt$par);
+    print(RTMB::sdreport(mdl));
+  }
+  dfr = dplyr::bind_cols(tibble::as_tibble(data),
+                         `true R`  = selr,
+                         `true AD` = selad,
+                         est = mdl$report()$prd_sel) |>
+        tidyr::pivot_longer(c("true R","true AD","est","obs"),
+                            names_to="type",values_to="value") |>
+        dplyr::mutate(type=factor(type));
+  p = ggplot(dfr |> dplyr::filter(type=="true AD"),aes(x=z,y=value)) +
+        geom_point(data=dfr |> dplyr::filter(type=="obs"),colour="red") +
+        geom_point(data=dfr |> dplyr::filter(type=="true R"),colour="blue") +
+        geom_line(colour="green") +
+        geom_line(data=dfr |> dplyr::filter(type=="est"),colour="green",linetype=3) +
+        scale_y_continuous(limits=c(min(c(0,dfr$value)),NA)) +
+        labs(subtitle=title) +
+        wtsPlots::getStdTheme();
+  #print(p);
+  if (verbose) cat("#----------------------------------------------------------\n")
+  return(p);
+}
+#--define size bins
+z = seq(25,180,by=5);
+```
+
+### Logistic functions {#sec-LogisticFunctions}
+
+
+### Splines {#sec-Splines}
+
+Two types of spline functions can be used to model selectivity: natural splines and clamped splines. Natural splines are cubic splines whose second derivatives are zero at the boundary knot locations, with the property that extrapolated values have a constant slope. Clamped splines are cubic splines whose first and second derivatives are zero at one or both boundary knot locations, with the property that extrapolated values are "clamped" to (the same as that at) the nearest boundary knot. Functions that represent splines clamped at both ends or at either end are available.
+
+#### Natural splines {#sec-NaturalSplines}
+
+The `selSpline` function is used to represent size-specific selectivity using a natural spline. `params` is a k-length advector representing the logit-scale values of the estimated selectivity curve at the `k` knots. The knot locations are given by the first `k` values of the `consts` vector. An example is given in Figure [-@fig-SelSpline].
+
+```{r}
+#| label: fig-SelSpline
+#| results: hide
+#| fig-cap: "Spline function (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the spline function fit to the 'true' values."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--set up a double normal to be fit with a natural spline
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+refZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+#--set up spline function knots and params
+nk = 6; ik = seq(from=1,to=nz,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selSpline(z,params,knots);
+refZ  = 185;     #--not used
+compareSelFun(selSpline,z,params,knots,title="selSpline(z,params,knots)",verbose=FALSE);
+```
+
+#### Clamped splines {#sec-ClampedSpline}
+
+The `selSplineClmpd` function is used to represent size-specific selectivity with a spline that is clamped (to different values) at both ends. 
+
+##### Left-clamped splines
+
+The `selSplineClmpdLeft` function is used to represent size-specific selectivity with a spline that is clamped at small sizes (i.e., the left end). 
+
+##### Right-clamped splines
+
+The `selSplineClmpdRight` function is used to represent size-specific selectivity with a spline that is clamped at large sizes (i.e., the right end). 
 
 ## Fishing mortality {#sec-FM}
 
