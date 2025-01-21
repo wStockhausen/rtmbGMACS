@@ -104,3 +104,13 @@ works of the Software outside of the United States.
 [U.S. Department of Commerce](https://www.commerce.gov/) | [National
 Oceanographic and Atmospheric Administration](https://www.noaa.gov) |
 [NOAA Fisheries](https://www.fisheries.noaa.gov/)
+
+------------------------------------------------------------------------
+
+<figure>
+<a
+href="https://github.com/wStockhausen/rtmbGMACS/actions/workflows/pages/pages-build-deployment"><img
+src="https://github.com/wStockhausen/rtmbGMACS/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages"
+alt="pages-build-deployment" /></a>
+<figcaption>pages-build-deployment</figcaption>
+</figure>

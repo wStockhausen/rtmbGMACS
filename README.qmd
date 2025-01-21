@@ -89,5 +89,7 @@ Software code created by U.S. Government employees is not subject to copyright i
 
 [U.S. Department of Commerce](https://www.commerce.gov/) | [National Oceanographic and Atmospheric Administration](https://www.noaa.gov) | [NOAA Fisheries](https://www.fisheries.noaa.gov/)
 
+****************************
 
+[![pages-build-deployment](https://github.com/wStockhausen/rtmbGMACS/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/wStockhausen/rtmbGMACS/actions/workflows/pages/pages-build-deployment)
 
