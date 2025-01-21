@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.547">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="William Stockhausen">
+
+<title>Model Dimensions Vignette</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="ModelDimensions_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ModelDimensions_files/libs/quarto-html/quarto.js"></script>
+<script src="ModelDimensions_files/libs/quarto-html/popper.min.js"></script>
+<script src="ModelDimensions_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ModelDimensions_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ModelDimensions_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ModelDimensions_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ModelDimensions_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ModelDimensions_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ModelDimensions_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="ModelDimensions_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="ModelDimensions_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#model-dimensions" id="toc-model-dimensions" class="nav-link active" data-scroll-target="#model-dimensions">Model dimensions</a>
+  <ul class="collapse">
+  <li><a href="#sparse-dimension-maps" id="toc-sparse-dimension-maps" class="nav-link" data-scroll-target="#sparse-dimension-maps">Sparse dimension maps</a></li>
+  <li><a href="#dense-dimension-maps" id="toc-dense-dimension-maps" class="nav-link" data-scroll-target="#dense-dimension-maps">Dense dimension maps</a></li>
+  </ul></li>
+  <li><a href="#aggregating-over-model-dimensions" id="toc-aggregating-over-model-dimensions" class="nav-link" data-scroll-target="#aggregating-over-model-dimensions">Aggregating over model dimensions</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Model Dimensions Vignette</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>William Stockhausen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--NOTE: for scalar variables,    use: *var*   (italics)  
+          for vectors/matrices,etc use: ***V*** (bold-italics) 
+          for functions            use: **fcn** (bold) 
+          for verbatim code        use: `code` 
+-->
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rtmbGMACS'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:stats':
+
+    plogis</code></pre>
+</div>
+</div>
+<section id="model-dimensions" class="level2">
+<h2 class="anchored" data-anchor-id="model-dimensions">Model dimensions</h2>
+<p>Model dimensions consist of year (<em>y</em>), season (<em>s</em>), and a set of categories ({<em>c</em>}) into which the population is divided (e.g., sex and size). For a given year, population abundance is integrated across seasons within the year and different processes can occur in different seasons. Levels within a given population category can be nested within another category (e.g., different size classes might be defined for males and females if they exhibited substantially different growth patterns). Two types of model dimensions are distinguished: <em>sparse</em> and <em>dense</em>. A set of dimensions is characterized as <em>sparse</em> when different levels of one dimension are nested within the levels of another dimension such that the resulting set of levels has fewer members in it than the set of dimensions resulting from a complete crossing of all unique dimension levels. The latter set of (fully-crossed) dimensions is characterized as <em>dense</em>.</p>
+<p>On the R side of things, a special dataframe (actually, a tibble) referred to as a “dimension map” is used to characterize any set of dimensions, either sparse or dense.The first column in the model dimensions map is simply the row number associated with the unique combination of dimension levels the row reflects. It also provides the index into the population abundance vector for that combination of dimensions (and thus allows the extraction of the associated dimension levels given the index value). The remaining columns correspond to individual dimensions; for each column, the value for each row is the level (as a factor) of the associated dimension. Rows are ordered by the combination of factor levels across the dimensions, with levels changing the fastest in the right-most column.</p>
+<p>A dimensions map also has three non-standard attributes: <code>dmnms</code>, <code>dmlvs</code>, and <code>dmlns</code>:</p>
+<ul>
+<li><code>dmnms</code> is a character vector with the dimension names.</li>
+<li><code>dmlvs</code> is a named list of character vectors comprising the unique levels for each dimension.</li>
+<li><code>dmlns</code> is a named integer vector with the length (number of unique levels) of each dimension.</li>
+</ul>
+<p>Given a sparse dimensions map, the corresponding dense map can be obtained by a full crossing of the levels in the sparse map’s <code>dmlvs</code> attribute.</p>
+<p>Most model quantities are represented as vectors, and thus have associated dimensions maps in order to be able to identify the dimension levels associated with each index value.</p>
+<section id="sparse-dimension-maps" class="level3">
+<h3 class="anchored" data-anchor-id="sparse-dimension-maps">Sparse dimension maps</h3>
+<p>Sparse dimensions are defined using the R function <strong>createSparseDimsMap</strong>. As an example (<a href="#tbl-ExSparseDimsMap" class="quarto-xref">Table&nbsp;1</a>), the following creates a set of dimensions encompassing year (<em>y</em>), season(<em>s</em>), sex (<em>x</em>), and size (<em>z</em>), with different size classes for males and females. Note that the “dimension name(s)” must be added as an attribute <code>dmnms</code> to the vector or list defining the levels.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Create the individual dimensions as vectors or lists (for nested dimensions)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; --assign the attribute "dmnms", the dimension name(s) (plural if nested)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model years</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>vYs <span class="ot">=</span> <span class="dv">2001</span><span class="sc">:</span><span class="dv">2005</span>;                  <span class="fu">attr</span>(vYs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"y"</span>;</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model seasons</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>vSs <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"fall"</span>,<span class="st">"spring"</span>);         <span class="fu">attr</span>(vSs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"s"</span>;</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model sexes</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>vXs <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"MALE"</span>,<span class="st">"FEMALE"</span>);         <span class="fu">attr</span>(vXs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="st">"x"</span>;</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----model sizes, nested with sexes</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>vZs <span class="ot">=</span> <span class="fu">list</span>(  <span class="at">MALE=</span><span class="fu">seq</span>(<span class="dv">40</span>,<span class="dv">60</span>,<span class="dv">5</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">FEMALE=</span><span class="fu">seq</span>(<span class="dv">25</span>,<span class="dv">50</span>,<span class="dv">5</span>));  <span class="fu">attr</span>(vZs,<span class="st">"dmnms"</span>)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"x"</span>,<span class="st">"z"</span>);</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;--create the dimensions "map"</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>dmsSparse <span class="ot">=</span> <span class="fu">createSparseDimsMap</span>(<span class="at">y=</span>vYs,<span class="at">s=</span>vSs,<span class="at">x=</span>vXs,<span class="at">z=</span>vZs);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>v0: y 
+     2001 2002 2003 2004 2005 
+v0: s 
+     fall spring 
+v0: x 
+     MALE FEMALE 
+v0: z </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dmsSparse <span class="sc">|&gt;</span> kableExtra<span class="sc">::</span><span class="fu">kbl</span>(<span class="at">booktabs=</span><span class="cn">TRUE</span>,<span class="at">longtable=</span><span class="cn">TRUE</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-ExSparseDimsMap" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ExSparseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Example sparse dimensions map.
+</figcaption>
+<div aria-describedby="tbl-ExSparseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">sparse_idx</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">y</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">s</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">x</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">21</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">22</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">23</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">24</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">26</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">27</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">28</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">29</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">31</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">32</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">33</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">34</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">35</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">36</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">37</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">38</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">39</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">40</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">41</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">42</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">43</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">44</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">45</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">46</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">47</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">48</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">49</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">50</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">51</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">52</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">53</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">54</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">55</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">56</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">57</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">58</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">59</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">62</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">63</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">64</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">65</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">66</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">67</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">68</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">69</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">70</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">71</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">72</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">73</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">74</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">75</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">76</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">77</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">78</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">79</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">80</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">81</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">82</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">83</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">84</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">85</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">86</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">87</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">88</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">89</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">90</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">91</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">92</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">93</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">94</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">95</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">96</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">97</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">98</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">99</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">100</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">101</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">102</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">103</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">104</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">105</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">106</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">107</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">108</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">109</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">110</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="dense-dimension-maps" class="level3">
+<h3 class="anchored" data-anchor-id="dense-dimension-maps">Dense dimension maps</h3>
+<p>Given a sparse dimensions map <code>dmsSparse</code>, the associated dense map can be created using the R function <strong>createFullDimsMap</strong>:</p>
+<div class="cell">
+<div id="tbl-ExDenseDimsMap" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ExDenseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Example dense dimensions map (first 20 rows) corrseponding to the previous sparse dimensions map.
+</figcaption>
+<div aria-describedby="tbl-ExDenseDimsMap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">dense_idx</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">y</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">s</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">x</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>In the above example, the size (number of rows) of the resulting dense dimensions map (160) is larger than that of the nested dimensions map (110) because of the different size bins defined for males and females.</p>
+</section>
+</section>
+<section id="aggregating-over-model-dimensions" class="level2">
+<h2 class="anchored" data-anchor-id="aggregating-over-model-dimensions">Aggregating over model dimensions</h2>
+<p>Data fit in gmacs typically represent quantities aggregated over some combination of population categories, so it is necessary to determine the mapping from model indices to data indices. The function <strong>createAggregatorMap</strong> provides the required mapping of 1-d indices from one dimensions map to another, as illustrated in the following example (<a href="#tbl-Ex2" class="quarto-xref">Table&nbsp;3</a>) using the dimensions map <code>dmsDense</code> from the previous example:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Example of how to create an aggregator map using "dmsDense" from above</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; to aggregate by year (y) and sex (x) over season (s) and size (z). </span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Create dimensions map with only y and x</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  aggDims <span class="ot">=</span> <span class="fu">keepDims</span>(dmsDense,<span class="at">keep=</span><span class="fu">c</span>(<span class="st">"y"</span>,<span class="st">"x"</span>));<span class="co">#--keeps only y and x dimensions, recreates 1-d vector index</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Create aggregator map from y,x,s,z to y,x</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  aggMap  <span class="ot">=</span> <span class="fu">createAggregatorMap</span>(dmsDense,aggDims,<span class="at">keepOrigDims=</span><span class="cn">TRUE</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>idx_to</code> is the vector index for <code>aggMap</code>, <code>idx_from</code> is the vector index for <code>dmsDense</code>.</p>
+<div class="cell">
+<div id="tbl-Ex2" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-Ex2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Example aggregator map (from indices <code>idx_frm</code> to indices <code>idx_to</code>).
+</figcaption>
+<div aria-describedby="tbl-Ex2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">idx_to</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">idx_from</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">y</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">s</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">x</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">69</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">72</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">73</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">76</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">79</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">84</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">85</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">87</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">89</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">90</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">92</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">93</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">94</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">95</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">96</td>
+<td style="text-align: left;">2003</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">103</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">104</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">105</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">106</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">107</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">108</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">110</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">111</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">112</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">113</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">114</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">115</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">118</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">119</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">121</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">122</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">123</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">125</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">126</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">127</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: left;">2004</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">129</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">130</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">131</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">132</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">133</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">134</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">135</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">137</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">138</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">139</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">140</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">141</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">142</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">143</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">144</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">fall</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">145</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">146</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">147</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">148</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">149</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">151</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">152</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">FEMALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">154</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">155</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">35</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">156</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">157</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">158</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">159</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: left;">2005</td>
+<td style="text-align: left;">spring</td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;">60</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
