@@ -42,8 +42,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ea72dc5fed832574809a9c94082fbbb.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-ed0c7fd37fae853d7e0c7385bd49c55c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-4f2cc58a03e77be873a0973df801f2c0.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-7af5a90f79707ca9bcfffd85562a6673.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-1b7bd352e34e90055772fd2b3bcab4fc.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -195,7 +195,13 @@ window.Quarto = {
   <li><a href="#sec-Sel" id="toc-sec-Sel" class="nav-link" data-scroll-target="#sec-Sel">Selectivity</a>
   <ul class="collapse">
   <li><a href="#sec-LogisticFunctions" id="toc-sec-LogisticFunctions" class="nav-link" data-scroll-target="#sec-LogisticFunctions">Logistic functions</a></li>
+  <li><a href="#sec-AscNormalFunctions" id="toc-sec-AscNormalFunctions" class="nav-link" data-scroll-target="#sec-AscNormalFunctions">Ascending normal functions</a></li>
+  <li><a href="#sec-DoubleLogisticFunctions" id="toc-sec-DoubleLogisticFunctions" class="nav-link" data-scroll-target="#sec-DoubleLogisticFunctions">Double logistic functions</a></li>
+  <li><a href="#double-logistic-function-alternative-1" id="toc-double-logistic-function-alternative-1" class="nav-link" data-scroll-target="#double-logistic-function-alternative-1">Double logistic function (alternative 1)</a></li>
+  <li><a href="#double-logistic-function-alternative-2" id="toc-double-logistic-function-alternative-2" class="nav-link" data-scroll-target="#double-logistic-function-alternative-2">Double logistic function (alternative 2)</a></li>
+  <li><a href="#sec-DoubleNormalFunctions" id="toc-sec-DoubleNormalFunctions" class="nav-link" data-scroll-target="#sec-DoubleNormalFunctions">Double normal functions</a></li>
   <li><a href="#sec-Splines" id="toc-sec-Splines" class="nav-link" data-scroll-target="#sec-Splines">Splines</a></li>
+  <li><a href="#sec-OtherSelFcns" id="toc-sec-OtherSelFcns" class="nav-link" data-scroll-target="#sec-OtherSelFcns">Other selectivity functions</a></li>
   </ul></li>
   <li><a href="#sec-FM" id="toc-sec-FM" class="nav-link" data-scroll-target="#sec-FM">Fishing mortality</a></li>
   <li><a href="#sec-Srv" id="toc-sec-Srv" class="nav-link" data-scroll-target="#sec-Srv">Survey catchability</a></li>
@@ -783,17 +789,268 @@ Table&nbsp;4: Example table of covariate-level parameters.
 <section id="sec-Sel" class="level2">
 <h2 class="anchored" data-anchor-id="sec-Sel">Selectivity</h2>
 <p>A number of 1-dimensional functions, listed in the subsections below, can be used to describe size-specific fishery or survey catchability, as well as fishery retention, by fleet and population categories. All have the the signature</p>
-<p><span class="math display">\[ s = fcn(z,params,consts) \]</span></p>
+<p><span class="math display">\[ s = fcn(z,params,consts,debug=FALSE) \]</span></p>
 <p>where <code>s</code> is an advector with the same number of elements as the vector <code>z</code>, representing the selectivity at the values of the vector <code>z</code>, <code>fcn</code> is the function, <code>params</code> is an advector representing the function parameters, and <code>consts</code> is a vector representing any required constants.</p>
 <section id="sec-LogisticFunctions" class="level3">
 <h3 class="anchored" data-anchor-id="sec-LogisticFunctions">Logistic functions</h3>
+<p>Several logistic selectivity functions reflecting different parameterizations are available, including the <code>asclogistic</code>, <code>asclogistic1</code>, <code>asclogistic5095</code>, and <code>asclogistic50D95</code> functions. For each, <code>consts[1]</code> indicates the size at full selection if &gt; 0, that no rescaling will be done if = 0, or that the values should be normalized by the maximum if &lt; 0. Other elements of <code>consts</code> are ignored.</p>
+<section id="ascending-logistic-alternative-1" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-logistic-alternative-1">Ascending logistic (alternative 1)</h4>
+<p>The <code>asclogistic</code> function is parameterized by the size and width (1/slope) at 50% selected (<a href="#fig-AscLogistic1" class="quarto-xref">Figure&nbsp;1</a>).</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in fun(libname, pkgname): couldn't connect to display
+"/private/tmp/com.apple.launchd.DRbboYkDtw/org.xquartz:0"</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-AscLogistic1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscLogistic1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscLogistic1-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscLogistic1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Ascending logistic function <code>asclogistic</code> (green dotted line) selectivity function parameterized by the size and slope at 50% selected. <code>consts[1]</code> represents the size at full selection if &gt; 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if &lt; 0. Here, <code>params</code>= (100,0.05) and consts = 125.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ascending-logistic-alternative-2" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-logistic-alternative-2">Ascending logistic (alternative 2)</h4>
+<p>The <code>asclogistic1</code> function is parameterized by the size and width (1/slope) at 50% selected (<a href="#fig-AscLogistic2" class="quarto-xref">Figure&nbsp;2</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-AscLogistic2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscLogistic2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscLogistic2-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscLogistic2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Ascending logistic function <code>asclogistic1</code> (green dotted line) selectivity function parameterized by the size and width (1/slope) at 50% selected. <code>consts[1]</code> represents the size at full selection if &gt; 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if &lt; 0. Here, <code>params</code>= (100,50) and consts = 125.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ascending-logistic-alternative-3" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-logistic-alternative-3">Ascending logistic (alternative 3)</h4>
+<p>The <code>asclogistic5095</code> function is parameterized by the sizes at 50% and 95% selected (<a href="#fig-AscLogistic3" class="quarto-xref">Figure&nbsp;3</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-AscLogistic3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscLogistic3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscLogistic3-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscLogistic3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Ascending logistic function <code>asclogistic5095</code> (green dotted line) parameterized by sizes at 50% and 95% selected. <code>consts[1]</code> represents the size at full selection if &gt; 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if &lt; 0. Here, <code>params</code>= (50,125) and consts = 0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ascending-logistic-alternative-4" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-logistic-alternative-4">Ascending logistic (alternative 4)</h4>
+<p>The <code>asclogistic50D95</code> function is parameterized by the size at 50% and the difference between the 95% and 50% selected sizes (<a href="#fig-AscLogistic4" class="quarto-xref">Figure&nbsp;4</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-AscLogistic4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscLogistic4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscLogistic4-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscLogistic4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Ascending logistic function <code>asclogistic50D95</code> (green dotted line) parameterized by the size at 50% and the difference between the 95% and 50% selected sizes. Here, <code>params</code>= (50,75) and consts = 0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-AscNormalFunctions" class="level3">
+<h3 class="anchored" data-anchor-id="sec-AscNormalFunctions">Ascending normal functions</h3>
+<p>Several functions can be used to define a selectivity curve using the ascending portion of a normal (gaussian) curve and a sill. An ascending normal selectivity curve has an advantage over a logistic curve in an AD setting because it achieves its maximum (1) at a finite size, whereas logistic functions only approach their maximum values asymptotically. Functions defined include: <code>ascnormal1</code>, <code>ascnormal2</code>, <code>ascnormal2a</code>, <code>ascnormal2b</code>, <code>ascnormal3</code>.</p>
+<section id="ascending-normal-alternative-1" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-normal-alternative-1">Ascending normal (alternative 1)</h4>
+<p>The <code>ascnormal1</code> function is parameterized by the width of the ascending limb and the size at which it reaches 1 (<a href="#fig-AscNormal1" class="quarto-xref">Figure&nbsp;5</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-AscNormal1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscNormal1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscNormal1-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscNormal1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Ascending normal function <code>ascnormal1</code> (green dotted line) selectivity function parameterized by the width of the ascending limb and the size at which it reaches 1. <code>consts</code> is ignored, but must a dummy value must be given. Here, <code>params</code>= (25,100) and consts = 50.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ascending-normal-alternative-2" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-normal-alternative-2">Ascending normal (alternative 2)</h4>
+<p>The <code>ascnormal2</code> function is parameterized by the value of selectivity at the reference size (<code>refZ</code>) and size at which ascending limb reaches 1 (<a href="#fig-AscNormal2" class="quarto-xref">Figure&nbsp;6</a>). <code>refZ</code> is specified by <code>consts[1]</code>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-AscNormal2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscNormal2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscNormal2-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscNormal2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Ascending normal function <code>ascnormal2</code> (green dotted line) selectivity function parameterized by the value of selectivity at the reference size (<code>refZ</code>) and size at which ascending limb reaches 1. <code>consts[1]</code> = <code>refZ</code>. Here, <code>params</code>= (0.5,100) and consts (<code>refZ</code>) = 50.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ascending-normal-alternative-3" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-normal-alternative-3">Ascending normal (alternative 3)</h4>
+<p>The <code>ascnormal2a</code> function is parameterized by the size at which selectivity reaches <code>refS</code> and the size at which the ascending limb reaches 1 (<a href="#fig-AscNormal3" class="quarto-xref">Figure&nbsp;7</a>). <code>consts[1]</code> = <code>refS</code>, the reference selectivity.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-AscNormal3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscNormal3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscNormal3-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscNormal3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Ascending normal function <code>ascnormal2a</code> (green dotted line) parameterized by the size at which selectivity reaches <code>refS</code> and the size at which the ascending limb reaches 1. <code>consts[1]</code> = <code>refS</code>, the reference selectivity. Here, <code>params</code>= (50,100) and <code>consts</code> (<code>refS</code>) = 0.5.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ascending-normal-alternative-4" class="level4">
+<h4 class="anchored" data-anchor-id="ascending-normal-alternative-4">Ascending normal (alternative 4)</h4>
+<p>The <code>ascnormal2b</code> function is parameterized by the size at which ascending limb reaches 1 and the delta from the size at 1 to size at which selectivity = <code>refS</code> (<a href="#fig-AscNormal4" class="quarto-xref">Figure&nbsp;8</a>). <code>consts[1]</code> = <code>refS</code>, the reference selectivity.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-AscNormal4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-AscNormal4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-AscNormal4-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-AscNormal4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Ascending normal function <code>ascnormal2b</code> (green dotted line) parameterized by the size at 50% and the difference between the 95% and 50% selected sizes. Here, <code>params</code>= (150,75) and <code>consts</code> (<code>refS</code>) = 0.5.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-DoubleLogisticFunctions" class="level3">
+<h3 class="anchored" data-anchor-id="sec-DoubleLogisticFunctions">Double logistic functions</h3>
+<p>Several functions can be used to define a “double logistic” selectivity curve, which consists of the ascending part of a logistic function, possibly followed by a sill over intermediate sizes, followed by the descending part of a reversed logistic function. The two normal functions are determined by the location of their modes, as well as their associated widths. These include: <code>dbllogistic</code> and <code>dbllogistic5095</code>.</p>
+</section>
+<section id="double-logistic-function-alternative-1" class="level3">
+<h3 class="anchored" data-anchor-id="double-logistic-function-alternative-1">Double logistic function (alternative 1)</h3>
+<p>The double logistic function <code>dbllogistic</code> is parameterized by the ascending limb size at which selectivity = 0.5, the ascending limb slope at 50% selected, the descending limb size at which selectivity = 0, and the descending limb size at 50% selected. <code>consts[1]</code> represents the size at full selection if &gt; 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if &lt; 0. An example is given in <a href="#fig-DblLogistic1" class="quarto-xref">Figure&nbsp;9</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-DblLogistic1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-DblLogistic1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-DblLogistic1-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-DblLogistic1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: The double logistic function <code>dbllogistic</code> (green dotted line) is parameterized by the ascending limb size at which selectivity = 0.5, the ascending limb slope at 50% selected, the descending limb size at which selectivity = 0, and the descending limb size at 50% selected. Here, <code>params</code>= (50,0.5,125,0.5) and <code>consts</code> (<code>refZ</code>) = 0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="double-logistic-function-alternative-2" class="level3">
+<h3 class="anchored" data-anchor-id="double-logistic-function-alternative-2">Double logistic function (alternative 2)</h3>
+<p>The double logistic function <code>dbllogistic5095</code> is parameterized by the ascending limb size at 50% selected, the ascending limb size at 95% selected, the descending limb size at 95% selected, and the descending limb size at 50% selected. <code>consts[1]</code> represents the size at full selection if &gt; 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if &lt; 0. An example is given in <a href="#fig-DblLogistic2" class="quarto-xref">Figure&nbsp;10</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-DblLogistic2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-DblLogistic2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-DblLogistic2-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-DblLogistic2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: The double logistic function <code>dbllogistic</code> (green dotted line) is parameterized by the ascending limb size at 50% selected, the ascending limb size at 95% selected, the descending limb size at 95% selected, and the descending limb size at 50% selected. Here, <code>params</code>= (50,100,125,150) and <code>consts</code> (<code>refZ</code>) = 0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-DoubleNormalFunctions" class="level3">
+<h3 class="anchored" data-anchor-id="sec-DoubleNormalFunctions">Double normal functions</h3>
+<p>Several functions can be used to define a “double normal” selectivity curve, which consists of the left half (i.e., increasing up to the mode) of a normal (gaussian) function, possibly followed by a sill over intermediate sizes, followed by the right half of a normal function. These include: <code>dblnormal4</code>, <code>dblnormal4a</code>, and <code>dblnormal6</code>.</p>
+<section id="sec-DblNrml4" class="level4">
+<h4 class="anchored" data-anchor-id="sec-DblNrml4">4-parameter double normal (alternative 1)</h4>
+<p>The 4-parameter double normal function <code>dblnormal4</code> is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, the offset to size at which the descending limb departs from 1. The value of <code>consts</code> is ignored. An example is given in <a href="#fig-DblNrml6" class="quarto-xref">Figure&nbsp;13</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-DblNrml4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-DblNrml4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-DblNrml4-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-DblNrml4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: The 4-parameter double normal function <code>dblnormal6</code> (green dotted line) is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, the offset to size at which the descending limb departs from 1, and the width of descending limb. Here, <code>params</code>= (100,50,40,35) and <code>consts</code> (= <code>refZ</code>) = 0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-DblNrml4a" class="level4">
+<h4 class="anchored" data-anchor-id="sec-DblNrml4a">4-parameter double normal (alternative 2)</h4>
+<p>The 4-parameter double normal function <code>dblnormal4a</code> is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, a scaled offset at which the descending limb departs from 1, and the width of descending limb. The value of <code>consts</code> is ignored. An example is given in <a href="#fig-DblNrml4a" class="quarto-xref">Figure&nbsp;12</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-DblNrml4a" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-DblNrml4a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-DblNrml4a-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-DblNrml4a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: The 4-parameter double normal function <code>dblnormal4a</code> (green dotted line) is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, a scaled offset at which the descending limb departs from 1, and the width of descending limb. The value of <code>consts</code> is ignored. Here, <code>params</code>= (100,50,0.5,35) and <code>consts</code> (= <code>refZ</code>) = 0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-DblNrml6" class="level4">
+<h4 class="anchored" data-anchor-id="sec-DblNrml6">6-parameter double normal</h4>
+<p>The 6-parameter double normal function <code>dblnormal6</code> is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, size at which descending limb departs from 1, the width of descending limb, the floor of ascending limb, and the floor of descending limb. An example is given in <a href="#fig-DblNrml6" class="quarto-xref">Figure&nbsp;13</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-DblNrml6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-DblNrml6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-DblNrml6-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-DblNrml6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13: The 6-parameter double normal function <code>dblnormal6</code> (green dotted line) is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, size at which descending limb departs from 1, the width of descending limb, the floor of ascending limb, and the floor of descending limb. Here, <code>params</code>= (100,50,125,35,0.1,0.1) and <code>consts</code> (= <code>refZ</code>) = 0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="sec-Splines" class="level3">
 <h3 class="anchored" data-anchor-id="sec-Splines">Splines</h3>
 <p>Two types of spline functions can be used to model selectivity: natural splines and clamped splines. Natural splines are cubic splines whose second derivatives are zero at the boundary knot locations, with the property that extrapolated values have a constant slope. Clamped splines are cubic splines whose first and second derivatives are zero at one or both boundary knot locations, with the property that extrapolated values are “clamped” to (the same as that at) the nearest boundary knot. Functions that represent splines clamped at both ends or at either end are available.</p>
 <section id="sec-NaturalSplines" class="level4">
 <h4 class="anchored" data-anchor-id="sec-NaturalSplines">Natural splines</h4>
-<p>The <code>selSpline</code> function is used to represent size-specific selectivity using a natural spline. <code>params</code> is a k-length advector representing the logit-scale values of the estimated selectivity curve at the <code>k</code> knots. The knot locations are given by the first <code>k</code> values of the <code>consts</code> vector. An example is given in Figure <a href="#fig-SelSpline" class="quarto-xref">1</a>.</p>
+<p>The <code>selSpline</code> function, with signature <code>(z,params,knots,debug=FALSE)</code>, is used to represent size-specific selectivity using a natural spline. <code>params</code> is a k-length advector representing the logit-scale values of the estimated selectivity curve at the <code>k</code> knots. The knot locations are given by the first <code>k</code> values of the <code>consts</code> vector. An example is given in Figure <a href="#fig-SelSpline" class="quarto-xref">14</a>.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-SelSpline" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -802,7 +1059,7 @@ Table&nbsp;4: Example table of covariate-level parameters.
 <img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-SelSpline-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-SelSpline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Spline function (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the spline function fit to the ‘true’ values.
+Figure&nbsp;14: The spline function <code>selSpline</code> (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the spline function fit to the ‘true’ values.
 </figcaption>
 </figure>
 </div>
@@ -811,15 +1068,97 @@ Figure&nbsp;1: Spline function (green dotted line) fit to a double normal select
 </section>
 <section id="sec-ClampedSpline" class="level4">
 <h4 class="anchored" data-anchor-id="sec-ClampedSpline">Clamped splines</h4>
-<p>The <code>selSplineClmpd</code> function is used to represent size-specific selectivity with a spline that is clamped (to different values) at both ends.</p>
+<p>The <code>selSplineClmpd</code> function, with signature <code>(z,params,knots,debug=FALSE)</code>, is used to represent size-specific selectivity with a spline that is clamped (to different values) at both ends. <code>params</code> is a k-length advector representing the logit-scale values of the estimated selectivity curve at the <code>k</code> knots. The knot locations are given by the first <code>k</code> values of the <code>consts</code> vector. An example is given in Figure <a href="#fig-SelSplineClmpd" class="quarto-xref">15</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-SelSplineClmpd" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-SelSplineClmpd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-SelSplineClmpd-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-SelSplineClmpd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15: The clamped spline function <code>selSplineClmpd</code> (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the spline function fit to the ‘true’ values.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <section id="left-clamped-splines" class="level5">
 <h5 class="anchored" data-anchor-id="left-clamped-splines">Left-clamped splines</h5>
-<p>The <code>selSplineClmpdLeft</code> function is used to represent size-specific selectivity with a spline that is clamped at small sizes (i.e., the left end).</p>
+<p>The <code>selSplineClmpdLeft</code> function, with signature <code>(z,params,knots,debug=FALSE)</code>, is used to represent size-specific selectivity with a spline that is clamped at small sizes (i.e., the left end). <code>params</code> is a k-length advector representing the logit-scale values of the estimated selectivity curve at the <code>k</code> knots. The knot locations are given by the first <code>k</code> values of the <code>consts</code> vector. An example is given in Figure <a href="#fig-SelSplineClmpdLeft" class="quarto-xref">16</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-SelSplineClmpdLeft" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-SelSplineClmpdLeft-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-SelSplineClmpdLeft-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-SelSplineClmpdLeft-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16: Left-clamped spline function <code>selSplineClmpdLeft</code> (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the spline function fit to the ‘true’ values.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="right-clamped-splines" class="level5">
 <h5 class="anchored" data-anchor-id="right-clamped-splines">Right-clamped splines</h5>
-<p>The <code>selSplineClmpdRight</code> function is used to represent size-specific selectivity with a spline that is clamped at large sizes (i.e., the right end).</p>
+<p>The <code>selSplineClmpdRight</code> function, with signature <code>(z,params,knots,debug=FALSE)</code>, is used to represent size-specific selectivity with a spline that is clamped at large sizes (i.e., the right end). <code>params</code> is a k-length advector representing the logit-scale values of the estimated selectivity curve at the <code>k</code> knots. The knot locations are given by the first <code>k</code> values of the <code>consts</code> vector. An example is given in Figure <a href="#fig-SelSplineClmpdRight" class="quarto-xref">17</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-SelSplineClmpdRight" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-SelSplineClmpdRight-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-SelSplineClmpdRight-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-SelSplineClmpdRight-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17: The right-clamped spline function <code>selSplineClmpdRight</code> (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the spline function fit to the ‘true’ values.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
+</section>
+</section>
+<section id="sec-OtherSelFcns" class="level3">
+<h3 class="anchored" data-anchor-id="sec-OtherSelFcns">Other selectivity functions</h3>
+<p>Miscellaneous selectivity functions described in this section include: a constant function and a “stacked” logistic function.</p>
+<section id="sec-ConstSel" class="level4">
+<h4 class="anchored" data-anchor-id="sec-ConstSel">Constant selectivity</h4>
+<p>The <code>const_sel</code> function (<a href="#fig-SelConst" class="quarto-xref">Figure&nbsp;18</a>) is used to represent selectivity that is not size-specific (i.e.., the same at all sizes). It has a signature <code>(z,params,consts)</code> to match other functions, although <code>consts</code> is ignored (if <code>consts[1]</code> were used as a reference size, the function would be non-differentiable).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-SelConst" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-SelConst-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-SelConst-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-SelConst-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18: Constant selectivity function (green dotted line) fit to a constant with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the function fit to the ‘true’ values. Here, <code>params</code> = 1.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="stacked-logistic" class="level4">
+<h4 class="anchored" data-anchor-id="stacked-logistic">Stacked logistic</h4>
+<p>The <code>stackedLogistic1</code> function (<strong>?@fig-StakedLogistic</strong>) provides a 5-parameter selectivity function that is formed using two ascending logistic curves, with one stacked atop the other. The function is parameterized by a weighting factor on the first curve (<code>omega</code>), the size at the inflection point of the first logistic curve (<code>mnZ1</code>), the width of the first logistic curve (<code>sdZ1</code>), the size at the inflection point of the second logistic curve (<code>mnZ2</code>), and the width of the second logistic curve (<code>sdZ2</code>). <code>params</code> is the vector (<code>omega</code>,<code>mnZ1</code>,<code>sdZ1</code>,<code>mnZ2</code>,<code>sdZ2</code>). The value of <code>consts</code> is ignored.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-StackedLogistic" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-StackedLogistic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-StackedLogistic-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-StackedLogistic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19: The stacked logistic selectivity function (green dotted line) fit to a constant with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the function fit to the ‘true’ values. Here, <code>params</code> = (0.2,75,10,145,10).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 </section>
