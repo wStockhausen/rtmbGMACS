@@ -24,8 +24,8 @@ Function to calculate an ascending logistic function parameterized by z50 and D9
 \details{
 The parameter values are
 \itemize{
-\item{params[1] - z50   - size at which selectivity = 0.5 (logit-scale mean)}
-\item{params[2] - z95-z50 - difference between sizes at 95\% and 50\%-selected}
+\item{params[1] - z50: size at which selectivity = 0.5 (logit-scale mean)}
+\item{params[2] - z95-z50: difference between sizes at 95\% and 50\%-selected}
 }
 
 If `refZ`>0, `refZ`=fully-selected size.

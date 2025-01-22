@@ -24,10 +24,11 @@ Function to calculate an ascending logistic function parameterized by z50 and z9
 \details{
 The parameter values are
 \itemize{
-\item{params[1] - z50 - size at which selectivity = 0.50 (logit-scale mean)}
-\item{params[2] - z95 - size at which selectivity = 0.95}
+\item{params[1] - z50: size at which selectivity = 0.50 (logit-scale mean)}
+\item{params[2] - z95: size at which selectivity = 0.95}
 }
 
-If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
-if `refZ`=0, no re-scaling is done.
+If `refZ`>0, `refZ`=fully-selected size.
+If `refZ`<0, function is normalized to max.
+If `refZ`=0, no re-scaling is done.
 }

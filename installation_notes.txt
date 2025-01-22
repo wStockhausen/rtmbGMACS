@@ -6,17 +6,20 @@
 #--notes on package website
   - qmd's are in folder "website"
   - when rendered locally, the website is in folder "_site", which is ignored in version control
-  - re-render the site locally when qmd's
+ - BEFORE CONFIGURING THE PUBLISHING ACTION: run the following once locally to set up the website
+     https://wstockhausen.github.io/rtmbGMACS/: "quarto publish gh-pages""
+  - AFTER, create a "publish" GitHub Action and save it in ".github/workflows/quarto-publish.yml"
+    - see https://quarto.org/docs/publishing/github-pages.html#publish-action
   - TO MAKE SURE CODE IS ONLY EXECUTED LOCALLY, configure _quatro.yml to use the "freeze" feature
     - for details: see https://quarto.org/docs/publishing/github-pages.html#freezing-computations
     - modify _quarto.yml to add "freeze" feature
     - fully re-render site using "quarto render" in a terminal
     - check the resulting "_freeze" folder into version control
-      - _freeze wil be updated automatically when project is re-rendered locally after modifications to code
- - BEFORE CONFIGURING THE PUBLISHING ACTION: run the following once locally to set up the website https://wstockhausen.github.io/rtmbGMACS/:
-    quarto publish gh-pages
-  - AFTER, create a "publish" GitHub Action and save it in ".github/workflows/quarto-publish.yml"
-    - see https://quarto.org/docs/publishing/github-pages.html#publish-action
+      - (not sure this happens automatically:) _freeze wil be updated automatically
+          when project is re-rendered locally after modifications to code
+  - RE-RENDER the site locally when qmd's change:
+      # run "quarto render" first to render website locally, then commit and push
+      #   updated files in "project/_freeze" folder
 
 #--note on README:
  - use `quarto render README.qmd` to build README.md prior to committing to keep README.md up-to-date

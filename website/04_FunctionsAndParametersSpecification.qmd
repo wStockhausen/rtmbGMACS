@@ -222,111 +222,280 @@ In @tbl-Ex4:
 
 A number of 1-dimensional functions, listed in the subsections below, can be used to describe size-specific fishery or survey catchability, as well as fishery retention, by fleet and population categories. All have the the signature 
 
-$$ s = fcn(z,params,consts) $$ 
+$$ s = fcn(z,params,consts,debug=FALSE) $$ 
 
 where `s` is an advector with the same number of elements as the vector `z`, representing the selectivity at 
 the values of the vector `z`, `fcn` is the function, `params` is an advector representing the function parameters, 
 and `consts` is a vector representing any required constants.
 
-```{r defCompareSelFun}
-#|results: hide
-#'
-#' @title Compare a gmacs selectivity function in R and AD contexts
-#' @description Function to compare a gmacs selectivity function in R and AD contexts.
-#'
-#' @param fr - gmacs selectivity function
-#' @param z - vector of sizes at which to evaluate selectivity function
-#' @param params - vector of "true" parameter values for function
-#' @param consts - vector of constants
-#' @param title - plot title
-#' @param verbose - flag (T/F) to print/plot extra information
-#'
-#' @return nothing
-#'
-#' @details This function:
-#' \enumerate{
-#'   \item calculates `fr` using normal R evaluation
-#'   \item creates an RTMB tape of the function and evaluates it in an AD context
-#'   \item prints the tape information and jacobian (if verbose=TRUE)
-#'   \item adds noise to the "data" created in 1.
-#'   \item creates an RTMB objective function to fit the data
-#'   \item fits the data using nlminb
-#'   \item prints out the estimated parameters (if verbose=TRUE)
-#'   \item returns a ggplot2 with a comparison of the R, AD, observed and estimated values
-#' }
-#'
-#' See testing/testSelFunctions.R for example usage.
-#'
-#' @export
-#'
-compareSelFun<-function(fr,z,params,consts,title,verbose=TRUE){
-  if (verbose) cat("\n#----------------------------------------------------------\n")
-  if (verbose) cat("#  testing",title,"\n");
-  selr = fr(z,params,consts);#--evaluate using normal R evaluation
-  pg = ggplot(tibble::tibble(z=z,s=selr),aes(x=z,y=s)) +
-        geom_point() + geom_line() +
-        scale_y_continuous(limits=c(min(c(0,selr)),NA)) +
-        labs(subtitle="normal R");
-  if (verbose) print(pg);
-
-  #--make RTMB tape
-  f<-function(p){fr(z,p,consts)};#--"reduce" function to parameters-only for AD taping
-  F = MakeTape(f,numeric(length(params)));
-  if (verbose) show(F);     #--just FYI
-  selad = F(params);        #--evaluate using RTMB AD methods
-  if (verbose) print(F$jacobian(params));#--print the jacobian (for fun)
-
-  #--test in simple objective function
-  set.seed(111);
-  data = list(z=z,obs=selr+rnorm(length(selr),0,0.05));
-  objfn<-function(ps){
-    getAll(data,ps);
-    obs<-OBS(obs);
-
-    prd_sel = fr(z,pars,consts);
-    REPORT(prd_sel);
-
-    obs %~% dnorm(prd_sel,1); #--adds -log-likelihood to hidden variable `.nll`
-  }
-  #--create model----
-  mdl = MakeADFun(objfn,parameters=list(pars=params));
-  if (verbose) {
-    print(mdl$par);
-    print(mdl$fn(params));
-    print(mdl$gr(params));
-  }
-  #--optimize the model----
-  #----(won't exactly reproduce `params`, but should be close)
-  opt = nlminb(mdl$par,mdl$fn,mdl$gr,hessian=mdl$he);
-  if (verbose) {
-    print(opt$par);
-    print(RTMB::sdreport(mdl));
-  }
-  dfr = dplyr::bind_cols(tibble::as_tibble(data),
-                         `true R`  = selr,
-                         `true AD` = selad,
-                         est = mdl$report()$prd_sel) |>
-        tidyr::pivot_longer(c("true R","true AD","est","obs"),
-                            names_to="type",values_to="value") |>
-        dplyr::mutate(type=factor(type));
-  p = ggplot(dfr |> dplyr::filter(type=="true AD"),aes(x=z,y=value)) +
-        geom_point(data=dfr |> dplyr::filter(type=="obs"),colour="red") +
-        geom_point(data=dfr |> dplyr::filter(type=="true R"),colour="blue") +
-        geom_line(colour="green") +
-        geom_line(data=dfr |> dplyr::filter(type=="est"),colour="green",linetype=3) +
-        scale_y_continuous(limits=c(min(c(0,dfr$value)),NA)) +
-        labs(subtitle=title) +
-        wtsPlots::getStdTheme();
-  #print(p);
-  if (verbose) cat("#----------------------------------------------------------\n")
-  return(p);
-}
+```{r}
 #--define size bins
 z = seq(25,180,by=5);
 ```
 
 ### Logistic functions {#sec-LogisticFunctions}
 
+Several logistic selectivity functions reflecting different parameterizations are available, including the `asclogistic`, `asclogistic1`, `asclogistic5095`, and `asclogistic50D95` functions. For each, `consts[1]` indicates the size at full selection if > 0, that no rescaling will be done if = 0, or that the values should be normalized by the maximum if < 0. Other elements of `consts` are ignored.
+
+#### Ascending logistic (alternative 1)
+
+The `asclogistic` function is parameterized by the size and width (1/slope) at 50% selected ([@fig-AscLogistic1]). 
+
+```{r}
+#| label: fig-AscLogistic1
+#| results: hide
+#| fig-cap: "Ascending logistic function `asclogistic` (green dotted line) selectivity function parameterized by the size and slope at 50% selected. `consts[1]` represents the size at full selection if > 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if < 0. Here, `params`= (100,0.05) and consts = 125."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: asclogistic(z,p,refZ)----
+  params = c(100.00,  #--size at which selectivity = 0.50 (logit-scale mean)
+               0.05); #--width (1/slope) at z50
+  refZ  = 125;        #--reference *size*
+  #--set `f` to function in global environment to be tested
+  compareSelFun(asclogistic,z,params,refZ,title="asclogistic(z,p,refZ)");
+```
+
+#### Ascending logistic (alternative 2)
+
+The `asclogistic1` function is parameterized by the size and width (1/slope) at 50% selected ([@fig-AscLogistic2]). 
+
+```{r}
+#| label: fig-AscLogistic2
+#| results: hide
+#| fig-cap: "Ascending logistic function `asclogistic1` (green dotted line) selectivity function parameterized by the size and width (1/slope) at 50% selected. `consts[1]` represents the size at full selection if > 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if < 0. Here, `params`= (100,50) and consts = 125."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: asclogistic1(z,p,refZ)----
+  params = c(100,   #--size at which selectivity = 0.50 (logit-scale mean)
+              50); #--width (1/slope) at z50
+  refZ  = 125;       #--reference *size*
+  #--set `f` to function in global environment to be tested
+  compareSelFun(asclogistic1,z,params,refZ,title="asclogistic(z,p,refZ)");
+```
+
+#### Ascending logistic (alternative 3)
+
+The `asclogistic5095` function is parameterized by the sizes at 50% and 95% selected ([@fig-AscLogistic3]). 
+
+```{r}
+#| label: fig-AscLogistic3
+#| results: hide
+#| fig-cap: "Ascending logistic function `asclogistic5095` (green dotted line) parameterized by sizes at 50% and 95% selected. `consts[1]` represents the size at full selection if > 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if < 0. Here, `params`= (50,125) and consts = 0."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: asclogistic5095(z,p,refZ)----
+params = c( 50,  #--size at which selectivity = 0.50 (logit-scale mean)
+           125); #--size at which selectivity = 0.95
+refZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(asclogistic5095,z,params,refZ,title="asclogistic5095(z,p,refZ)");
+```
+
+#### Ascending logistic (alternative 4)
+
+The `asclogistic50D95` function is parameterized by the size at 50% and the difference between the 95% and 50% selected sizes ([@fig-AscLogistic4]). 
+
+```{r}
+#| label: fig-AscLogistic4
+#| results: hide
+#| fig-cap: "Ascending logistic function `asclogistic50D95` (green dotted line) parameterized by the size at 50% and the difference between the 95% and 50% selected sizes. Here, `params`= (50,75) and consts = 0."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: asclogistic50D95(z,p,refZ)----
+params = c( 50,  #--size at which selectivity = 0.5 (logit-scale mean)
+            75); #--difference between sizes at 95% and 50%-selected
+refZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(asclogistic50D95,z,params,refZ,title="asclogistic50D95(z,p,refZ)");
+```
+
+### Ascending normal functions {#sec-AscNormalFunctions}
+
+Several functions can be used to define a selectivity curve using the ascending portion of a normal (gaussian) curve and a sill. An ascending normal selectivity curve has an advantage over a logistic curve in an AD setting because it achieves its maximum (1) at a finite size, whereas logistic functions only approach their maximum values asymptotically. Functions defined include: `ascnormal1`, `ascnormal2`, `ascnormal2a`, `ascnormal2b`, `ascnormal3`.
+
+#### Ascending normal (alternative 1)
+
+The `ascnormal1` function is parameterized by the width of the ascending limb and the size at which it reaches 1 ([@fig-AscNormal1]). 
+
+```{r}
+#| label: fig-AscNormal1
+#| results: hide
+#| fig-cap: "Ascending normal function `ascnormal1` (green dotted line) selectivity function parameterized by the width of the ascending limb and the size at which it reaches 1. `consts` is ignored, but must a dummy value must be given. Here, `params`= (25,100) and consts = 50."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: ascnormal1(z,p,refZ)----
+  params = c(25,   #--width of ascending limb
+             100);  #--size at which ascending limb reaches 1
+  refZ  = 50;       #--reference *size* (ignored here)
+  #--set `f` to function in global environment to be tested
+  compareSelFun(ascnormal1,z,params,refZ,title="ascnormal1(z,p,refZ)");
+```
+
+#### Ascending normal (alternative 2)
+
+The `ascnormal2` function is parameterized by the value of selectivity at the reference size (`refZ`) and size at which ascending limb reaches 1 ([@fig-AscNormal2]). `refZ` is specified by `consts[1]`.
+
+```{r}
+#| label: fig-AscNormal2
+#| results: hide
+#| fig-cap: "Ascending normal function `ascnormal2` (green dotted line) selectivity function parameterized by the value of selectivity at the reference size (`refZ`) and size at which ascending limb reaches 1. `consts[1]` = `refZ`. Here, `params`= (0.5,100) and consts (`refZ`) = 50."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: ascnormal2(z,p,refZ)----
+  params = c(0.5,   #--selectivity at size = refZ
+             100);  #--size at which ascending limb reaches 1
+  refZ  = 50;       #--reference *size*
+  #--set `f` to function in global environment to be tested
+  compareSelFun(ascnormal2,z,params,refZ,title="ascnormal2(z,p,refZ)");
+```
+
+#### Ascending normal (alternative 3)
+
+The `ascnormal2a` function is parameterized by the size at which selectivity reaches `refS` and the size at which the ascending limb reaches 1 ([@fig-AscNormal3]). `consts[1]` = `refS`, the reference selectivity.
+
+```{r}
+#| label: fig-AscNormal3
+#| results: hide
+#| fig-cap: "Ascending normal function `ascnormal2a` (green dotted line) parameterized by the size at which selectivity reaches `refS` and the size at which the ascending limb reaches 1. `consts[1]` = `refS`, the reference selectivity. Here, `params`= (50,100) and `consts` (`refS`) = 0.5."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: ascnormal2a(z,p,refZ)----
+  params = c(50,   #--size at sel = refS
+             100); #--size at which ascending limb reaches 1
+  refS  = 0.5;      #--reference *selectivity*
+  #--set `f` to function in global environment to be tested
+  compareSelFun(ascnormal2a,z,params,refS,title="ascnormal2a(z,p,refS)");
+```
+
+#### Ascending normal (alternative 4)
+
+The `ascnormal2b` function is parameterized by the size at which ascending limb reaches 1 and the delta from the size at 1 to size at which selectivity = `refS` ([@fig-AscNormal4]). `consts[1]` = `refS`, the reference selectivity.
+
+```{r}
+#| label: fig-AscNormal4
+#| results: hide
+#| fig-cap: "Ascending normal function `ascnormal2b` (green dotted line) parameterized by the size at 50% and the difference between the 95% and 50% selected sizes. Here, `params`= (150,75) and `consts` (`refS`) = 0.5."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: ascnormal2b(z,p,refZ)----
+params = c(150,  #--size at which ascending limb reaches 1
+            75); #--delta from size at 1 to size at which selectivity=refS
+refS  = 0.5;     #--reference *selectivity*
+#--set `f` to function in global environment to be tested
+compareSelFun(ascnormal2b,z,params,refS,title="ascnormal2b(z,p,refS)");
+```
+
+### Double logistic functions {#sec-DoubleLogisticFunctions}
+
+Several functions can be used to define a "double logistic" selectivity curve, which consists of 
+the ascending part of a logistic function, possibly followed by a sill over intermediate sizes, followed by the descending part of a reversed logistic function. The two normal functions are determined by the location of their modes, as well as their associated widths. These include: `dbllogistic` and `dbllogistic5095`.
+
+### Double logistic function (alternative 1)
+
+The double logistic function `dbllogistic` is parameterized by the ascending limb size at which selectivity = 0.5, the ascending limb slope at 50% selected, the descending limb size at which selectivity = 0, and the descending limb size at 50% selected. `consts[1]` represents the size at full selection if > 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if < 0. An example is given in [@fig-DblLogistic1].
+
+```{r}
+#| label: fig-DblLogistic1
+#| results: hide
+#| fig-cap: "The double logistic function `dbllogistic` (green dotted line) is parameterized by the ascending limb size at which selectivity = 0.5, the ascending limb slope at 50% selected, the descending limb size at which selectivity = 0, and the descending limb size at 50% selected. Here, `params`= (50,0.5,125,0.5) and `consts` (`refZ`) = 0."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: dbllogistic(z,p,refZ)----
+params = c( 50,  #--ascending limb size at which selectivity = 0.5 (logit-scale mean)
+           0.5,  #--ascending limb slope at 50% selected
+           125,  #--descending limb size at which selectivity = 0.5 (logit-scale mean)
+           0.5); #--descending limb size at 50% selected
+refZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(dbllogistic,z,params,refZ,title="dbllogistic(z,p,refZ)");
+```
+
+### Double logistic function (alternative 2)
+
+The double logistic function `dbllogistic5095` is parameterized by the ascending limb size at 50% selected, the ascending limb size at 95% selected, the descending limb size at 95% selected, and the descending limb size at 50% selected. `consts[1]` represents the size at full selection if > 0, indicates no rescaling if = 0, and indicates that the values should be normalized by the maximum if < 0. An example is given in [@fig-DblLogistic2].
+
+```{r}
+#| label: fig-DblLogistic2
+#| results: hide
+#| fig-cap: "The double logistic function `dbllogistic` (green dotted line) is parameterized by the ascending limb size at 50% selected, the ascending limb size at 95% selected, the descending limb size at 95% selected, and the descending limb size at 50% selected. Here, `params`= (50,100,125,150) and `consts` (`refZ`) = 0."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: dbllogistic5095(z,p,refZ)----
+params = c( 50,  #--ascending limb size at 50% selected
+           100,  #--ascending limb size at 95% selected
+           125,  #--descending limb size at 95% selected
+           150); #--descending limb size at 50% selected
+refZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(dbllogistic5095,z,params,refZ,title="dbllogistic5095(z,p,refZ)");
+```
+
+### Double normal functions {#sec-DoubleNormalFunctions}
+
+Several functions can be used to define a "double normal" selectivity curve, which consists of 
+the left half (i.e., increasing up to the mode) of a normal (gaussian) function, possibly followed by a sill over intermediate sizes, followed by the right half of a normal function. These include: `dblnormal4`, `dblnormal4a`, and `dblnormal6`.
+
+#### 4-parameter double normal (alternative 1) {#sec-DblNrml4}
+
+The 4-parameter double normal function `dblnormal4` is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, the offset to size at which the descending limb departs from 1. The value of `consts` is ignored. An example is given in [@fig-DblNrml6].
+
+```{r}
+#| label: fig-DblNrml4
+#| results: hide
+#| fig-cap: "The 4-parameter double normal function `dblnormal6` (green dotted line) is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, the offset to size at which the descending limb departs from 1, and the width of descending limb. Here, `params`= (100,50,40,35) and `consts` (= `refZ`) = 0."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: dblnormal4(z,p,refZ)----
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            40,   #--offset to size at which descending limb departs from 1
+            35); #--width of descending limb
+refZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(dblnormal4,z,params,refZ,title="dblnormal4(z,p,refZ)");
+```
+
+#### 4-parameter double normal (alternative 2) {#sec-DblNrml4a}
+
+The 4-parameter double normal function `dblnormal4a` is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, a scaled offset at which the descending limb departs from 1, and the width of descending limb. The value of `consts` is ignored. An example is given in [@fig-DblNrml4a].
+
+```{r}
+#| label: fig-DblNrml4a
+#| results: hide
+#| fig-cap: "The 4-parameter double normal function `dblnormal4a`  (green dotted line) is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, a scaled offset at which the descending limb departs from 1, and the width of descending limb. The value of `consts` is ignored. Here, `params`= (100,50,0.5,35) and `consts` (= `refZ`) = 0."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: dblnormal4a(z,p,refZ)----
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+refZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
+#--set `f` to function in global environment to be tested
+compareSelFun(dblnormal4a,z,params,refZ,title="dblnormal4a(z,p,refZ)");
+```
+
+#### 6-parameter double normal {#sec-DblNrml6}
+
+The 6-parameter double normal function `dblnormal6` is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, size at which descending limb departs from 1, the width of descending limb, the floor of ascending limb, and the floor of descending limb. An example is given in [@fig-DblNrml6].
+
+```{r}
+#| label: fig-DblNrml6
+#| results: hide
+#| fig-cap: "The 6-parameter double normal function `dblnormal6` (green dotted line) is parameterized by the size at which ascending limb reaches 1, the width of ascending limb, size at which descending limb departs from 1, the width of descending limb, the floor of ascending limb, and the floor of descending limb. Here, `params`= (100,50,125,35,0.1,0.1) and `consts` (= `refZ`) = 0."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: dblnormal6(z,p,refZ)----
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+           125,  #--size at which descending limb departs from 1
+            35,  #--width of descending limb
+           0.1,  #--floor of ascending limb
+           0.1); #--floor of descending limb
+refZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
+#--set `f` to function in global environment to be tested
+compareSelFun(dblnormal6,z,params,refZ,title="dblnormal6(z,p,refZ)");
+```
 
 ### Splines {#sec-Splines}
 
@@ -334,14 +503,15 @@ Two types of spline functions can be used to model selectivity: natural splines 
 
 #### Natural splines {#sec-NaturalSplines}
 
-The `selSpline` function is used to represent size-specific selectivity using a natural spline. `params` is a k-length advector representing the logit-scale values of the estimated selectivity curve at the `k` knots. The knot locations are given by the first `k` values of the `consts` vector. An example is given in Figure [-@fig-SelSpline].
+The `selSpline` function, with signature `(z,params,knots,debug=FALSE)`, is used to represent size-specific selectivity using a natural spline. `params` is a k-length advector representing the logit-scale values of the estimated selectivity curve at the `k` knots. The knot locations are given by the first `k` values of the `consts` vector. An example is given in Figure [-@fig-SelSpline].
 
 ```{r}
 #| label: fig-SelSpline
 #| results: hide
-#| fig-cap: "Spline function (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the spline function fit to the 'true' values."
+#| fig-cap: "The spline function `selSpline` (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the spline function fit to the 'true' values."
 #| fig-asp: 0.6 
 #| fig-width: 6.0
+#--sel function: selSpline(z,p,knots)----
 #--set up a double normal to be fit with a natural spline
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
@@ -364,15 +534,138 @@ compareSelFun(selSpline,z,params,knots,title="selSpline(z,params,knots)",verbose
 
 #### Clamped splines {#sec-ClampedSpline}
 
-The `selSplineClmpd` function is used to represent size-specific selectivity with a spline that is clamped (to different values) at both ends. 
+The `selSplineClmpd` function, with signature `(z,params,knots,debug=FALSE)`, is used to represent size-specific selectivity with a spline that is clamped (to different values) at both ends.  `params` is a k-length advector representing the logit-scale values of the estimated selectivity curve at the `k` knots. The knot locations are given by the first `k` values of the `consts` vector. An example is given in Figure [-@fig-SelSplineClmpd].
+
+```{r}
+#| label: fig-SelSplineClmpd
+#| results: hide
+#| fig-cap: "The clamped spline function `selSplineClmpd` (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the spline function fit to the 'true' values."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: selSplineClmpd(z,p,knots)----
+#--set up a spline curve "clamped" on both ends
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+refZ  = 185;     #--not used
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+nk = 6; ik = seq(from=3,to=nz-3,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selSplineClmpd(z,params,knots);
+compareSelFun(selSplineClmpd,z,params,knots,title="selSplineClmpd(z,params,knots)");
+
+```
 
 ##### Left-clamped splines
 
-The `selSplineClmpdLeft` function is used to represent size-specific selectivity with a spline that is clamped at small sizes (i.e., the left end). 
+The `selSplineClmpdLeft` function, with signature `(z,params,knots,debug=FALSE)`, is used to represent size-specific selectivity with a spline that is clamped at small sizes (i.e., the left end).  `params` is a k-length advector representing the logit-scale values of the estimated selectivity curve at the `k` knots. The knot locations are given by the first `k` values of the `consts` vector. An example is given in Figure [-@fig-SelSplineClmpdLeft].
+
+```{r}
+#| label: fig-SelSplineClmpdLeft
+#| results: hide
+#| fig-cap: "Left-clamped spline function `selSplineClmpdLeft` (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the spline function fit to the 'true' values."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: selSplineClmpdLeft(z,p,knots)----
+#--set up a double normal to be fit with a natural spline
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+refZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+#--set up spline function knots and params
+nk = 6; ik = seq(from=1,to=nz,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selSplineClmpdLeft(z,params,knots);
+compareSelFun(selSplineClmpdLeft,z,params,knots,title="selSplineClmpdLeft(z,params,knots)",verbose=FALSE);
+```
+
 
 ##### Right-clamped splines
 
-The `selSplineClmpdRight` function is used to represent size-specific selectivity with a spline that is clamped at large sizes (i.e., the right end). 
+The `selSplineClmpdRight` function, with signature `(z,params,knots,debug=FALSE)`, is used to represent size-specific selectivity with a spline that is clamped at large sizes (i.e., the right end). `params` is a k-length advector representing the logit-scale values of the estimated selectivity curve at the `k` knots. The knot locations are given by the first `k` values of the `consts` vector. An example is given in Figure [-@fig-SelSplineClmpdRight].
+
+```{r}
+#| label: fig-SelSplineClmpdRight
+#| results: hide
+#| fig-cap: "The right-clamped spline function `selSplineClmpdRight` (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the spline function fit to the 'true' values."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: selSplineClmpdRight(z,p,knots)----
+#--set up a double normal to be fit with a natural spline
+params = c(100,  #--size at which ascending limb reaches 1
+            50,  #--width of ascending limb
+            0.5, #--scaled increment to params[1] at which descending limb departs from 1
+            35); #--width of descending limb
+refZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
+yz = dblnormal4(z,params,refZ);
+yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
+nz = length(z);
+#--set up spline function knots and params
+nk = 6; ik = seq(from=1,to=nz,length.out=nk);
+xk = z[ik];
+lgtyk = log(yz[ik]/(1-yz[ik]));
+params = lgtyk;
+knots = xk;
+sf = selSplineClmpdRight(z,params,knots);
+refZ  = 185;     #--not used
+compareSelFun(selSplineClmpdRight,z,params,knots,title="selSplineClmpdRight(z,params,knots)",verbose=FALSE);
+```
+
+### Other selectivity functions {#sec-OtherSelFcns}
+
+Miscellaneous selectivity functions described in this section include: a constant function and a "stacked" logistic function.
+
+#### Constant selectivity {#sec-ConstSel}
+
+The `const_sel` function ([@fig-SelConst]) is used to represent selectivity that is not size-specific (i.e.., the same at all sizes). It has a signature `(z,params,consts)` to match other functions, although `consts` is ignored (if `consts[1]` were used as a reference size, the function would be non-differentiable). 
+
+```{r}
+#| label: fig-SelConst
+#| results: hide
+#| fig-cap: "Constant selectivity function (green dotted line) fit to a constant with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the function fit to the 'true' values. Here, `params` = 1."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: const_sel(z,p,refZ)----
+#----function should not really be differentiable(?)
+params = c(1); #--constant value
+refZ  = 100;     #--reference *size* (not used!)
+#--set `f` to function in global environment to be tested
+compareSelFun(const_sel,z,params,refZ,title="const_sel(z,p,refZ)");
+```
+
+#### Stacked logistic
+
+The `stackedLogistic1` function ([@fig-StakedLogistic]) provides a 5-parameter selectivity function that is formed using two ascending logistic curves, with one stacked atop the other. The function is parameterized by a weighting factor on the first curve (`omega`), the size at the inflection point of the first logistic curve (`mnZ1`), the width of the first logistic curve (`sdZ1`), the size at the inflection point of the second logistic curve (`mnZ2`), and the width of the second logistic curve (`sdZ2`). `params` is the vector (`omega`,`mnZ1`,`sdZ1`,`mnZ2`,`sdZ2`). The value of `consts` is ignored.
+
+```{r}
+#| label: fig-StackedLogistic
+#| results: hide
+#| fig-cap: "The stacked logistic selectivity function (green dotted line) fit to a constant with additive noise (observed=red; underlying 'true' R function=blue). The solid green line represents the function fit to the 'true' values. Here, `params` = (0.2,75,10,145,10)."
+#| fig-asp: 0.6 
+#| fig-width: 6.0
+#--sel function: stackedLogistic1(z,p,refZ)----
+params = c(0.2,  #--omega: -weighting factor on the first curve
+            75,  #--mnZ1: size at inflection point for 1st logistic curve
+            10,  #--sdZ1: sd for 1st logistic curve
+           145,  #--mnZ2: size at inflection point for 2nd logistic curve
+            10); #--sdZ2: sd for 2nd logistic curve
+refZ  = 185;     #--not used
+#--set `f` to function in global environment to be tested
+compareSelFun(stackedLogistic1,z,params,refZ,title="stackedLogistic1(z,p,refZ)");
+```
 
 ## Fishing mortality {#sec-FM}
 

@@ -6,6 +6,8 @@
 #'@param type - the type of selectivity function to calculate
 #'@param z - vector of values at which to calculate the function
 #'@param params - the selectivity function parameters, as a vector
+#'@param consts - any required constants, as a vector
+#'@param debug - flag to print debugging info
 #'
 #'@return vector matching size of z, with names given by elements of z
 #'
@@ -95,23 +97,24 @@ const_sel<-function(z, params,ref=0,debug=FALSE){
 #'@param refZ   - reference size
 #'@param debug - flag (T/F) to print debugging messages
 #'
-#' @return named vector with selectivity values at the elements of z
+#' @return named vector with selectivity values at the elements of `z`
 #'
 #'@details The parameter values are
+#'
 #'\itemize{
-#' \item{params[1] - pZ50 - size at which selectivity = 0.5 (logit-scale mean)}
-#' \item{params[2] - pWdZ - width (1/slope) at z50}
+#' \item{params[1] - `pZ50`: size at 50\% selectivity}
+#' \item{params[2] - `pSlp`: slope at `pZ50`}
 #'}
 #'
 #'If `refZ`>0, `refZ`=fully-selected size.
-#'if `refZ`<0, function is normalized to max.
-#'if `refZ`=0, no re-scaling is done.
+#'If `refZ`<0, function is normalized to max.
+#'If `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
 asclogistic<-function(z,params,refZ=0,debug=FALSE){
     z50  <- params[1];
-    slope<- 1.0/params[2];
+    slope<- params[2];
     res  <- 1.0/(1.0+exp(-slope*(z-z50)));
     scl  <-1;
     if (refZ>0){
@@ -122,6 +125,37 @@ asclogistic<-function(z,params,refZ=0,debug=FALSE){
     res<-scl*res;
     names(res)<-as.character(z);#--TODO: does this work with ADs?
     return(res)
+}
+#-----------------------------------------------------------------------------------
+#'
+#'@title Calculate an ascending logistic function parameterized by z50 and width (1/slope)
+#'
+#'@description Function to calculate an ascending logistic function parameterized by z50 and width.
+#'
+#'@param z     - vector of sizes at which to compute selectivities
+#'@param params - 2-element vector with selectivity function parameters
+#'@param refZ   - reference size
+#'@param debug - flag (T/F) to print debugging messages
+#'
+#' @return named vector with selectivity values at the elements of `z`
+#'
+#'@details The parameter values are
+#'
+#'\itemize{
+#' \item{params[1] - `pZ50`: size at 50\% selectivity}
+#' \item{params[2] - `pWdZ`: width (1/slope) at `pZ50`}
+#'}
+#'
+#'If `refZ`>0, `refZ`=fully-selected size.
+#'If `refZ`<0, function is normalized to max.
+#'If `refZ`=0, no re-scaling is done.
+#'
+#'@export
+#'
+asclogistic1<-function(z,params,refZ=0,debug=FALSE){
+    z50  <- params[1];
+    slope<- 1.0/params[2];
+  return(asclogistic(z,c(z50,slope),refZ,debug));
 }
 #-----------------------------------------------------------------------------------
 #'
@@ -138,12 +172,13 @@ asclogistic<-function(z,params,refZ=0,debug=FALSE){
 #'
 #'@details The parameter values are
 #'\itemize{
-#' \item{params[1] - z50 - size at which selectivity = 0.50 (logit-scale mean)}
-#' \item{params[2] - z95 - size at which selectivity = 0.95}
+#' \item{params[1] - z50: size at which selectivity = 0.50 (logit-scale mean)}
+#' \item{params[2] - z95: size at which selectivity = 0.95}
 #'}
 #'
-#'If `refZ`>0, `refZ`=fully-selected size. if `refZ`<0, function is normalized to max.
-#'if `refZ`=0, no re-scaling is done.
+#'If `refZ`>0, `refZ`=fully-selected size.
+#'If `refZ`<0, function is normalized to max.
+#'If `refZ`=0, no re-scaling is done.
 #'
 #'@export
 #'
@@ -167,8 +202,8 @@ asclogistic5095<-function(z,params,refZ=0,debug=FALSE){
 #'
 #'@details The parameter values are
 #'\itemize{
-#' \item{params[1] - z50   - size at which selectivity = 0.5 (logit-scale mean)}
-#' \item{params[2] - z95-z50 - difference between sizes at 95\% and 50\%-selected}
+#' \item{params[1] - z50: size at which selectivity = 0.5 (logit-scale mean)}
+#' \item{params[2] - z95-z50: difference between sizes at 95\% and 50\%-selected}
 #'}
 #'
 #'If `refZ`>0, `refZ`=fully-selected size.
@@ -282,7 +317,7 @@ dbllogistic5095<-function(z,params,refZ=0,debug=FALSE){
 #'
 #'@export
 #'
-ascnormal<-function(z,params,refZ=0,debug=FALSE){
+ascnormal1<-function(z,params,refZ=0,debug=FALSE){
   if (debug) message(paste("Starting ascnormal(...)"));
   slp = 5.0;
   ascWdZ = params[1];#--width of ascending limb
@@ -291,7 +326,7 @@ ascnormal<-function(z,params,refZ=0,debug=FALSE){
   ascJ   = 1.0/(1.0+exp(slp*(z-(ascMnZ))));
   s    = ascJ*ascN+(1.0-ascJ);
   names(s) = as.character(z);
-  if (debug) message(paste("Finished ascnormal(...)"));
+  if (debug) message(paste("Finished ascnormal1(...)"));
   return(s);
 }
 #-----------------------------------------------------------------------------------
@@ -557,8 +592,8 @@ stackedLogistic1<-function(z,params,refZ=0,debug=FALSE){
     sdZ1  = params[3];#--sd for 1st logistic curve
     mnZ2  = params[4];#--size at inflection point for 2nd logistic curve
     sdZ2  = params[5];#--sd for 2nd logistic curve
-    s1<-asclogistic(z,c(mnZ1,sdZ1),refZ=0,FALSE);
-    s2<-asclogistic(z,c(mnZ2,sdZ2),refZ=0,FALSE);
+    s1<-asclogistic1(z,c(mnZ1,sdZ1),refZ=0,FALSE);
+    s2<-asclogistic1(z,c(mnZ2,sdZ2),refZ=0,FALSE);
     s<-omega*s1 + (1-omega)*s2;
     names(s) = as.character(z);
     if (debug) message("Finished SelFcns::stackedLogistic1(...)");
@@ -627,7 +662,7 @@ selSpline<-function(z,params,consts,debug=FALSE){
   return(s);
 }
 
-#--selClmpSpline-----
+#--selSplineClmpd-----
 #' @title Calculates a selectivity curve using a clamped spline function
 #' @description Function to calculate a selectivity curve using a clamped spline function.
 #' @details Calculates a selectivity curve using a clamped spline function based on
@@ -648,7 +683,7 @@ selSpline<-function(z,params,consts,debug=FALSE){
 #' @importFrom RTMB splinefun
 #' @export
 #'
-selClmpSpline<-function(z,params,consts,debug=FALSE){
+selSplineClmpd<-function(z,params,consts,debug=FALSE){
   if (debug) message("Starting SelFcns::selClmpSpline(...)");
   nr = 10; #--number of values to repeat
   dk = min(diff(z))/(nr+1);
@@ -666,7 +701,7 @@ selClmpSpline<-function(z,params,consts,debug=FALSE){
   return(s);
 }
 
-#--selClmpSplineRight-----
+#--selSplineClmpdRight-----
 #' @title Calculates a selectivity curve using a right-clamped spline function
 #' @description Function to calculate a selectivity curve using a right-clamped spline function.
 #' @details Calculates a selectivity curve using a right-clamped spline function based on
@@ -687,7 +722,7 @@ selClmpSpline<-function(z,params,consts,debug=FALSE){
 #' @importFrom RTMB splinefun
 #' @export
 #'
-selClmpSplineRight<-function(z,params,consts,debug=FALSE){
+selSplineClmpdRight<-function(z,params,consts,debug=FALSE){
   if (debug) message("Starting SelFcns::selClmpSplineRight(...)");
   nr = 10; #--number of values to repeat
   dk = min(diff(z))/(nr+1);
@@ -705,7 +740,7 @@ selClmpSplineRight<-function(z,params,consts,debug=FALSE){
   return(s);
 }
 
-#--selClmpSplineLeft-----
+#--selSplineClmpdLeft-----
 #' @title Calculates a selectivity curve using a left-clamped spline function
 #' @description Function to calculate a selectivity curve using a left-clamped spline function.
 #' @details Calculates a selectivity curve using a clamped spline function based on
@@ -726,7 +761,7 @@ selClmpSplineRight<-function(z,params,consts,debug=FALSE){
 #' @importFrom RTMB splinefun
 #' @export
 #'
-selClmpSplineLeft<-function(z,params,consts,debug=FALSE){
+selSplineClmpdLeft<-function(z,params,consts,debug=FALSE){
   if (debug) message("Starting SelFcns::selClmpSplineLeft(...)");
   nr = 10; #--number of values to repeat
   dk = min(diff(z))/(nr+1);

@@ -12,6 +12,10 @@ calcSelFcn(type, z, params, ref = 0, debug = FALSE)
 \item{z}{- vector of values at which to calculate the function}
 
 \item{params}{- the selectivity function parameters, as a vector}
+
+\item{debug}{- flag to print debugging info}
+
+\item{consts}{- any required constants, as a vector}
 }
 \value{
 vector matching size of z, with names given by elements of z

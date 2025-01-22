@@ -5,28 +5,31 @@ dirPrj = rstudioapi::getActiveProject();
 source(file.path(dirPrj,"R/MiscFunctions.R"),local=TRUE);
 source(file.path(dirPrj,"R/SelectivityFunctions.R"),local=TRUE);
 source(file.path(dirPrj,"R/getDFR_sdreport.R"),local=TRUE);
-source(file.path(dirPrj,"testing/compareSelFun.R"),local=TRUE);
+source(file.path(dirPrj,"R/compareSelFun.R"),local=TRUE);
 
 #--define size bins
 z = seq(25,180,by=5);
 
-#--sel function: dbllogistic5095(z,p,refZ)----
-params = c( 50,  #--ascending limb size at 50% selected
-           100,  #--ascending limb size at 95% selected
-           125,  #--descending limb size at 95% selected
-           150); #--descending limb size at 50% selected
-refZ  = 0;       #--reference *size*
+#--sel function: const_sel(z,p,refZ)----
+#----function should not really be differentiable(?)
+params = c(1); #--constant value
+refZ  = 100;     #--reference *size* (not used!)
 #--set `f` to function in global environment to be tested
-compareSelFun(dbllogistic5095,z,params,refZ,title="dbllogistic5095(z,p,refZ)");
+compareSelFun(const_sel,z,params,refZ,title="const_sel(z,p,refZ)");
 
-#--sel function: dbllogistic(z,p,refZ)----
-params = c( 50,  #--ascending limb size at which selectivity = 0.5 (logit-scale mean)
-           0.5,  #--ascending limb slope at 50% selected
-           125,  #--descending limb size at which selectivity = 0.5 (logit-scale mean)
-           0.5); #--descending limb size at 50% selected
-refZ  = 0;       #--reference *size*
+#--sel function: asclogistic(z,p,refZ)----
+params = c(100.00,  #--size at which selectivity = 0.50 (logit-scale mean)
+             0.05); #--width (1/slope) at z50
+refZ  = 125;        #--reference *size*
 #--set `f` to function in global environment to be tested
-compareSelFun(dbllogistic,z,params,refZ,title="dbllogistic(z,p,refZ)");
+compareSelFun(asclogistic,z,params,refZ,title="asclogistic(z,p,refZ)");
+
+#--sel function: asclogistic1(z,p,refZ)----
+params = c(100,   #--size at which selectivity = 0.50 (logit-scale mean)
+            20); #--width (1/slope) at z50
+refZ  = 125;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(asclogistic1,z,params,refZ,title="asclogistic1(z,p,refZ)");
 
 #--sel function: asclogistic50D95(z,p,refZ)----
 params = c( 50,  #--size at which selectivity = 0.5 (logit-scale mean)
@@ -42,26 +45,12 @@ refZ  = 0;       #--reference *size*
 #--set `f` to function in global environment to be tested
 compareSelFun(asclogistic5095,z,params,refZ,title="asclogistic5095(z,p,refZ)");
 
-#--sel function: asclogistic(z,p,refZ)----
-params = c( 50,  #--size at which selectivity = 0.50 (logit-scale mean)
-           0.5); #--slope at selectivity = 0.95
-refZ  = 0;       #--reference *size*
-#--set `f` to function in global environment to be tested
-compareSelFun(asclogistic,z,params,refZ,title="asclogistic(z,p,refZ)");
-
-#--sel function: const_sel(z,p,refZ)----
-#----function should not really be differentiable
-params = c(1); #--constant value
-refZ  = 0;     #--reference *size*
-#--set `f` to function in global environment to be tested
-compareSelFun(const_sel,z,params,refZ,title="const_sel(z,p,refZ)");
-
-#--sel function: ascnormal(z,p,refZ)----
+#--sel function: ascnormal1(z,p,refZ)----
 params = c(25,   #--width of ascending limb
            100);  #--size at which ascending limb reaches 1
 refZ  = 50;       #--reference *size*
 #--set `f` to function in global environment to be tested
-compareSelFun(ascnormal,z,params,refZ,title="ascnormal(z,p,refZ)");
+compareSelFun(ascnormal1,z,params,refZ,title="ascnormal(z,p,refZ)");
 
 #--sel function: ascnormal2(z,p,refZ)----
 params = c(0.5,   #--selectivity at size = refZ
@@ -92,6 +81,24 @@ refZ  = c(185,   #--max possible size at which the curve could reach 1 (e.g., ma
 #--set `f` to function in global environment to be tested
 ggplot(tibble::tibble(z=z,s=ascnormal3(z,params,refZ)),aes(x=z,y=s)) + geom_line();
 compareSelFun(ascnormal3,z,params,refZ,title="ascnormal3(z,p,refZ)");
+
+#--sel function: dbllogistic5095(z,p,refZ)----
+params = c( 50,  #--ascending limb size at 50% selected
+           100,  #--ascending limb size at 95% selected
+           125,  #--descending limb size at 95% selected
+           150); #--descending limb size at 50% selected
+refZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(dbllogistic5095,z,params,refZ,title="dbllogistic5095(z,p,refZ)");
+
+#--sel function: dbllogistic(z,p,refZ)----
+params = c( 50,  #--ascending limb size at which selectivity = 0.5 (logit-scale mean)
+           0.5,  #--ascending limb slope at 50% selected
+           125,  #--descending limb size at which selectivity = 0.5 (logit-scale mean)
+           0.5); #--descending limb size at 50% selected
+refZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+compareSelFun(dbllogistic,z,params,refZ,title="dbllogistic(z,p,refZ)");
 
 #--sel function: dblnormal4(z,p,refZ)----
 params = c(100,  #--size at which ascending limb reaches 1
@@ -162,7 +169,7 @@ ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
 compareSelFun(selSpline,z,params,knots,title="selSpline(z,params,knots)");
 
-#--sel function: selClmpSpline(z,p,knots)----
+#--sel function: selSplineClmpd(z,p,knots)----
 #--set up a spline curve "clamped" on both ends
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
@@ -176,7 +183,7 @@ xk = z[ik];
 lgtyk = log(yz[ik]/(1-yz[ik]));
 params = lgtyk;
 knots = xk;
-sf = selClmpSpline(z,params,knots);
+sf = selSplineClmpd(z,params,knots);
 refZ  = 185;     #--not used
 #--set `f` to function in global environment to be tested
 dfr1 = tibble::tibble(z=z,s=selSpline(z,params,knots));
@@ -185,9 +192,9 @@ dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
 ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr2,colour="blue") +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
-compareSelFun(selClmpSpline,z,params,knots,title="selClmpSpline(z,params,knots)");
+compareSelFun(selSplineClmpd,z,params,knots,title="selSplineClmpd(z,params,knots)");
 
-#--sel function: selClmpSplineLeft(z,p,knots)----
+#--sel function: selSplineClmpdLeft(z,p,knots)----
 #--set up a spline curve "clamped" on the left end
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
@@ -201,7 +208,7 @@ xk = z[ik];
 lgtyk = log(yz[ik]/(1-yz[ik]));
 params = lgtyk;
 knots = xk;
-sf = selClmpSplineLeft(z,params,knots);
+sf = selSplineClmpdLeft(z,params,knots);
 refZ  = 185;     #--not used
 #--set `f` to function in global environment to be tested
 dfr1 = tibble::tibble(z=z,s=selSpline(z,params,knots));
@@ -210,9 +217,9 @@ dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
 ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr2,colour="blue") +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
-compareSelFun(selClmpSplineLeft,z,params,knots,title="selClmpSplineLeft(z,params,knots)");
+compareSelFun(selSplineClmpdLeft,z,params,knots,title="selSplineClmpdLeft(z,params,knots)");
 
-#--sel function: selClmpSplineRight(z,p,knots)----
+#--sel function: selSplineClmpdRight(z,p,knots)----
 #--set up a spline curve "clamped" on the right end
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
@@ -226,7 +233,7 @@ xk = z[ik];
 lgtyk = log(yz[ik]/(1-yz[ik]));
 params = lgtyk;
 knots = xk;
-sf = selClmpSplineRight(z,params,knots);
+sf = selSplineClmpdRight(z,params,knots);
 refZ  = 185;     #--not used
 #--set `f` to function in global environment to be tested
 dfr1 = tibble::tibble(z=z,s=selSpline(z,params,knots));
@@ -235,7 +242,7 @@ dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
 ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr2,colour="blue") +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
-compareSelFun(selClmpSplineRight,z,params,knots,title="selClmpSplineRight(z,params,knots)");
+compareSelFun(selSplineClmpdRight,z,params,knots,title="selSplineClmpdRight(z,params,knots)");
 
 
 
