@@ -72,7 +72,8 @@ package will provide functionality to:
 
 The package [website](https://wstockhausen.github.io/rtmbGMACS/)
 provides a more detailed discussion (under construction).
-\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+
+------------------------------------------------------------------------
 
 ## NOAA Disclaimer
 
