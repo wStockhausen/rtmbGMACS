@@ -1,3 +1,0 @@
-Dimensions maps
-
-Need to be able filter dimensions, append maps, expand maps, and reduce maps

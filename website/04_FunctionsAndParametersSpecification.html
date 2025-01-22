@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.40">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -38,12 +38,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d166b450ba5a8e9f7a0ab969bf6592c1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ea72dc5fed832574809a9c94082fbbb.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-a468feb453018cff2150a5c00675f787.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-c433e275a22907dfff1e3503893e9ea6.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ed0c7fd37fae853d7e0c7385bd49c55c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-4f2cc58a03e77be873a0973df801f2c0.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -192,7 +192,11 @@ window.Quarto = {
   <li><a href="#sec-NatM" id="toc-sec-NatM" class="nav-link" data-scroll-target="#sec-NatM">Natural mortality</a></li>
   <li><a href="#sec-Grw" id="toc-sec-Grw" class="nav-link" data-scroll-target="#sec-Grw">Growth</a></li>
   <li><a href="#sec-Mat" id="toc-sec-Mat" class="nav-link" data-scroll-target="#sec-Mat">Maturity</a></li>
-  <li><a href="#sec-Sel" id="toc-sec-Sel" class="nav-link" data-scroll-target="#sec-Sel">Selectivity</a></li>
+  <li><a href="#sec-Sel" id="toc-sec-Sel" class="nav-link" data-scroll-target="#sec-Sel">Selectivity</a>
+  <ul class="collapse">
+  <li><a href="#sec-LogisticFunctions" id="toc-sec-LogisticFunctions" class="nav-link" data-scroll-target="#sec-LogisticFunctions">Logistic functions</a></li>
+  <li><a href="#sec-Splines" id="toc-sec-Splines" class="nav-link" data-scroll-target="#sec-Splines">Splines</a></li>
+  </ul></li>
   <li><a href="#sec-FM" id="toc-sec-FM" class="nav-link" data-scroll-target="#sec-FM">Fishing mortality</a></li>
   <li><a href="#sec-Srv" id="toc-sec-Srv" class="nav-link" data-scroll-target="#sec-Srv">Survey catchability</a></li>
   </ul>
@@ -778,6 +782,46 @@ Table&nbsp;4: Example table of covariate-level parameters.
 </section>
 <section id="sec-Sel" class="level2">
 <h2 class="anchored" data-anchor-id="sec-Sel">Selectivity</h2>
+<p>A number of 1-dimensional functions, listed in the subsections below, can be used to describe size-specific fishery or survey catchability, as well as fishery retention, by fleet and population categories. All have the the signature</p>
+<p><span class="math display">\[ s = fcn(z,params,consts) \]</span></p>
+<p>where <code>s</code> is an advector with the same number of elements as the vector <code>z</code>, representing the selectivity at the values of the vector <code>z</code>, <code>fcn</code> is the function, <code>params</code> is an advector representing the function parameters, and <code>consts</code> is a vector representing any required constants.</p>
+<section id="sec-LogisticFunctions" class="level3">
+<h3 class="anchored" data-anchor-id="sec-LogisticFunctions">Logistic functions</h3>
+</section>
+<section id="sec-Splines" class="level3">
+<h3 class="anchored" data-anchor-id="sec-Splines">Splines</h3>
+<p>Two types of spline functions can be used to model selectivity: natural splines and clamped splines. Natural splines are cubic splines whose second derivatives are zero at the boundary knot locations, with the property that extrapolated values have a constant slope. Clamped splines are cubic splines whose first and second derivatives are zero at one or both boundary knot locations, with the property that extrapolated values are “clamped” to (the same as that at) the nearest boundary knot. Functions that represent splines clamped at both ends or at either end are available.</p>
+<section id="sec-NaturalSplines" class="level4">
+<h4 class="anchored" data-anchor-id="sec-NaturalSplines">Natural splines</h4>
+<p>The <code>selSpline</code> function is used to represent size-specific selectivity using a natural spline. <code>params</code> is a k-length advector representing the logit-scale values of the estimated selectivity curve at the <code>k</code> knots. The knot locations are given by the first <code>k</code> values of the <code>consts</code> vector. An example is given in Figure <a href="#fig-SelSpline" class="quarto-xref">1</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-SelSpline" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-SelSpline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04_FunctionsAndParametersSpecification_files/figure-html/fig-SelSpline-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-SelSpline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Spline function (green dotted line) fit to a double normal selectivity function with additive noise (observed=red; underlying ‘true’ R function=blue). The solid green line represents the spline function fit to the ‘true’ values.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-ClampedSpline" class="level4">
+<h4 class="anchored" data-anchor-id="sec-ClampedSpline">Clamped splines</h4>
+<p>The <code>selSplineClmpd</code> function is used to represent size-specific selectivity with a spline that is clamped (to different values) at both ends.</p>
+<section id="left-clamped-splines" class="level5">
+<h5 class="anchored" data-anchor-id="left-clamped-splines">Left-clamped splines</h5>
+<p>The <code>selSplineClmpdLeft</code> function is used to represent size-specific selectivity with a spline that is clamped at small sizes (i.e., the left end).</p>
+</section>
+<section id="right-clamped-splines" class="level5">
+<h5 class="anchored" data-anchor-id="right-clamped-splines">Right-clamped splines</h5>
+<p>The <code>selSplineClmpdRight</code> function is used to represent size-specific selectivity with a spline that is clamped at large sizes (i.e., the right end).</p>
+</section>
+</section>
+</section>
 </section>
 <section id="sec-FM" class="level2">
 <h2 class="anchored" data-anchor-id="sec-FM">Fishing mortality</h2>
@@ -1366,7 +1410,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>© 2024-10-25</p>
+<p>© 2025-01-21</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
