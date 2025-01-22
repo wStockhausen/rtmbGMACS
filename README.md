@@ -70,7 +70,9 @@ package will provide functionality to:
     likelihood profiling, MCMC)
 -   and compare results from multiple models.
 
-------------------------------------------------------------------------
+The package [website](https://wstockhausen.github.io/rtmbGMACS/)
+provides a more detailed discussion (under construction).
+\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 
 ## NOAA Disclaimer
 
