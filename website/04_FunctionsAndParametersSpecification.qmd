@@ -648,7 +648,7 @@ compareSelFun(const_sel,z,params,refZ,title="const_sel(z,p,refZ)");
 
 #### Stacked logistic
 
-The `stackedLogistic1` function ([@fig-StakedLogistic]) provides a 5-parameter selectivity function that is formed using two ascending logistic curves, with one stacked atop the other. The function is parameterized by a weighting factor on the first curve (`omega`), the size at the inflection point of the first logistic curve (`mnZ1`), the width of the first logistic curve (`sdZ1`), the size at the inflection point of the second logistic curve (`mnZ2`), and the width of the second logistic curve (`sdZ2`). `params` is the vector (`omega`,`mnZ1`,`sdZ1`,`mnZ2`,`sdZ2`). The value of `consts` is ignored.
+The `stackedLogistic1` function ([@fig-StackedLogistic]) provides a 5-parameter selectivity function that is formed using two ascending logistic curves, with one stacked atop the other. The function is parameterized by a weighting factor on the first curve (`omega`), the size at the inflection point of the first logistic curve (`mnZ1`), the width of the first logistic curve (`sdZ1`), the size at the inflection point of the second logistic curve (`mnZ2`), and the width of the second logistic curve (`sdZ2`). `params` is the vector (`omega`,`mnZ1`,`sdZ1`,`mnZ2`,`sdZ2`). The value of `consts` is ignored.
 
 ```{r}
 #| label: fig-StackedLogistic
