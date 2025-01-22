@@ -42,8 +42,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ea72dc5fed832574809a9c94082fbbb.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-7af5a90f79707ca9bcfffd85562a6673.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-1b7bd352e34e90055772fd2b3bcab4fc.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ed0c7fd37fae853d7e0c7385bd49c55c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-4f2cc58a03e77be873a0973df801f2c0.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -1144,7 +1144,7 @@ Figure&nbsp;18: Constant selectivity function (green dotted line) fit to a const
 </section>
 <section id="stacked-logistic" class="level4">
 <h4 class="anchored" data-anchor-id="stacked-logistic">Stacked logistic</h4>
-<p>The <code>stackedLogistic1</code> function (<strong>?@fig-StakedLogistic</strong>) provides a 5-parameter selectivity function that is formed using two ascending logistic curves, with one stacked atop the other. The function is parameterized by a weighting factor on the first curve (<code>omega</code>), the size at the inflection point of the first logistic curve (<code>mnZ1</code>), the width of the first logistic curve (<code>sdZ1</code>), the size at the inflection point of the second logistic curve (<code>mnZ2</code>), and the width of the second logistic curve (<code>sdZ2</code>). <code>params</code> is the vector (<code>omega</code>,<code>mnZ1</code>,<code>sdZ1</code>,<code>mnZ2</code>,<code>sdZ2</code>). The value of <code>consts</code> is ignored.</p>
+<p>The <code>stackedLogistic1</code> function (<a href="#fig-StackedLogistic" class="quarto-xref">Figure&nbsp;19</a>) provides a 5-parameter selectivity function that is formed using two ascending logistic curves, with one stacked atop the other. The function is parameterized by a weighting factor on the first curve (<code>omega</code>), the size at the inflection point of the first logistic curve (<code>mnZ1</code>), the width of the first logistic curve (<code>sdZ1</code>), the size at the inflection point of the second logistic curve (<code>mnZ2</code>), and the width of the second logistic curve (<code>sdZ2</code>). <code>params</code> is the vector (<code>omega</code>,<code>mnZ1</code>,<code>sdZ1</code>,<code>mnZ2</code>,<code>sdZ2</code>). The value of <code>consts</code> is ignored.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-StackedLogistic" class="quarto-float quarto-figure quarto-figure-center anchored">
