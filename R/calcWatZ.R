@@ -1,10 +1,38 @@
 #'
+#' @title Get allometry info as a list
+#' @description Function to get allometry info as a list. Used in the objective function.
+#' @param dims -
+#' @param opts -
+#' @param params - (full) parameters list
+#' @param verbose - flag (T/F) to print diagnostics
+#' @return list with elements
+#' \itemize{
+#'   \item{wAtZ - 3-d array (y,s,c) with weight-at-size by year, season, pop class}
+#' }
+getAllometry<-function(dims,opts,params,verbose=FALSE){
+  nYs = length(dims$y); #--number of years
+  nSs = length(dims$s); #--number of seasons
+  nCs = nrow(dims$dmsN);#--number of population classes
+  if (opts$allometry$type="data"){
+    wAtZ = AD(array(data=0,dim=c(nYs,nSs,nCs)));
+    for (iY in 1:nYs){
+      for (iS in 1:nSs){
+        for (iC in 1:nCs){
+          wAtZ[[iY,iS,iC]] = ??;
+        }
+      }
+    }
+  }
+}
+#'
 #' @title "Calculate" weight-at-size based on "data" inputs
 #' @description Function to "calculate" weight-at-size based on "data" inputs.
+#'
 #' @param dims - model dimensions tibble at which to "calculate" weight-at-size
 #' @param dfrDims2Pars - tibble map from model dims to parameter indices
 #' @param par_vals - vector of potential parameter (i.e., weight-at-size) values
 #' @return vector of weights-at-size for the given model dimensions in `dims`
+#'
 #' @details To use this function, values for weight-at-size (i.e., "data") have
 #' been given and expanded to all relevant model dimensions. Consequently, the function
 #' merely looks up (hence the quotes around "calculate" in the title and description)

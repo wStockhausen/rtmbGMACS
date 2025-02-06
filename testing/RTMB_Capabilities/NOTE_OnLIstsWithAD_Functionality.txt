@@ -1,0 +1,2 @@
+#--You can return multiple AD vectors from a function in a list object
+#--See: Lists_With_AD_Elements_Functionality

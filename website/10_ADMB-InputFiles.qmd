@@ -91,8 +91,7 @@ The returned list has a "type" attribute set to "admb input data list".
 The ADMB "ctl" file describes the model parameterization, allowing the user to choose 
 functions to describe model processes, specify which parameters are estimated or fixed, 
 assign time blocks and priors, and define random walk behavior or environmental covariate structure. 
-A function to convert the ADMB gmacs parameterization to an equivalent rtmbGMACS parameterization will 
-be developed in the future.
+The ADMB ctl file is not directly convertible to an equivalent rtmbGMACS ctl file ([@sec-rtmbGMACS-CTL]).
 
 ### The "prj" file
 

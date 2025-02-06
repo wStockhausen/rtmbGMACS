@@ -8,4 +8,4 @@ adding new qmd files
   and
     website/sidebar/contents/
 
-
+RENDERING: run "quarto render" and check _freeze files into repo, push to GitHub.

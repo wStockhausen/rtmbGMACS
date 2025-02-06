@@ -48,6 +48,20 @@
 #'   \item{transform - name of function to transform input values to kg}
 #'   \item{dfr - dataframe with value specs }
 #' }
+#'
+#' @examples
+#' # example code reading "vertical" data format
+#' if (FALSE){
+#'   conn="inputSpecs_Allometry.data_vertical.txt";
+#'   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
+#' }
+#'
+#' # example code reading "horizontal" data format
+#' if (FALSE){
+#'   conn="inputSpecs_Allometry.data_horizontal.txt";
+#'   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
+#' }
+#'
 #' @import dplyr
 #' @import purrr
 #' @import readr
@@ -64,9 +78,10 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
   if (verbose) cat("reading 'function' option info\n");
   lst     = extractTextSection(lns,1,1);
   option  = (stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--input format option
+  #--parse text----
   if (tolower(option)=="function"){
-    #--parse "function" input option info----
-    ##--parse function definitions----
+    ##--parse "function" input option info----
+    ###--parse function definitions----
     if (verbose) cat("reading function info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
     nFcns   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of functions
@@ -131,7 +146,7 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
       lst     = extractTextSection(lns,nPECs+1,lst$end+1);
       dfrPECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate defs
       if (verbose) print(dfrPECs);
-      ###--reference levels----
+      ####--reference levels----
       lst     = extractTextSection(lns,1,lst$end+1);
       nLvls_PECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariate reference level defs
       if (verbose) cat("will read",nLvls_PECs,"parameter-related environmental covariate reference levels.")
@@ -152,7 +167,7 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
       lst     = extractTextSection(lns,nFECs+1,lst$end+1);
       dfrFECs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate defs
       if (verbose) print(dfrFECs);
-      ###--reference levels----
+      ####--reference levels----
       lst     = extractTextSection(lns,1,lst$end+1);
       nLvls_FECs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of environmental covariate reference level defs
       if (verbose) cat("will read",nLvls_FECs,"function-related environmental covariate reference levels.")
@@ -164,7 +179,7 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
       } else {dfrRefLvls_FECs=NULL;}
     } else {dfrFECs=NULL; nLvls_FECs=0; dfrRefLvls_FECs=NULL;}
 
-    ##--parse functional priors----
+    ###--parse functional priors----
     if (verbose) cat("reading functional priors info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
     nFPs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of functional priors
@@ -175,7 +190,7 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
       if (verbose) print(dfrFPs);
     } else {dfrFPs=NULL;}
 
-    ##--create output list----
+    ###--create output list----
     if (verbose) cat("creating output list\n");
     out = list(option=option,
                Fcns=list(n=nFcns,dfr=dfrFcns,
@@ -191,25 +206,70 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
                FPs=list(n=nFPs,dfr=dfrFPs)                             #--functional priors
                );
   } else if (tolower(option)=="data") {
-    #--parse "data" input option info----
+    ##--parse "data" input option info----
     if (verbose) cat("reading 'data' option info\n");
+    lst  = extractTextSection(lns,1,lst$end+1);
+    fmtHV = (stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--horizontal or vertical format?
     lst  = extractTextSection(lns,1,lst$end+1);
     nRws = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of rows to read
     lst  = extractTextSection(lns,1,lst$end+1);
     tfrm = (stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--transform function
     lst  = extractTextSection(lns,nRws+1,lst$end+1);
-    dfr  = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ environmental covariate defs
+    dfr  = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ values
+    ##--if tolower(fmtHV)=="vertical", no need to do anything(?)
+    if (tolower(fmtHV)=="horizontal"){
+      ###--convert horizontal format to vertical----
+      nms = names(dfr);#--column names in dfr
+      #--find index of name that starts with "values"
+      idx = which(stringr::str_starts(nms,"values"));
+      #--extract dimension identifier between the parentheses (e.g., "z" in "values(z):27")
+      dim = extractTextBetweenParens(nms[idx]);
+      #--extract the dimension value after ":" (e.g., "27" in "values(z):27")
+      dmval = extractTextAfterString(nms[idx],":");
+      #--extract all the dimension values from the column names
+      ncols = length(nms);
+      dmvals = c(val,nms[(idx+1):ncols]);
+      #--convert to vertical format
+      tblDM = tibble::as_tibble_col(dmvals,column_name=dim);
+      tblLst = list();
+      for (rw in 1:nRws){
+        vals = as.vector(t(dfr[rw,idx:ncols]));
+        tblLst[[rw]]  = dfr[rw,1:(idx-1)] |>
+                          dplyr::cross_join(tblDM |> tibble::add_column(tibble::as_tibble_col(vals,column_name="value")));
+      }
+      dfr = dplyr::bind_rows(tblLst);
+    }#--"horizontal" format
+    ###--create output list----
     out = list(option=option,
                transform=tfrm,
-               n=nRws,
                dfr=dfr);
   } else {
     stop(paste0("Option '",option,"' not recognized."));
-  }
+  } #--option
   return(out);
 }
-# dirPrj = rstudioapi::getActiveProject();
-# source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
-# conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.txt");
-# res = readParamInfo_Allometry(conn,TRUE);
+
+if (FALSE){
+  dirPrj = rstudioapi::getActiveProject();
+  source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
+  conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data-vertical.txt");
+  resV = readParamInfo_Allometry(conn,TRUE);
+  View(resV$dfr);
+}
+
+if (FALSE){
+  dirPrj = rstudioapi::getActiveProject();
+  source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
+  conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data-horizontal.txt");
+  resH = readParamInfo_Allometry(conn,TRUE);
+  View(resH$dfr);
+}
+
+if (FALSE){
+  dirPrj = rstudioapi::getActiveProject();
+  source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
+  conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.function.txt");
+  resF = readParamInfo_Allometry(conn,TRUE);
+  View(resH$dfr);
+}
 

@@ -11,6 +11,7 @@ if (FALSE){
   source(file.path(dirPrj,"R","MiscFunctions_Dataframe.R"))
   source(file.path(dirPrj,"R","MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R","readParamInfo_InitialN.R"))
+  source(file.path(dirPrj,"R","extractParameters_InitialN.R"))
 }
 
 #--set up inputs list----

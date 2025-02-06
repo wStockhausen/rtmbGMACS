@@ -1,12 +1,13 @@
+##--NOTE: these are functions from rsimTCSAM and are included simply as references
 #'
-#' @title Step the population numbers one tine interval
-#' @description Function to step the population numbers one time interval
+#' @title Step the population numbers one season
+#' @description Function to step the population numbers one season
 #'
 #' @param y - year index
 #' @param s - season index
 #'
 #' @details
-#' The population is proagated forward one time step. Potential processes involved
+#' The population is propagated forward one season (i.e.) time step. Potential processes involved
 #' in the process are:
 #'  - molting/change in shell condition
 #'  - maturation

@@ -35,7 +35,7 @@ free_parameters_v2 #--selected calculation option
 # EBS  female    mature  old_shell  seq(42.5,132.5,5)  -(as.numeric(z)-27.5)/100   -10    10     2     none      0      999
 
 ##--option = free_parameters_v2:
-##--ln-scale total nitial population abundance
+##--ln-scale total initial population abundance
  IV    LB     UB     phz   PriorType  Pr1    Pr2
   7     0     10      2     none      0      999
 ##--ln-scale relative initial population abundance

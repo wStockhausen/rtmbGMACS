@@ -15,8 +15,9 @@ dims$r_ = "EBS";                               #--regions
 dims$x_ = c("male","female");                  #--sexes
 dims$m_ = c("immature","mature");              #--maturity states
 dims$p_ = c("new shell","old shell");          #--post-molt ages
-dims$zc = seq(25,185,5); n_zcs = length(zc);   #--size bin cutpts
-dims$zb =  0.5*(zc[2:n_zcs]+zc[1:(n_zcs-1)]);  #--size bin centers
+zc = seq(25,185,5); n_zcs = length(dims$zc);
+dims$zc = zc;                                  #--size bin cutpts
+dims$zb =  0.5*(zc[2:nzcs]+zc[1:(nzcs-1)]);    #--size bin centers
 dims$f_ = c("TCF","NMFS");                     #--fleets
 for (dim in names(dims)){
   dimp = dims[[dim]];
@@ -33,7 +34,8 @@ inputs$dims = dims;
 ##--set up options----
 options = list();
 ###--options: initial N----
-options$initN = "zeroPop"; #--add options: "unfished", "equilibrium", "estimated"
+options$initN = "zeroPop";  #--add options: "unfished", "equilibrium", "estimated"
+options$initN = "inputPop"; #--add options: "unfished", "equilibrium", "estimated"
 ###--options: Recruitment----
 #opts_rec = ??
 ###--options: Natural Mortality----
@@ -63,7 +65,10 @@ param_info = list();
 tblPrcs = tibble::tibble();
 ###--initial abundance----
 if (options$initN=="zeroPop"){
-  param_info[["initN"]] = NULL;#--no parameters because option = "zeroPop"
+  param_info[["pInitN"]] = vector("numeric",nrow(dmsN));#--no parameters because option = "zeroPop"
+} else
+if (options$initN=="inputPop"){
+  param_info[["pInitN"]] = NULL;#--no parameters because option = "zeroPop"
 } else
 if (options$initN=="unfished"){
   stop("not implemented yet.")
@@ -126,10 +131,9 @@ inputs$options = options;
 #--define parameters list
 param_list = list();
 if (inputs$testing) {
-  param_list[["dummy"]] = 0.0;
-} else {
-
+  param_list[["pDummy"]] = 0.0;
 }
+param_list[["pInitN"]] =
 
 #--make objective function
 ##--`inputs` list is implicit

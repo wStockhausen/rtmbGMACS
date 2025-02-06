@@ -1,0 +1,38 @@
+---
+title: "Model Population Dynamics"
+author: "William Stockhausen"
+crossref: 
+  fig-title: Figure
+  tbl-title: Table
+comment: "#>"
+collapse: true
+toc: true
+format: 
+  html: 
+    html-math-method: mathjax
+tbl-cap-location: top
+fig-cap-location: bottom
+prefer-html: true
+keep-md: false
+keep-yaml: false
+echo: false 
+---
+
+<!--NOTE: for scalar variables,    use: *var*   (italics)  
+          for vectors/matrices,etc use: ***V*** (bold-italics) 
+          for functions            use: **fcn** (bold) 
+          for verbatim code        use: `code` 
+-->
+
+```{r setup,echo=FALSE}
+  suppressPackageStartupMessages(require(RTMB));
+  suppressPackageStartupMessages(require(rtmbGMACS));
+  suppressPackageStartupMessages(require(ggplot2));
+```
+
+## Model population dynamics {#sec-ModelPopDy}
+
+The population state at any given time is represented here by the vector $n_c$, where *c* denotes the set of population categories (i.e., region, sex, maturity state, etc.) that characterizes the population. It is tracked in the code by the 1-dimensional vector  `n_c`, where `c` is a 1-dimensional index running over the combination of "user" population categories. The population state in year *y* at the beginning of season *s* is represented here by the 3-dimensional array $n_ysc$ and is tracked in the code using the 3-dimensional array `n_ysc`, indexed by `y`,`s`, and `c` indices. 
+
+
+

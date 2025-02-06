@@ -1,17 +1,78 @@
 #--source("generics.R");
 
 #'
+#' @title Create a ragged array (an object of class "ragged_array")
+#' @description Helper function to create a ragged array (an object of class "ragged_array").
+#'
+#' @param x - object coercible to a vector, or a ragged_array
+#' @param dfrDims - tibble defining dimensions (optional if `x` is itself a ragged_array)
+#'
+#' @details A ragged_array object is essentially a vector with an attribute (a tibble)
+#' that maps the index of the vector to a set of dimensions. `x` is coerced to a vector
+#' (using `as.vector(x)`) and truncated or replicated enough to match the number of rows in
+#' `dfrDims`. The columns of dfrDims then constitute the values of the dimension indices
+#' for the resulting ragged_array object and a row indicates the index of each dimension
+#' associated with the corresponding value of the vector.
+#'
+#' If `x` is a ragged_array object, then the tibble `dfrDims` is used to subset `x` based on
+#' the latter's `dfrDims` attribute.
+#'
+#' This is a "helper" function (see https://adv-r.hadley.nz/s3.html#helpers) for package users.
+#'
+#' @export
+#'
+ragged_array<-function(x,
+                       dfrDims=NULL){
+  if (inherits(x,"ragged_array")){
+    if (!is.null(dfrDims)){
+      #--extract elements only in dfrDims
+      dmnms = attr(dfrDims,"dmnms");
+      if (is.null(dmnms)) dmnms=names(dfrDims);
+      dfrDimsX = attr(x,"dfrDims");
+      dfrDimsY = dplyr::right_join(dfrDimsX,
+                                  dfrDims |> dplyr::select(dplyr::all_of(dmnms)),
+                                  by=dmnms);
+      rws = dfrDimsY[[1]];
+      dfrDimsY[[1]] = 1:length(rws);
+      y = new_ragged_array(x[rws],dfrDimsY);
+    } else {
+      y = x;
+    }
+  } else {
+    if (!is.null(dfrDims)){
+      if (is.vector(x)) {
+        y = new_ragged_array(x,dfrDims);
+      }
+    } else {
+      if (is.vector(x)) {
+        dfrDims = createSparseDimsMap(i=1:length(x));
+        y = new_ragged_array(x,dfrDims);
+      }
+      warning("Creating a ragged_array object from a ",class(x)[1]," object but dfrDims is NULL.")
+    }
+  }
+  return(y);
+}
+
+#'
 #' @title Create a new ragged_array object
-#' @description Constructor to create a new ragged_array object.
+#' @description Internal constructor to create a new ragged_array object.
+#'
 #' @param x - vector (or other object that can be converted to a vector using `as.vector(x)`)
 #' @param dfrDims - dimensions dataframe (a DimsMap)
+#'
 #' @return a vector of class "ragged_array" with a "dfrDims" attribute
+#'
 #' @details A ragged_array object is essentially a vector with an attribute (a tibble)
 #' that maps the index of the vector to a set of dimensions.
 #' If `length(as.vector(x))` is < `nrow(dfrDims)`, it is replicated using `rep_len(as.vector(x),nrow(dfrDims))`
 #' to a length of `nrow(dfrDims)`. If `length(x)` is > `nrow(dfrDims)`, it is truncated to the
 #' latter.
-#' @export
+#'
+#' This function is not exported. Use `ragged_array(x,dfrDims)` instead.
+#'
+#' See https://adv-r.hadley.nz/s3.html#s3-constructor for details on constructors.
+#'
 new_ragged_array<-function(x,dfrDims){
   stopifnot(is.data.frame(dfrDims));
   n = nrow(dfrDims);
@@ -32,45 +93,48 @@ new_ragged_array<-function(x,dfrDims){
 #' the "dfrDims" attribute of `x`, but appropriately subsetted based on its row index
 #' to match the subsetted vector underlying `x`.
 #'
+#' @examples
+#' # simple subsetting
+#' x = ragged_array(1:5);
+#' x[2:3];
+#'
+#'
 #' @export
 #'
-`[.ragged_array`<-function(x,i){
+`[.ragged_array`<-function(x,i=NULL){
+  if (is.null(i)) i = 1:length(x);
   dfrDims = attr(x,"dfrDims") |>
               dplyr::filter(dplyr::row_number() %in% i);
-  dfrDims[[1]] = 1:length(i);
-  if (class(x)[1])
+  dfrDims = dfrDims[i,];
   ra = new_ragged_array(unclass(x)[i],dfrDims);
   return(ra);
 }
 
 #'
 #' @title Assign values to a ragged_array object
-#' @description Assign values to ragged_array object by an index vector or DimsMap.
+#' @description Assign values to a ragged_array object.
+#'
 #' @param x - the LHS ragged array object in the assignment
-#' @param y - a ragged array, vector of indices, or DimsMap by which to assign values from `value` into `x`
-#' @return the LHS ragged_array object
+#' @param y - the indices into x, or a dimsMap
+#' @param v - the values to assign
+#'
+#' @return x, the LHS object
+#'
 #' @details TODO!
 #'
 #' @export
 #'
-`[<-.ragged_array`<-function(x,y,value){
+`[<-.ragged_array`<-function(v){
   cat("#--in [<-.ragged_array\n")
-  if (is.ragged_array(y)) {
-    #--replace values per dim values of y
-  } else
   if (is.DimsMap(y)) {
-    #--replace values per indexes represented by y
+    #--replace values per dim values of y
+    ##--TODO: complete this!!----
   } else if (is.vector(y)){
     cat("#--y is vector\n")
-    #--replace value at sparse_idx = y
-    dfrDimsX = attr(x,"dfrDims");
-    for (yy in y){
-      rw_idx = which(dfrDimsX[[1]]==yy);
-      if (rw_idx>0) x[[rw_idx]] <- value;
-    }
+    `*tmp*` = v;
   }
-  return(x);
 }
+
 #'
 #' @title Test if an object is a ragged_array
 #' @description Function to test if an object is a ragged_array.
@@ -171,64 +235,14 @@ as.vector.ragged_array<-function(x,mode="any"){
   return(z);
 }
 
-#'
-#' @title Create a ragged array (an object of class "ragged_array")
-#' @description Function to create a ragged array (an object of class "ragged_array").
-#'
-#' @param x - object coercible to a vector, or a ragged_array
-#' @param dfrDims - tibble defining dimensions (optional if `x` is itself a ragged_array)
-#'
-#' @details A ragged_array object is essentially a vector with an attribute (a tibble)
-#' that maps the index of the vector to a set of dimensions. `x` is coerced to a vector
-#' (using `as.vector(x)`) and truncated or replicated enough to match the number of rows in
-#' `dfrDims`. The columns of dfrDims then constitute the values of the dimension indices
-#' for the resulting ragged_array object and a row indicates the index of each dimension
-#' associated with the corresponding value of the vector.
-#'
-#' If `x` is a ragged_array object, then the tibble `dfrDims` is used to subset `x` based on
-#' the latter's `dfrDims` attribute.
-#'
-#' @export
-#'
-ragged_array<-function(x,
-                       dfrDims=NULL){
-  if (inherits(x,"ragged_array")){
-    if (!is.null(dfrDims)){
-      #--extract elements only in dfrDims
-      dmnms = attr(dfrDims,"dmnms");
-      if (is.null(dmnms)) dmnms=names(dfrDims);
-      dfrDimsX = attr(x,"dfrDims");
-      dfrDimsY = dplyr::right_join(dfrDimsX,
-                                  dfrDims |> dplyr::select(dplyr::all_of(dmnms)),
-                                  by=dmnms);
-      rws = dfrDimsY[[1]];
-      dfrDimsY[[1]] = 1:length(rws);
-      y = new_ragged_array(x[rws],dfrDimsY);
-    } else {
-      y = x;
-    }
-  } else {
-    if (!is.null(dfrDims)){
-      if (is.vector(x)) {
-        y = new_ragged_array(x,dfrDims);
-      }
-    } else {
-      if (is.vector(x)) {
-        dfrDims = createSparseDimsMap(i=1:length(x));
-        y = new_ragged_array(x,dfrDims);
-      }
-      warning("Creating a ragged_array object from a ",class(x)[1]," object but dfrDims is NULL.")
-    }
-  }
-  return(y);
-}
-
 getDimIndices<-function(x){
+  if (is.ragged_array(x)){
       dfrDimsX = attr(x,"dfrDims") |>
                    dplyr::select(!1);
       return(dfrDimsX);
+  }else{
+    warning("'x' is not a ragged_array: ",str(x))}
 }
-
 
 
 

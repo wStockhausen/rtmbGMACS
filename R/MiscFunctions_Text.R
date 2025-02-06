@@ -115,3 +115,71 @@ parseToDigits<-function(x){
   return(as.integer(str))
 }
 
+#' @title Extract text between first and last parentheses
+#' @description Function to extract text between first and last parentheses
+#' @param txt - character vector from which to extract strings
+#' @return character vector of extracted strings
+#' @details For each element in the vector, this extracts the string between the
+#' *first* "(" and *last* ")" from each element of the input
+#' character vector, or `NA` if no matching parentheses.
+#'
+#' @examples
+#' # example code
+#' extractTextBetweenParens("fred(x,y)=0");
+#' extractTextBetweenParens(c("fred(x,y)=0","b(z0)"));
+#' extractTextBetweenParens("fred(x,y(z))=0");
+#'
+#' @importFrom stringr str_extract
+#' @export
+#'
+extractTextBetweenParens<-function(txt){
+  return(stringr::str_extract(txt,"(?<=\\().*(?=\\))"));
+}
+
+#' @title Extract text between first and last brackets
+#' @description Function to extract text between first and last brackets
+#' @param txt - character vector from which to extract strings
+#' @return character vector of extracted strings
+#' @details For each element in the vector, this extracts the string between the
+#' *first* "[" and *last* "]" from each element of the input
+#' character vector, or `NA` if no matching brackets.
+#'
+#' @examples
+#' # example code
+#' extractTextBetweenBrackets("fred[x,y]=0");
+#' extractTextBetweenParens(c("fred[x,y]=0","b[z0]"));
+#' extractTextBetweenParens("fred[x,y[z]]=0");
+#'
+#' @importFrom stringr str_extract
+#' @export
+#'
+extractTextBetweenBrackets<-function(txt){
+  return(stringr::str_extract(txt,"(?<=\\[).*(?=\\])"));
+}
+
+#' @title Extract text after a string
+#' @description Function to extract text after a string
+#' @param txt - character vector from which to extract strings
+#' @param str - string to extract after (see NOTE under details)
+#' @return character vector of extracted strings
+#' @details For each element in the vector, this extracts the string following
+#' the `after` string from each element of the input
+#' character vector, or `NA` if no `after` string found.
+#'
+#' NOTE: Characters with special regex meanings (e.g., ")","]") need to
+#' be double-escaped to use in `str`.
+#'
+#' @examples
+#' # example code
+#' extractTextAfterString("test:fred[x,y]==0","==");
+#' extractTextAfterString(c("fred[x,y]==0: FALSE","b[z0]: 1"),":");
+#' extractTextAfterString("fred[x,y[z]]=0","=");
+#' extractTextAfterString("fred[x,y[z]]=0","\\[");
+#' extractTextAfterString("fred[x,y[z]]=0","fred\\[");
+#'
+#' @importFrom stringr str_extract
+#' @export
+#'
+extractTextAfterString<-function(txt,str){
+  return(stringr::str_extract(txt,paste0("(?<=",str,").*")));
+}

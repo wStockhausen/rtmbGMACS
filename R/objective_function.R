@@ -28,74 +28,189 @@
 #' @export
 #' @md
 #'
+#--Programming notes:----
+##--Improving speed----
+###--When building array one element at a time via loops, use x[[i,j,k]]<-y rather than x[i,j,k]<-y
+##
 obj_fun<-function(params){
-  #--expand the list of parameters
-  getAll(inputs,params);
+  #--expand the list of parameters----
+  #getAll(inputs,params); #--don't do this? more convenient not
   if (verbose) cat(objects(all.names=TRUE),"\n");
 
   #--inputs has elements
   #----dims, data, options, testing, verbose
+  dims = intputs$dims;
+  data = inputs$data;
+  opts = inputs$options;
+
+  #--set up model indices-----
+  nYs = length(dims$y);    #--number of years
+  nSs = length(dims$s);    #--number of seasons
+  nFs = length(dims$f)     #--number of fleets
+  nRs = length(dims$r);    #--number of regions
+  nXs = length(dims$x);    #--number of sex classes
+  nMs = length(dims$m);    #--number of maturity state classes
+  nAs = length(dims$a);    #--number of post-recruitment age classes
+  nPs = length(dims$p);    #--number of post-molt age classes
+  nZs = length(dims$z);    #--number of size classes
+  nCs = nrow(dims$dmsN);   #--number of population categories (size of population vector)
+  I_c  = double(nCs);                #--identity vector for population state
+  I_cc = diag(x=1,nrow=nCs,ncol=nCs);#--identity matrix for population state
 
   #--set up model processes----
   ##--initial N's----
-  initN = calcInitN(dims,options,params,verbose);
-  REPORT(initN);
+  nInit = getInitN(dims,opts,params,verbose);
+  REPORT(nInit);
 
-  ##--Recruitment----
+  if (FALSE)
+    ##--Allometry----
+    lstAlm = getAllometry(dims,opts,params,verbose);
 
-  ##--Natural mortality----
+    ##--Recruitment----
+    lstRec = getRec(dims,options,params,verbose)
 
-  ##--Growth----
-  ###--will calculate all growth transition matrices
-  ###--includes molt probabilities, growth matrices,
-  ###--maturity transition matrices, probability of terminal molt
+    ##--Natural mortality----
+    lstNMRs = getNatMortRates(dims,options,params,verbose)
 
-  ##--Selectivity/Retention----
-  ###--will calculate all selectivity curves
-  lstSelFcns = calcSelFcns(dims,options$sel_fcns,sel_params,verbose);
+    ##--Growth----
+    ###--will calculate all growth transition matrices
+    ###--includes molt probabilities, growth matrices,
+    ###--maturity transition matrices, probability of terminal molt
+    lstGTMs = getGrowthTMs(dims,options,params,verbose)
 
-  ##--Fishery characteristics----
-  ###--will calculate capture, handling mortality, and retention rates
-  ###--for all fisheries
-  lstFRs = calcFshRates(dims,options,params,lstSelFcns,verbose);
+    ##--Selectivity/Retention----
+    ###--will calculate all selectivity curves
+    lstSelFcns = getSelFcns(dims,options$sel_fcns,sel_params,verbose);
 
-  ##--Survey characteristics----
-  ###--will calculate selectivity, q for all surveys
+    ##--Fishery characteristics----
+    ###--will calculate capture, handling mortality, and retention rates
+    ###--for all fisheries
+    lstFRs = getFisheryRates(dims,options,params,lstSelFcns,verbose);
 
-  ##--Movement----
-  ###--to be implemented at some point in future
+    ##--Survey characteristics----
+    ###--will calculate selectivity, q for all surveys
+    lstSQs = getSurveyCatchability(dims,options,params,lstSelFcns,verbose);
 
-  #--run operating model----
-  N = initN;
-  for (y_ in dims$y_){ #--loop over years
-    for (s_ in dims$s_){ #--loop over seasons win years
-      if (verbose) cat("y, s =",y_,s_,"\n");
-      #--instantaneous processes happen at beginning of season in order
-      ##--growth
-      ##--surveys
-      ##--fishing mortality
-      totFM = AD(vector("numeric",length(N)));
-      for (f in 1:nFsh){
-        totFCR = totFM + lstFMs[[f]];
+    ##--Movement transition matrices----
+    ###--will calculate all movement transition matrices
+    ###--(to be implemented at some point in future)
+    lstMTMs = getMovementTMs(dims,options,params,verbose);
+
+    #--integrate model over years by season----
+    n_ysc = array(nYs,nSs,nCs);#--population abundance at beginning season `s` in year `y`
+    n_ysc[1,1,] = nInit;
+    for (y_ in dims$y){ ##--loop over years----
+      for (s_ in dims$s){ ###--loop over seasons within years----
+        n_c = n_ysc[y_,s_];#--population state at start of y_, s_
+        if (verbose) cat("y, s =",y_,s_,"\n");
+
+        if (seasonLength[y_,s_]==0){  ####--instantaneous processes----
+          #####---happen in order of
+          #####----survey, growth, movement, and/or (possibly) fishery catches and mortality
+
+          #####--surveys----
+          for (v_ in 1:nSrvs){
+            if (doSurveys_vys[v_,y_,s_]){
+              srvN_vysc[[v_,y_,s_,]] = lstSQs[[v_]]$q_ysc[[y_,s_,]] * n_c;
+              srvB_vysc[[v_,y_,s_,]] = lstWatz$wAtZ_ysc[[y_,s_,c_]] * srvN_vysc[[v_,y_,s_,]];
+            }
+          }#--v_
+
+          #####--growth----
+          if (doGrowth_ys[y_,s_]){
+            n_c = lstGTMs$gtm_yscc[y_,s_,,] %*% n_c;
+          }
+
+          #####--instantaneous movement----
+          if (doInstMovement[y_,s_]){
+            n_c = lstMTMs$mtm_cc[y_,s_,,] %*% n_c;
+          }
+
+          #####--instantaneous fishery catches and mortality----
+          #--calculate total fishing capture, retention, discard mortality, and total mortality rates
+          ######--calculate total fishing mortality rates (FMR) by population component----
+          totFMR_c = AD(vector("numeric",nCs));#--total FMRs
+          for (f_ in 1:nFsh){
+            if (doInstFisheries_fys[f_,y_,s_]){
+              totFMR_c = totFMR_c + lstFMs[[f_]]$fmr_ysc[y_,s_,];#--add fishery-specific FMRs to total FMRs
+            }
+          }#--f_
+          ######--calculate fishery-specific catch-related numbers----
+          scl = (1.0-exp(-totFMR_c))/(totFMR_c+(1*(totFMR_c==0)));#--scaling factor (last bit excludes divides by 0)
+          for (f_ in 1:nFsh){
+            if (doInstFisheries_fys[f_,y_,s_]){
+              fcn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fcr_ysc[y_,s_,]*scl*n_c;#--captured numbers
+              frn_f_ysc[f,y,s,] =  lstFMs[[f_]]$frr_ysc[y_,s_,]*scl*n_c;#--retained numbers
+              fdn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fdr_ysc[y_,s_,]*scl*n_c;#--discard mortality numbers
+              fmn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fmr_ysc[y_,s_,]*scl*n_c;#--retained + discard mortality numbers
+            }
+          }#--instantaneous fisheries
+          n_c = n_c * exp(-totFMR_c);#--pop numbers after fisheries
+
+        } else if (seasonLength[y_,s_]>0){ ####--continuous processes happen throughout season----
+
+          #####--continuous process can include
+          #####--natural mortality and continuous fishery catch and mortality
+          ######--NOTE: Incorporating movement here requires exponentiating a matrix
+          ######--to calculate changes to n_c. Not quite sure how to calculate fishery-specific
+          ######--values (catch, mortality) in this case: is it directly analagous to the
+          ######--case without movement??
+          dt = seasonLength[y_,s_];
+
+          #####--continuous movement rates----
+          # if (doContMovement[y_,s_])
+          #   mtm_cc = lstMTMs$mtm_yscc[y_,s_,,];#--c *x* c matrix
+
+          #####--natural mortality rate----
+          nmr_c = lstNMRs$nmr_ysc[y_,s_,];#---vector
+
+          #####--continuous fishery catch rates
+          ######--calculate total fishing mortality rates (FMR) by population component----
+          totFMR_c = AD(vector("numeric",nCs));#--total FMRs (vector)
+          for (f_ in 1:nFsh){
+            if (doContFisheries_fys[f_,y_,s_]){
+              totFMR_c = totFMR_c + lstFMs[[f_]]$fmr_ysc[y_,s_,];#--add fishery-specific FMRs to total FMRs
+            }
+          }#--f_
+          ######--calculate fishery-specific catch-related numbers----
+          ######--these may not be correct if continuous movement is included
+          scl = (1.0-exp(-(totFMR_c+nmr_c)*dt))/(totFMR_c+nmr_c);#--scaling factor
+          for (f_ in 1:nFsh){
+            if (doContFisheries_fys[f_,y_,s_]){
+              fcn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fcr_ysc[y_,s_,]*scl*n_c;#--captured numbers
+              frn_f_ysc[f,y,s,] =  lstFMs[[f_]]$frr_ysc[y_,s_,]*scl*n_c;#--retained numbers
+              fdn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fdr_ysc[y_,s_,]*scl*n_c;#--discard mortality numbers
+              fmn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fmr_ysc[y_,s_,]*scl*n_c;#--retained + discard mortality numbers
+            }
+          }#--continuous fisheries
+
+          #####--update N for continuous processes----
+          ######--if continuous movement is implemented,
+          ######--the following needs to be converted to an exponentiated matrix (rather thn vector)
+          n_c = exp(-(nmr_c+totFMR_c)*dt) * n_c;
+        }#--if (seasonLength[y_,s_])
+
+        ####--Finally, add recruitment----
+        if (doRecruitment[y_,s_])
+          n_c = n_c + lstRec$rec_ysc[y_,s_,];
+
+        if (s_<nSs) {
+          n_ysc[y_,s_+1,] = n_c;                    #--save pop state at start of y_, s_+1
+          b_ysc[y_,s_+1,] = lstAlm$wAtZ[y_,s_,]*n_c;#--biomass at start of y_, s_+1
+        }
+      } #--end seasons loop (s_)
+
+      if (y_<nYs) {
+        n_ysc[y_+1,1,] = n_c;                    #--save pop state as start of y_+1, s_
+        b_ysc[y_+1,1,] = lstAlm$wAtZ[y_,s_,]*n_c;#--biomass at start of y_, s_+1
       }
-      N = totFM %*% N;
-      ##--movement
-      N = M %*% N;
+    } #--end years loop (y_)
 
-      #--continuous processes happen throughout season
-      ##--natural mortality rate
-      diag_NMRs = getNaturalMortalityRates(y_,s_,lstNMRs);
-      ##--fishery catch rates
-      lst_FCRs = getFisheryCatchRates(y_,s_);#--list with diagonal matrices for fishery catch rates
-      #--update N for continuous processes
-      diag_MR = AD(vector("numeric",length(N)));
-      N = exp(-diag_MR*dt[s_]) %*% N;
-    } #--end seasons loop (s_)
-  } #--end years loop (y_)
+    nFinal = n_c;                      #--save final pop state (start of year nYs+1, season 1)
+    bFinal = lstAlm$wAtZ[nYs,nSs,]*n_c;#--final biomass
+  }
 
-  #--run estimation model----
-
-  #--calculate likelihoods
+  #--calculate likelihoods----
 
   if (testing){
     nll = -dnorm(1,dummy,1,log=TRUE);
@@ -104,29 +219,3 @@ obj_fun<-function(params){
   return(nll);
 }
 
-#'
-#' @title Calculate initial population abundance
-#' @description Calculate initial population abundance.
-#' @param dims - model dimensions list
-#' @param options - model options list
-#' @param params - model parameters list
-#' @param verbose - flag to print diagnostic info
-#' @return (ad)vector with initial population abundance
-#' @details Options for calculating the initial N vector include:
-#' \itemize{
-#'  \item{noPop - all elements of the vector are zero}
-#' }
-#' @export
-#'
-calcInitN<-function(dims,options,params,verbose){
-  if (verbose) cat("starting calcInitN\n");
-  if (tolower(options$initN)==tolower("zeroPop")){
-    ra = ragged_array(0.0,dims$dmsN);
-    if (verbose) print(ra);
-    initN = AD(as.vector(ra));
-  } else {
-    stop(paste0("Initial N option '",options$initN,"' not implemented."))
-  }
-  if (verbose) cat("finished calcInitN\n");
-  return(initN);
-}

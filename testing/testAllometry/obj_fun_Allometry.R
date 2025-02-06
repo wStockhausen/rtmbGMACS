@@ -38,7 +38,7 @@ obj_fun<-function(params){
 
   #--set up model processes----
   ##--Allometry----
-  wAtZ = calcWatZ(dims)
+  wAtZ = calcWatZ(dims,options,params$pWAtZ,verbose);
   ##--initial N's----
   # initN = calcInitN(dims,options,params,verbose);
   # REPORT(initN);

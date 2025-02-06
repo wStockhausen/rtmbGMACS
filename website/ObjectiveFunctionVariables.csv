@@ -1,0 +1,37 @@
+﻿Entity,type,description
+nFinal,vector,final pop state
+nInit,vector,initial pop state
+n_c,vector,pop state
+n_ysc,array,pop state array
+y_,index,year index
+s_,index,season index
+c_,index,category index
+v_,index,survey index
+f_,index,fishery index
+x_,index,sex index
+m_,index,maturity state index
+a_,index,age index
+p_,index,post-molt index
+z_,index,size index
+,,
+,,
+,,
+,,
+,,
+,,
+nSrvs,int,number of surveys
+nFlts,int,number of fleets
+nFsh,int,number of fisheries
+nYs,int,number of years
+nSs,int,number of seasons/year
+nCs,int,number of popualtion categories
+,,
+lstSelFcns,,list of selectivity/retention functions
+lstFRs,,"list of fishery rates (capture,handling mortality,  retention)"
+lstSQs,,list of survey catchabilities
+lstMTMs,,list of movement transition (rate) matrices between regions
+lstRec,,list of recruitments
+lstNMRs,,list of natural moratlity rates
+lstGTMs,,list of growth transition matrices
+,,
+I_c,vector,identity vector (all 1's)
