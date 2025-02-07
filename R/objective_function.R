@@ -30,7 +30,34 @@
 #'
 #--Programming notes:----
 ##--Improving speed----
-###--When building array one element at a time via loops, use x[[i,j,k]]<-y rather than x[i,j,k]<-y
+###--1. When building array one element at a time via loops, use x[[i,j,k]]<-y rather than x[i,j,k]<-y.
+###--   use double bracket sub-assignment x[[i]]<-y rather than single bracket. Example:
+###--  f <- function(x) {
+###--      n <- 100
+###--      a <- AD(array(0, c(n,n,n)))
+###--      for (i in 1:n)
+###--          for (j in 1:n)
+###--              for (k in 1:n)
+###--                  a[[i,j,k]] <- x
+###--      sum(x)
+###--  }
+###--  system.time(F <- MakeTape(f, 0))
+###--2. Combine inner loop vectorization and outer loop in-place insertion by using an array of lists.
+###--   Then convert to normal array after construction:
+###--  library(RTMB)
+###--  n <- 100
+###--  f <- function(x) {
+###--      a <- array( list() , c(n, n) )
+###--      for (i in 1:n)
+###--          for (j in 1:n)
+###--              a[[i,j]] <- x
+###--      ## convert to normal array
+###--      a <- do.call("c", a)
+###--      dim(a) <- c(n, n, n)
+###--      sum(a)
+###--  }
+###--  system.time(F <- MakeTape(f, numeric(n)))
+
 ##
 obj_fun<-function(params){
   #--expand the list of parameters----
