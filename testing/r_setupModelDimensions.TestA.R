@@ -3,11 +3,11 @@ require(rtmbGMACS);
 
 ##--set up model dimensions----
 ###--temporal dims  : "y","s"----
-###--population dims: "r","x","m","a","p","z"----
+###--population dims: "r","x","m","p","z"----
 ###--fleet dims     : "f"----
 ##--dimensions maps----
 ###--dmsYS : years *x* seasons
-###--dmsN : population state (r *x* x *x* m *x* a *x* p *x* z)
+###--dmsN : population state (r *x* x *x* m *x* p *x* z)
 ###--dmsF : fleets
 setupModelDims<-function(){
   dims = list();
@@ -16,7 +16,6 @@ setupModelDims<-function(){
   dims$r = "EBS";                               #--regions
   dims$x = c("male","female");                  #--sex classes
   dims$m = c("immature","mature");              #--maturity state classes
-  dims$a = "all";                               #--post-recruitment age classes
   dims$p = c("newshell","oldshell");            #--post-molt ages
   dims$zc = seq(24.5,184.5,5);
   zc = dims$zc; nzcs = length(zc);              #--size bin cutpoints
@@ -28,11 +27,16 @@ setupModelDims<-function(){
     names(dimp) = as.character(dimp);
     dims[[dim]] = dimp;
   }
+  rm(nzcs,zc,dim,dimp);
 
   dims$dmsYS   = createSparseDimsMap(y=dims$y,s=dims$s);
-  dims$dmsN    = createSparseDimsMap(r=dims$r,x=dims$x,m=dims$m,a=dims$a,p=dims$p,z=dims$z);
-  dims$dmsYSN  = createSparseDimsMap(y=dims$y,s=dims$s,r=dims$r,x=dims$x,m=dims$m,a=dims$a,p=dims$p,z=dims$z);
-  dims$dmsFYSN = createSparseDimsMap(f=dims$f,y=dims$y,s=dims$s,r=dims$r,x=dims$x,m=dims$m,a=dims$a,p=dims$p,z=dims$z);
+  dims$dmsN    = createSparseDimsMap(r=dims$r,x=dims$x,m=dims$m,p=dims$p,z=dims$z);
+  dims$dmsYSN  = createSparseDimsMap(y=dims$y,s=dims$s,r=dims$r,x=dims$x,m=dims$m,p=dims$p,z=dims$z);
+  dims$dmsFYSN = createSparseDimsMap(f=dims$f,y=dims$y,s=dims$s,r=dims$r,x=dims$x,m=dims$m,p=dims$p,z=dims$z);
   return(dims);
 }
-#--dims = setupModelDims();
+if (FALSE){
+  dims = setupModelDims();
+  opts = list(trackCohorts=FALSE,
+              maxCohortAge=10);
+}

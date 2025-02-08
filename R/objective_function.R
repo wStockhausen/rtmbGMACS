@@ -70,26 +70,29 @@ obj_fun<-function(params){
   data = inputs$data;
   opts = inputs$options;
 
-  #--set up model indices-----
+  #--get model indices-----
   nYs = length(dims$y);    #--number of years
   nSs = length(dims$s);    #--number of seasons
   nFs = length(dims$f)     #--number of fleets
   nRs = length(dims$r);    #--number of regions
   nXs = length(dims$x);    #--number of sex classes
   nMs = length(dims$m);    #--number of maturity state classes
-  nAs = length(dims$a);    #--number of post-recruitment age classes
   nPs = length(dims$p);    #--number of post-molt age classes
   nZs = length(dims$z);    #--number of size classes
   nCs = nrow(dims$dmsN);   #--number of population categories (size of population vector)
   I_c  = double(nCs);                #--identity vector for population state
   I_cc = diag(x=1,nrow=nCs,ncol=nCs);#--identity matrix for population state
 
+  #--get options
+  trackCohorts = opts$trackCohorts;#--T/F to track cohorts
+  maxCohortAge = opts$maxCohortAge;#--max age for a cohort
+
   #--set up model processes----
   ##--initial N's----
   nInit = getInitN(dims,opts,params,verbose);
   REPORT(nInit);
 
-  if (FALSE)
+  if (FALSE){  ##--remove FALSE when ready
     ##--Allometry----
     lstAlm = getAllometry(dims,opts,params,verbose);
 
@@ -123,119 +126,216 @@ obj_fun<-function(params){
     ###--(to be implemented at some point in future)
     lstMTMs = getMovementTMs(dims,options,params,verbose);
 
+    #--set up population (and cohort, requested) structures----
+    lstCohs = list();
+    if (trackCohorts){
+      for (y_ in names(dims$y)){ #--`y_` is model year represented as a string (i.e., "2020", not 2020)
+        nYCs = min(maxCohortAge+1,as.numeric(dplyr::last(dims$y))-as.numeric(y_)+1);
+        lstCohs[[y_]] = list(y     = as.numeric(y_)+(0:(nYCs-1)),#--years cohort exists (numerical)
+                             n_ysc = AD(array(0,nYCs,nSs,nCs)),  #--cohort abundance at beginning of season `s` in cohort year `y`
+                             b_ysc = AD(array(0,nYCs,nSs,nCs)),  #--cohort biomass   at beginning of season `s` in cohort year `y`
+                             n_Final = AD(array(0,nCs)),         #--cohort abundance at start of `dims$y+1`
+                             b_Final = AD(array(0,nCs)),         #--cohort biomass   at start of `dims$y+1`
+                             srvN_ysc = AD(array(0,nFs,nYCs,nSs,nCs)),#--cohort survey abundance in season `s` in cohort year `y`
+                             srvB_ysc = AD(array(0,nFs,nYCs,nSs,nCs)),#--cohort survey biomass   in season `s` in cohort year `y`
+                             fcn_fysc = AD(array(0,nFs,nYCs,nSs,nCs)),#--cohort fishery catch abundance           in season `s` in cohort year `y`
+                             frn_fysc = AD(array(0,nFs,nYCs,nSs,nCs)),#--cohort fishery retained abundance        in season `s` in cohort year `y`
+                             fdn_fysc = AD(array(0,nFs,nYCs,nSs,nCs)),#--cohort fishery discard abundance         in season `s` in cohort year `y`
+                             fmn_fysc = AD(array(0,nFs,nYCs,nSs,nCs)),#--cohort fishery catch mortality abundance in season `s` in cohort year `y`
+                             ssb_ysc  = AD(array(0,nYCs,nSs,nCs)),    #--cohort spawning stock biomass at of season `s` in cohort year `y`
+                            );
+      }
+    } else {
+      #--no cohort structure
+      lstCohs[["all"]]=list(y = dims$y,                       #--population years (numerical, with names "yyyy" for yyyy)
+                            n_ysc = AD(array(0,nYs,nSs,nCs)), #--population abundance at beginning season `s` in year `y`
+                            b_ysc = AD(array(0,nYs,nSs,nCs)), #--population biomass   at beginning of season `s` in model year `y`
+                            n_Final = AD(array(0,nCs)),         #--population abundance at start of `last(dims$y)+1`
+                            b_Final = AD(array(0,nCs)),         #--population biomass   at start of `last(dims$y)+1`
+                            srvN_ysc = AD(array(0,nFs,nYs,nSs,nCs)),#--population survey abundance in season `s` in model year `y`
+                            srvB_ysc = AD(array(0,nFs,nYs,nSs,nCs)),#--population survey biomass   in season `s` in model year `y`
+                            fcn_fysc = AD(array(0,nFs,nYs,nSs,nCs)),#--population fishery catch abundance           in season `s` in model year `y`
+                            frn_fysc = AD(array(0,nFs,nYs,nSs,nCs)),#--population fishery retained abundance        in season `s` in model year `y`
+                            fdn_fysc = AD(array(0,nFs,nYs,nSs,nCs)),#--population fishery discard abundance         in season `s` in model year `y`
+                            fmn_fysc = AD(array(0,nFs,nYs,nSs,nCs)),#--population fishery catch mortality abundance in season `s` in model year `y`
+                            ssb_ysc  = AD(array(0,nYs,nSs,nCs)),    #--population spawning stock biomass at of season `s` in model year `y`
+                            );
+    }
+
     #--integrate model over years by season----
-    n_ysc = array(nYs,nSs,nCs);#--population abundance at beginning season `s` in year `y`
-    n_ysc[1,1,] = nInit;
+    ##--assign initial abundance----
+    if (trackCohorts){
+      #--TBD: assign abundance to initial cohorts, if not building up pop by recruitment only
+      ##--nInit could be generated by equilibrium considerations for first `maxCohortAge` cohorts
+      ##--or (tediously) assigned values
+    } else {
+      lstCohs[["all"]]$n_ysc[1,1,] = nInit;
+    }
+
     for (y_ in dims$y){ ##--loop over years----
       for (s_ in dims$s){ ###--loop over seasons within years----
         n_c = n_ysc[y_,s_];#--population state at start of y_, s_
         if (verbose) cat("y, s =",y_,s_,"\n");
+        for (cht in names(lstCohs)){ ####--loop over cohorts----
+          if (y_ %in% lstCohs[[cht]]$y){
+            n_cp  = lstCohs[[cht]]$n_ysc;#--cohort state at start of y_, s_
 
-        if (seasonLength[y_,s_]==0){  ####--instantaneous processes----
-          #####---happen in order of
-          #####----survey, growth, movement, and/or (possibly) fishery catches and mortality
+            if (seasonLength[y_,s_]==0){  #####--instantaneous processes----
+              ######---happen in order of
+              ######----survey, growth, movement, and/or (possibly) fishery catches and mortality
 
-          #####--surveys----
-          for (v_ in 1:nSrvs){
-            if (doSurveys_vys[v_,y_,s_]){
-              srvN_vysc[[v_,y_,s_,]] = lstSQs[[v_]]$q_ysc[[y_,s_,]] * n_c;
-              srvB_vysc[[v_,y_,s_,]] = lstWatz$wAtZ_ysc[[y_,s_,c_]] * srvN_vysc[[v_,y_,s_,]];
+              ######--surveys----
+              for (v_ in 1:nSrvs){
+                if (doSurveys_vys[v_,y_,s_]){
+                  lstCohs[[cht]]$srvN_vysc[v_,y_,s_,] = lstSQs[[v_]]$q_ysc[y_,s_,] * n_cp;
+                  lstCohs[[cht]]$srvB_vysc[v_,y_,s_,] = lstWatz$wAtZ_ysc[y_,s_,c_] * srvN_vysc[v_,y_,s_,];
+                  srvN_vysc[v_,y_,s_,] = srvN_vysc[v_,y_,s_,] + lstCohs[[cht]]$srvN_vysc[v_,y_,s_,]
+                  srvB_vysc[v_,y_,s_,] = srvB_vysc[v_,y_,s_,] + lstCohs[[cht]]$srvB_vysc[v_,y_,s_,]
+                }
+              }#--v_
+
+              ######--growth----
+              if (doGrowth_ys[y_,s_]){
+                n_cp = lstGTMs$gtm_yscc[y_,s_,,] %*% n_cp;
+              }
+
+              ######--instantaneous movement----
+              if (doInstMovement[y_,s_]){
+                n_cp = lstMTMs$mtm_cc[y_,s_,,] %*% n_cp;
+              }
+
+              ######--instantaneous fishery catches and mortality----
+              #--calculate total fishing capture, retention, discard mortality, and total mortality rates
+              #######--calculate total fishing mortality rates (FMR) by population component----
+              totFMR_c = AD(vector("numeric",nCs));#--total FMRs
+              for (f_ in 1:nFsh){
+                if (doInstFisheries_fys[f_,y_,s_]){
+                  totFMR_c = totFMR_c + lstFMs[[f_]]$fmr_ysc[y_,s_,];#--add fishery-specific FMRs to total FMRs
+                }
+              }#--f_
+              #######--calculate fishery-specific catch-related numbers----
+              scl = (1.0-exp(-totFMR_c))/(totFMR_c+(1*(totFMR_c==0)));#--scaling factor (last bit excludes divides by 0)
+              for (f_ in 1:nFsh){
+                if (doInstFisheries_fys[f_,y_,s_]){
+                  lstCohs[[cht]]$fcn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$fcr_ysc[y_,s_,]*scl*n_cp;#--captured numbers
+                  lstCohs[[cht]]$frn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$frr_ysc[y_,s_,]*scl*n_cp;#--retained numbers
+                  lstCohs[[cht]]$fdn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$fdr_ysc[y_,s_,]*scl*n_cp;#--discard mortality numbers
+                  lstCohs[[cht]]$fmn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$fmr_ysc[y_,s_,]*scl*n_cp;#--retained + discard mortality numbers
+                  fcn_fysc[f_,y_,s_,] = fcn_fysc[f_,y_,s_,] + lstCohs[[cht]]$fcn_fysc[f_,y_,s_,];
+                  frn_fysc[f_,y_,s_,] = frn_fysc[f_,y_,s_,] + lstCohs[[cht]]$frn_fysc[f_,y_,s_,];
+                  fdn_fysc[f_,y_,s_,] = fdn_fysc[f_,y_,s_,] + lstCohs[[cht]]$fdn_fysc[f_,y_,s_,];
+                  fmn_fysc[f_,y_,s_,] = fmn_fysc[f_,y_,s_,] + lstCohs[[cht]]$fmn_fysc[f_,y_,s_,];
+                }
+              }#--instantaneous fisheries
+              n_cp = n_cp * exp(-totFMR_c);#--pop numbers after fisheries
+
+            } else if (seasonLength[y_,s_]>0){ #####--continuous processes happen throughout season----
+
+              ######--continuous process can include
+              ######--natural mortality and continuous fishery catch and mortality
+              #######--NOTE: Incorporating movement here requires exponentiating a matrix
+              #######--to calculate changes to n_c. Not quite sure how to calculate fishery-specific
+              #######--values (catch, mortality) in this case: is it directly analagous to the
+              #######--case without movement??
+              dt = seasonLength[y_,s_];
+
+              ######--continuous movement rates----
+              # if (doContMovement[y_,s_])
+              #   mtm_cc = lstMTMs$mtm_yscc[y_,s_,,];#--c *x* c matrix
+
+              ######--natural mortality rate----
+              nmr_c = lstNMRs$nmr_ysc[y_,s_,];#---vector
+
+              ######--continuous fishery catch rates
+              #######--calculate total fishing mortality rates (FMR) by population component----
+              totFMR_c = AD(vector("numeric",nCs));#--total FMRs (vector)
+              for (f_ in 1:nFsh){
+                if (doContFisheries_fys[f_,y_,s_]){
+                  totFMR_c = totFMR_c + lstFMs[[f_]]$fmr_ysc[y_,s_,];#--add fishery-specific FMRs to total FMRs
+                }
+              }#--f_
+              #######--calculate fishery-specific catch-related numbers----
+              #######--these may not be correct if continuous movement is included
+              scl = (1.0-exp(-(totFMR_c+nmr_c)*dt))/(totFMR_c+nmr_c);#--scaling factor
+              for (f_ in 1:nFsh){
+                if (doContFisheries_fys[f_,y_,s_]){
+                  lstCohs[[cht]]$fcn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$fcr_ysc[y_,s_,]*scl*n_cp;#--captured numbers
+                  lstCohs[[cht]]$frn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$frr_ysc[y_,s_,]*scl*n_cp;#--retained numbers
+                  lstCohs[[cht]]$fdn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$fdr_ysc[y_,s_,]*scl*n_cp;#--discard mortality numbers
+                  lstCohs[[cht]]$fmn_fysc[f_,y_,s_,] =  lstFMs[[f_]]$fmr_ysc[y_,s_,]*scl*n_cp;#--retained + discard mortality numbers
+                  fcn_fysc[f_,y_,s_,] = fcn_fysc[f_,y_,s_,] + lstCohs[[cht]]$fcn_fysc[f_,y_,s_,];
+                  frn_fysc[f_,y_,s_,] = frn_fysc[f_,y_,s_,] + lstCohs[[cht]]$frn_fysc[f_,y_,s_,];
+                  fdn_fysc[f_,y_,s_,] = fdn_fysc[f_,y_,s_,] + lstCohs[[cht]]$fdn_fysc[f_,y_,s_,];
+                  fmn_fysc[f_,y_,s_,] = fmn_fysc[f_,y_,s_,] + lstCohs[[cht]]$fmn_fysc[f_,y_,s_,];
+                }
+              }#--continuous fisheries
+
+              ######--update N for continuous processes----
+              #######--if continuous movement is implemented,
+              #######--the following needs to be converted to an exponentiated matrix (rather thn vector)
+              n_cp = exp(-(nmr_c+totFMR_c)*dt) * n_cp;
+            }#--if (seasonLength[y_,s_])
+
+            #####--Finally, add recruitment----
+            if (doRecruitment[y_,s_]) {
+              if (trackCohorts && (y_==lstCohs[[cht]]$y[1])){
+                #--only cohort in first year has recruitment
+                lstCohs[[cht]]$n_ysc[y_,s_,] = lstRec$rec_ysc[y_,s_,];
+                n_cp = n_cp + lstRec$rec_ysc[y_,s_,];
+              } else {
+                #--"cohort" is really the population, so don't worry about "cohort" age
+                lstCohs[[cht]]$n_ysc[y_,s_,] = lstCohs[[cht]]$n_ysc[y_,s_,] + lstRec$rec_ysc[y_,s_,];
+                n_cp = n_cp + lstRec$rec_ysc[y_,s_,];
+              }
+            }#--doRecruitment
+
+            #####--finished all processes in current season, n_cp is cohort (or pop) abundance at start of next season
+            if (s<nSs) {#####--not at end of year----
+              lstCohs[[cht]]$n_ysc[y_,s_+1,] = n_cp;                    #--cohort (or pop) state at start of y_, s_+1
+              lstCohs[[cht]]$b_ysc[y_,s_+1,] = lstAlm$wAtZ[y_,s_,]*n_cp;#--biomass at start of y_, s_+1
+            } else {    #####--at end of current year, so need to increment year if cohort age or model timeframe allows----
+              if (trackCohorts){
+                if (y_ < last(lstCohs[[cht]]$y)){ ######--have not reached last age
+                  lstCohs[[cht]]$n_ysc[y_+1,s_,] = n_cp;                    #--cohort state at start of y_+1
+                  lstCohs[[cht]]$b_ysc[y_+1,s_,] = lstAlm$wAtZ[y_,s_,]*n_cp;#--cohort biomass at start of y_+1
+                } else if (y_ < last(dims$y)){ ######--reached last age, so cohort does not go forward
+                  n_cp = 0*n_cp;
+                } else { ######--in final year, save final cohort state
+                  lstCohs[[cht]]$nFinal = n_cp;                    #--cohort state at start of y_+1
+                  lstCohs[[cht]]$bFinal = lstAlm$wAtZ[y_,s_,]*n_cp;#--cohort biomass at start of y_+1
+                }
+              } else { #####--"cohort" is population
+                if (y_ < last(dims$y)) { ######--save pop state and biomass at start of y_ + 1
+                  lstCohs[[cht]]$n_ysc[y_+1,1,] = n_cp;                    #--pop state at start of y_+1
+                  lstCohs[[cht]]$b_ysc[y_+1,1,] = lstAlm$wAtZ[y_,s_,]*n_cp;#--pop biomass at start of y_+1
+                } else { ######--in final year, save final "cohort" state
+                  lstCohs[[cht]]$nFinal = n_cp;                    #--cohort state at start of y_+1
+                  lstCohs[[cht]]$bFinal = lstAlm$wAtZ[y_,s_,]*n_cp;#--cohort biomass at start of y_+1
+                }
             }
-          }#--v_
 
-          #####--growth----
-          if (doGrowth_ys[y_,s_]){
-            n_c = lstGTMs$gtm_yscc[y_,s_,,] %*% n_c;
-          }
+            #####--add cohort changes to population changes----
+            if (trackCohorts) n_c = n_c + n_cp;
+          }#--y_ in lstCoh[[cht]]$y
+        }#--end cohort loop
 
-          #####--instantaneous movement----
-          if (doInstMovement[y_,s_]){
-            n_c = lstMTMs$mtm_cc[y_,s_,,] %*% n_c;
-          }
-
-          #####--instantaneous fishery catches and mortality----
-          #--calculate total fishing capture, retention, discard mortality, and total mortality rates
-          ######--calculate total fishing mortality rates (FMR) by population component----
-          totFMR_c = AD(vector("numeric",nCs));#--total FMRs
-          for (f_ in 1:nFsh){
-            if (doInstFisheries_fys[f_,y_,s_]){
-              totFMR_c = totFMR_c + lstFMs[[f_]]$fmr_ysc[y_,s_,];#--add fishery-specific FMRs to total FMRs
-            }
-          }#--f_
-          ######--calculate fishery-specific catch-related numbers----
-          scl = (1.0-exp(-totFMR_c))/(totFMR_c+(1*(totFMR_c==0)));#--scaling factor (last bit excludes divides by 0)
-          for (f_ in 1:nFsh){
-            if (doInstFisheries_fys[f_,y_,s_]){
-              fcn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fcr_ysc[y_,s_,]*scl*n_c;#--captured numbers
-              frn_f_ysc[f,y,s,] =  lstFMs[[f_]]$frr_ysc[y_,s_,]*scl*n_c;#--retained numbers
-              fdn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fdr_ysc[y_,s_,]*scl*n_c;#--discard mortality numbers
-              fmn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fmr_ysc[y_,s_,]*scl*n_c;#--retained + discard mortality numbers
-            }
-          }#--instantaneous fisheries
-          n_c = n_c * exp(-totFMR_c);#--pop numbers after fisheries
-
-        } else if (seasonLength[y_,s_]>0){ ####--continuous processes happen throughout season----
-
-          #####--continuous process can include
-          #####--natural mortality and continuous fishery catch and mortality
-          ######--NOTE: Incorporating movement here requires exponentiating a matrix
-          ######--to calculate changes to n_c. Not quite sure how to calculate fishery-specific
-          ######--values (catch, mortality) in this case: is it directly analagous to the
-          ######--case without movement??
-          dt = seasonLength[y_,s_];
-
-          #####--continuous movement rates----
-          # if (doContMovement[y_,s_])
-          #   mtm_cc = lstMTMs$mtm_yscc[y_,s_,,];#--c *x* c matrix
-
-          #####--natural mortality rate----
-          nmr_c = lstNMRs$nmr_ysc[y_,s_,];#---vector
-
-          #####--continuous fishery catch rates
-          ######--calculate total fishing mortality rates (FMR) by population component----
-          totFMR_c = AD(vector("numeric",nCs));#--total FMRs (vector)
-          for (f_ in 1:nFsh){
-            if (doContFisheries_fys[f_,y_,s_]){
-              totFMR_c = totFMR_c + lstFMs[[f_]]$fmr_ysc[y_,s_,];#--add fishery-specific FMRs to total FMRs
-            }
-          }#--f_
-          ######--calculate fishery-specific catch-related numbers----
-          ######--these may not be correct if continuous movement is included
-          scl = (1.0-exp(-(totFMR_c+nmr_c)*dt))/(totFMR_c+nmr_c);#--scaling factor
-          for (f_ in 1:nFsh){
-            if (doContFisheries_fys[f_,y_,s_]){
-              fcn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fcr_ysc[y_,s_,]*scl*n_c;#--captured numbers
-              frn_f_ysc[f,y,s,] =  lstFMs[[f_]]$frr_ysc[y_,s_,]*scl*n_c;#--retained numbers
-              fdn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fdr_ysc[y_,s_,]*scl*n_c;#--discard mortality numbers
-              fmn_f_ysc[f,y,s,] =  lstFMs[[f_]]$fmr_ysc[y_,s_,]*scl*n_c;#--retained + discard mortality numbers
-            }
-          }#--continuous fisheries
-
-          #####--update N for continuous processes----
-          ######--if continuous movement is implemented,
-          ######--the following needs to be converted to an exponentiated matrix (rather thn vector)
-          n_c = exp(-(nmr_c+totFMR_c)*dt) * n_c;
-        }#--if (seasonLength[y_,s_])
-
-        ####--Finally, add recruitment----
-        if (doRecruitment[y_,s_])
-          n_c = n_c + lstRec$rec_ysc[y_,s_,];
-
-        if (s_<nSs) {
-          n_ysc[y_,s_+1,] = n_c;                    #--save pop state at start of y_, s_+1
+        if (s_<nSs) { ##--if (!trackChanges) these should be same as equivalents in lstCohs[["all]]
+          n_ysc[y_,s_+1,] = n_c;                    #--save pop state (integrated over cohorts) at start of y_, s_+1
           b_ysc[y_,s_+1,] = lstAlm$wAtZ[y_,s_,]*n_c;#--biomass at start of y_, s_+1
         }
-      } #--end seasons loop (s_)
+      } ####--end seasons loop (s_)----
 
-      if (y_<nYs) {
+      if (y_<nYs) { ##--if (!trackChanges) these should be same as equivalents in lstCohs[["all]]
         n_ysc[y_+1,1,] = n_c;                    #--save pop state as start of y_+1, s_
         b_ysc[y_+1,1,] = lstAlm$wAtZ[y_,s_,]*n_c;#--biomass at start of y_, s_+1
       }
-    } #--end years loop (y_)
+    } ###--end years loop (y_)----
 
-    nFinal = n_c;                      #--save final pop state (start of year nYs+1, season 1)
-    bFinal = lstAlm$wAtZ[nYs,nSs,]*n_c;#--final biomass
-  }
+    ##--need to save final pop state (start of year nYs+1, season 1; integrated over cohorts)----
+    ##--if (!trackChanges) these should be same as equivalents in lstCohs[["all]]
+    nFinal = n_c;                      #--final pop abundance
+    bFinal = lstAlm$wAtZ[nYs,nSs,]*n_c;#--final pop biomass
+  }#--FALSE block
 
   #--calculate likelihoods----
 
