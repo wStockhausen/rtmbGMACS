@@ -67,3 +67,17 @@ If \code{option} = "data", a list with the following elements is returned:
 \item{dfr - dataframe with value specs }
 }
 }
+\examples{
+# example code reading "vertical" data format
+if (FALSE){
+  conn="inputSpecs_Allometry.data_vertical.txt";
+  lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
+}
+
+# example code reading "horizontal" data format
+if (FALSE){
+  conn="inputSpecs_Allometry.data_horizontal.txt";
+  lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
+}
+
+}

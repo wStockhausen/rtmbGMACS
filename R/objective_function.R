@@ -71,15 +71,10 @@ obj_fun<-function(params){
   opts = inputs$options;
 
   #--get model indices-----
-  nYs = length(dims$y);    #--number of years
-  nSs = length(dims$s);    #--number of seasons
-  nFs = length(dims$f)     #--number of fleets
-  nRs = length(dims$r);    #--number of regions
-  nXs = length(dims$x);    #--number of sex classes
-  nMs = length(dims$m);    #--number of maturity state classes
-  nPs = length(dims$p);    #--number of post-molt age classes
-  nZs = length(dims$z);    #--number of size classes
-  nCs = nrow(dims$dmsN);   #--number of population categories (size of population vector)
+  nYs = dims$nYs;    #--number of years
+  nSs = dims$nSs;    #--number of seasons
+  nCs = dims$nCs;    #--number of population categories (size of population vector)
+  nFs = dims$nFs     #--number of fleets
   I_c  = double(nCs);                #--identity vector for population state
   I_cc = diag(x=1,nrow=nCs,ncol=nCs);#--identity matrix for population state
 
@@ -129,6 +124,7 @@ obj_fun<-function(params){
     #--set up population (and cohort, requested) structures----
     lstCohs = list();
     if (trackCohorts){
+      ##--set up cohorts----
       for (y_ in names(dims$y)){ #--`y_` is model year represented as a string (i.e., "2020", not 2020)
         nYCs = min(maxCohortAge+1,as.numeric(dplyr::last(dims$y))-as.numeric(y_)+1);
         lstCohs[[y_]] = list(y     = as.numeric(y_)+(0:(nYCs-1)),#--years cohort exists (numerical)
@@ -144,9 +140,9 @@ obj_fun<-function(params){
                              fmn_fysc = AD(array(0,nFs,nYCs,nSs,nCs)),#--cohort fishery catch mortality abundance in season `s` in cohort year `y`
                              ssb_ysc  = AD(array(0,nYCs,nSs,nCs)),    #--cohort spawning stock biomass at of season `s` in cohort year `y`
                             );
-      }
+      }#--y_ loop
     } else {
-      #--no cohort structure
+      ##--no cohort structure----
       lstCohs[["all"]]=list(y = dims$y,                       #--population years (numerical, with names "yyyy" for yyyy)
                             n_ysc = AD(array(0,nYs,nSs,nCs)), #--population abundance at beginning season `s` in year `y`
                             b_ysc = AD(array(0,nYs,nSs,nCs)), #--population biomass   at beginning of season `s` in model year `y`
@@ -160,7 +156,7 @@ obj_fun<-function(params){
                             fmn_fysc = AD(array(0,nFs,nYs,nSs,nCs)),#--population fishery catch mortality abundance in season `s` in model year `y`
                             ssb_ysc  = AD(array(0,nYs,nSs,nCs)),    #--population spawning stock biomass at of season `s` in model year `y`
                             );
-    }
+    }#--cohort/no cohort structure
 
     #--integrate model over years by season----
     ##--assign initial abundance----
@@ -188,7 +184,7 @@ obj_fun<-function(params){
               for (v_ in 1:nSrvs){
                 if (doSurveys_vys[v_,y_,s_]){
                   lstCohs[[cht]]$srvN_vysc[v_,y_,s_,] = lstSQs[[v_]]$q_ysc[y_,s_,] * n_cp;
-                  lstCohs[[cht]]$srvB_vysc[v_,y_,s_,] = lstWatz$wAtZ_ysc[y_,s_,c_] * srvN_vysc[v_,y_,s_,];
+                  lstCohs[[cht]]$srvB_vysc[v_,y_,s_,] = lstAlm$wAtZ_ysc[y_,s_,] * srvN_vysc[v_,y_,s_,];
                   srvN_vysc[v_,y_,s_,] = srvN_vysc[v_,y_,s_,] + lstCohs[[cht]]$srvN_vysc[v_,y_,s_,]
                   srvB_vysc[v_,y_,s_,] = srvB_vysc[v_,y_,s_,] + lstCohs[[cht]]$srvB_vysc[v_,y_,s_,]
                 }
@@ -229,7 +225,7 @@ obj_fun<-function(params){
               }#--instantaneous fisheries
               n_cp = n_cp * exp(-totFMR_c);#--pop numbers after fisheries
 
-            } else if (seasonLength[y_,s_]>0){ #####--continuous processes happen throughout season----
+            } else { #####--continuous processes happen throughout season----
 
               ######--continuous process can include
               ######--natural mortality and continuous fishery catch and mortality
@@ -253,7 +249,7 @@ obj_fun<-function(params){
                 if (doContFisheries_fys[f_,y_,s_]){
                   totFMR_c = totFMR_c + lstFMs[[f_]]$fmr_ysc[y_,s_,];#--add fishery-specific FMRs to total FMRs
                 }
-              }#--f_
+              }#--f_ loop
               #######--calculate fishery-specific catch-related numbers----
               #######--these may not be correct if continuous movement is included
               scl = (1.0-exp(-(totFMR_c+nmr_c)*dt))/(totFMR_c+nmr_c);#--scaling factor
@@ -312,7 +308,8 @@ obj_fun<-function(params){
                   lstCohs[[cht]]$nFinal = n_cp;                    #--cohort state at start of y_+1
                   lstCohs[[cht]]$bFinal = lstAlm$wAtZ[y_,s_,]*n_cp;#--cohort biomass at start of y_+1
                 }
-            }
+              }#--if trackCohorts or not
+            }#--if s < nSs or not
 
             #####--add cohort changes to population changes----
             if (trackCohorts) n_c = n_c + n_cp;
@@ -344,5 +341,23 @@ obj_fun<-function(params){
   }
   if (verbose) cat("end objective function\n");
   return(nll);
-}
+}#--end of objective_function
 
+if (FALSE){
+  #--for simple testing----
+  require(rtmbGMACS);
+  dirPrj = rstudioapi::getActiveProject();
+  #--start opts list----
+  opts = list(tracKCohorts=FALSE,
+              maxCohortAge=10);
+  #--set up dims----
+  source(file.path(dirPrj,"testing","r_setupModelDimensions.TestA.R"));
+  dims = setupModelDims();
+
+  #--set up allometry
+  source(file.path(dirPrj,"R","readParamInfo_Allometry.R"));
+  source(file.path(dirPrj,"R","extractParamInfo_Allometry.R"));
+  conn     = file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.function.txt");
+  res      = readParamInfo_Allometry(conn,TRUE);
+  lstAllom = extractParamInfo_Allometry(res,dims$dmsYSC);
+}

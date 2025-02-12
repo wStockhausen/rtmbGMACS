@@ -4,13 +4,13 @@
 \alias{alls_GetLevels}
 \title{Get maps from "all" dimension levels to individual levels}
 \usage{
-alls_GetLevels(dims, verbose = FALSE)
+alls_GetLevels(dfrDims, verbose = FALSE)
 }
 \arguments{
-\item{dims}{- list with model dimensions}
+\item{dfrDims}{- dataframe with model dimensions to use for expansion}
 }
 \value{
-list with a dataframe for each dimension mapping "all" to every value.
+list with a dataframe for each dimension mapping "all" to every value (and every value to itself).
 }
 \description{
 Function to get maps from "all" dimension levels to individual levels.

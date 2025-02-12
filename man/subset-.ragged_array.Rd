@@ -4,18 +4,20 @@
 \alias{[<-.ragged_array}
 \title{Assign values to a ragged_array object}
 \usage{
-\method{[}{ragged_array}(x, y) <- value
+\method{[}{ragged_array}(v) <- value
 }
 \arguments{
+\item{v}{- the values to assign}
+
 \item{x}{- the LHS ragged array object in the assignment}
 
-\item{y}{- a ragged array, vector of indices, or DimsMap by which to assign values from `value` into `x`}
+\item{y}{- the indices into x, or a dimsMap}
 }
 \value{
-the LHS ragged_array object
+x, the LHS object
 }
 \description{
-Assign values to ragged_array object by an index vector or DimsMap.
+Assign values to a ragged_array object.
 }
 \details{
 TODO!

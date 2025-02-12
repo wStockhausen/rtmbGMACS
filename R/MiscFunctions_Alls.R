@@ -1,15 +1,15 @@
 #'
 #' @title Get maps from "all" dimension levels to individual levels
 #' @description Function to get maps from "all" dimension levels to individual levels.
-#' @param dims - list with model dimensions
-#' @return list with a dataframe for each dimension mapping "all" to every value.
+#' @param dfrDims - dataframe with model dimensions to use for expansion
+#' @return list with a dataframe for each dimension mapping "all" to every value (and every value to itself).
 #' @importFrom dplyr bind_rows
 #' @importFrom tibble tibble
 #' @importFrom tidyr expand_grid
 #' @export
-alls_GetLevels<-function(dims,verbose=FALSE){
+alls_GetLevels<-function(dfrDims,verbose=FALSE){
   if (verbose) message("in alls_GetLevels.");
-  lstLvls = attr(dims,"dmlvs",exact=TRUE);
+  lstLvls = attr(dfrDims,"dmlvs",exact=TRUE);
   lst = list();
   for (lvl in names(lstLvls)){
     lst[[lvl]] = dplyr::bind_rows(

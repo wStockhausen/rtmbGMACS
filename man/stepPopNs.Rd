@@ -2,7 +2,7 @@
 % Please edit documentation in R/PopDynamics.R
 \name{stepPopNs}
 \alias{stepPopNs}
-\title{Step the population numbers one tine interval}
+\title{Step the population numbers one season}
 \usage{
 stepPopNs(y, s, N_z)
 }
@@ -12,10 +12,10 @@ stepPopNs(y, s, N_z)
 \item{s}{- season index}
 }
 \description{
-Function to step the population numbers one time interval
+Function to step the population numbers one season
 }
 \details{
-The population is proagated forward one time step. Potential processes involved
+The population is propagated forward one season (i.e.) time step. Potential processes involved
 in the process are:
  - molting/change in shell condition
  - maturation

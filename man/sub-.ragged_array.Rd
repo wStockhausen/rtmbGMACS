@@ -4,7 +4,7 @@
 \alias{[.ragged_array}
 \title{Subset a ragged_array object}
 \usage{
-\method{[}{ragged_array}(x, i)
+\method{[}{ragged_array}(x, i = NULL)
 }
 \arguments{
 \item{x}{- the ragged array object}
@@ -21,4 +21,11 @@ Subset a ragged_array object by its vector index.
 The "dfrDims" attribute for the returned ragged_array object is
 the "dfrDims" attribute of `x`, but appropriately subsetted based on its row index
 to match the subsetted vector underlying `x`.
+}
+\examples{
+# simple subsetting
+x = ragged_array(1:5);
+x[2:3];
+
+
 }

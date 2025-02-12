@@ -137,6 +137,16 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
       } else {dfrRefLvls_DPs=NULL;}
     } else {dfrDPs=NULL; nLvls_DPs=0; dfrRefLvls_DPs=NULL;}
 
+    ###--parse "RE" parameter specifications----
+    if (verbose) cat("reading RE parameters info\n");
+    lst     = extractTextSection(lns,1,lst$end+1);
+    nREs   = as.integer(stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--number of REs parameter specifications
+    if (nREs>0){
+      lst     = extractTextSection(lns,nREs+1,lst$end+1);
+      dfrREs = readr::read_table(I(lst$txt),col_names=TRUE);    #--tibble w/ RE parameter specifications
+      if (verbose) print(dfrREs);
+    } else {dfrREs=NULL;}
+
     ###--parse parameter-related environmental covariates----
     if (verbose) cat("reading parameter-related environmental covariates info\n");
     lst     = extractTextSection(lns,1,lst$end+1);
@@ -198,12 +208,13 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
                MPs=list(n=nMPs,dfr=dfrMPs),                            #--main parameters
                OPs=list(n=nOPs,dfr=dfrOPs),                            #--offset parameters
                DPs=list(n=nDPs,dfr=dfrDPs,
-                        reflvls=list(n=nLvls_DPs,dfr=dfrRefLvls_DPs)), #--devs parameters
+                        reflvls=list(n=nLvls_DPs,dfr=dfrRefLvls_DPs)), #--devs parameter vectors
+               REs=list(n=nREs,dfr=dfrREs),                            #--RE parameter vectors
                PECs=list(n=nPECs,dfr=dfrPECs,
                         reflvls=list(n=nLvls_PECs,dfr=dfrRefLvls_PECs)), #--parameter-level env. covars
                FECs=list(n=nFECs,dfr=dfrFECs,
                         reflvls=list(n=nLvls_FECs,dfr=dfrRefLvls_FECs)), #--function-level env. covars
-               FPs=list(n=nFPs,dfr=dfrFPs)                             #--functional priors
+               FPs=list(n=nFPs,dfr=dfrFPs)                               #--functional priors
                );
   } else if (tolower(option)=="data") {
     ##--parse "data" input option info----
@@ -228,7 +239,7 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
       dmval = extractTextAfterString(nms[idx],":");
       #--extract all the dimension values from the column names
       ncols = length(nms);
-      dmvals = c(val,nms[(idx+1):ncols]);
+      dmvals = c(dmval,nms[(idx+1):ncols]);
       #--convert to vertical format
       tblDM = tibble::as_tibble_col(dmvals,column_name=dim);
       tblLst = list();
@@ -250,6 +261,7 @@ readParamInfo_Allometry<-function(conn,verbose=FALSE){
 }
 
 if (FALSE){
+  #--test "data"-type vertical input----
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data-vertical.txt");
@@ -258,6 +270,7 @@ if (FALSE){
 }
 
 if (FALSE){
+  #--test "data"-type horizontal input----
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data-horizontal.txt");
@@ -266,10 +279,11 @@ if (FALSE){
 }
 
 if (FALSE){
+  #--test "function"-type input----
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.function.txt");
   resF = readParamInfo_Allometry(conn,TRUE);
-  View(resH$dfr);
+  View(resF$dfr);
 }
 

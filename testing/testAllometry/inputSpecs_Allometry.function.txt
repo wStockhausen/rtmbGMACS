@@ -26,25 +26,28 @@ fcn_idx  par_idx param       y      r     x      m      tform      IV       LB  
    2       10    pZ0    2024:2024  all    all    all    none   1.000000 0.50000 2.00000 -1     none     3.00     1.00    #--scale to mm CW
 ##--Offset parameters----
 2 #--number of offset parameters defined
-  par_idx  param  off_idx  offset_type      y       a     tform    IV       LB       UB     phz   PriorType  Pr1    Pr2
+  par_idx  param  off_idx  offset_type      y       p     tform    IV       LB       UB     phz   PriorType  Pr1    Pr2
      1       pA      1      additive      2022   new_shell g2kg  0.00003  -0.00006 0.00006    2     normal     0    0.0001
      1       pA      2      additive      2022   old_shell g2kg -0.00003  -0.00006 0.00006    2     normal     0    0.0001
-##--"devs" parameters----
-2 #--number of devs parameters defined
-  par_idx  param  dev_idx  dev_type   rw_type   RE?   expand_over     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
-     1       pA      1     additive     RW0    TRUE        y      2021:2023  all   g2kg     0.0  -0.00006 0.00006    2     normal   0    0.0001
-     2       pB      2     additive     RW1    FALSE       y      2021:2022  all   g2kg     0.0  -0.00006 0.00006    2     normal   0    0.0001
+##--"devs" (fixed effects) vectors----
+3 #--number of devs vectors defined
+  par_idx  param   dvec_idx   dev_type   rw_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
+     1       pA       1       additive     RW0         y        2021:2022  all    g2kg    0.0  -0.00006 0.00006    2     normal   0    0.0001
+     1       pA       2       additive     RW0         y        2023:2024  all    g2kg    0.0  -0.00006 0.00006    2     normal   0    0.0001
+     2       pB       3       additive     RW1         y        2021:2024  male   g2kg    0.0  -0.00006 0.00006    2     normal   0    0.0001
 ###--reference levels
 1 #--number of reference levels
-  dev_idx  param   y     x   
-     2       pB  2021   male
+  dvec_idx  param   y      x     m         p       z
+     2       pB    2021   male mature  new_shell  98
+##--"RE" vectors (TODO: finalize format of this section)----
+0 #--number of RE vectors defined
+#  par_idx  param   dvec_idx   dev_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
 ###--RE covariance definitions
-##--TBD!! dev_idx type ???
 
 ##--parameter-level environmental covariates----
 ###--definitions
  2 #--number of environmental covariate relationships defined
-par_idx  param  pcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    a    z   
+par_idx  param  pcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
      1      pA     1       AO    additive    0     -1     1     1      none      0     999  2021:2023
      1      pA     2      PDO    additive    0     -1     1     1      none      0     999  2021:2023
 ###--reference levels
@@ -54,16 +57,16 @@ par_idx  param  pcov_idx  covar link_type    IV    LB    UB    phz   PriorType  
 ##--function-level environmental covariates----
 ###--definitions
  2 #--number of environmental covariate relationships defined
-fcn_idx  fcn       fcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    a    z   
+fcn_idx  fcn       fcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
      1   pwrLaw1     1       AO    additive    0     -1     1     1      none      0     999  2021:2023
      1   pwrLaw1     2      PDO    additive    0     -1     1     1      none      0     999  2021:2023
 ###--reference levels
 0 #--number of reference levels
-# fcov_idx  fcn   y   r   x   m   a   z
+# fcov_idx  fcn   y   r   x   m   p   z
 
 #--functional priors----
 0 #--number of functional priors
-# fcn_idx  y   r   x    m    a    z   tform   PriorType  Pr1    Pr2
+# fcn_idx  tform   PriorType  Pr1    Pr2  # y   r   x    m    p    z   
 
 END
 

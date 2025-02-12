@@ -12,13 +12,13 @@
 getAllometry<-function(dims,opts,params,verbose=FALSE){
   nYs = length(dims$y); #--number of years
   nSs = length(dims$s); #--number of seasons
-  nCs = nrow(dims$dmsN);#--number of population classes
-  if (opts$allometry$type="data"){
+  nCs = nrow(dims$dmsC);#--number of population classes
+  if (opts$allometry$type=="data"){
     wAtZ = AD(array(data=0,dim=c(nYs,nSs,nCs)));
     for (iY in 1:nYs){
       for (iS in 1:nSs){
         for (iC in 1:nCs){
-          wAtZ[[iY,iS,iC]] = ??;
+# TODO:          wAtZ[[iY,iS,iC]] = ??;
         }
       }
     }

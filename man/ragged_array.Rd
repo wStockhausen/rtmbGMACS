@@ -12,7 +12,7 @@ ragged_array(x, dfrDims = NULL)
 \item{dfrDims}{- tibble defining dimensions (optional if `x` is itself a ragged_array)}
 }
 \description{
-Function to create a ragged array (an object of class "ragged_array").
+Helper function to create a ragged array (an object of class "ragged_array").
 }
 \details{
 A ragged_array object is essentially a vector with an attribute (a tibble)
@@ -24,4 +24,6 @@ associated with the corresponding value of the vector.
 
 If `x` is a ragged_array object, then the tibble `dfrDims` is used to subset `x` based on
 the latter's `dfrDims` attribute.
+
+This is a "helper" function (see https://adv-r.hadley.nz/s3.html#helpers) for package users.
 }
