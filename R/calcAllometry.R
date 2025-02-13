@@ -40,26 +40,43 @@ calcAllometry<-function(dims,info,params,verbose=FALSE){
     }#--iy_ loop
   } else if (info$option=="function"){
     ##--"function" option----
-    dfrFcns = info$Fcns$dfrIdxs |> dplyr::select(fnc,
-                                                 fcn_idx);
-    dfrMPs  = info$MPs$dfrMP3s |> dplyr::select(param,
-                                                fcn_idx,
-                                                mp_inp_idx=inp_idx,
-                                                mp_pv_idx=pv_idx);
-    dfrOPs  = info$OPs$dfrOP3s |> dplyr::select(param,
-                                                mp_inp_idx=inp_par_idx,
-                                                op_inp_idx=inp_off_idx,
-                                                op_pv_idx=pv_idx,
-                                                op_type=offset_type);
-    dfrDPs  = info$DPs$dfrDP4s |> dplyr::select(param,
-                                                mp_inp_idx=inp_par_idx,
-                                                dp_inp_idx=inp_dvec_idx,
-                                                dp_pv_idx=dev_par_idx,
-                                                dp_dev_type=dev_type);
-    dfrCmb = dfrFcns |>
-               dplyr::left_join(dfrMPs) |>
-               dplyr::left_join(dfrOPs) |>
-               dplyr::left_join(dfrDPs,relationship="many-to-many");
+    ###--calculate inputs to functions----
+    ####--for each input parameter to a function, p = MP + OP + DP + ...
+    dfrUCs = info$dfrUniqCmbs;
+    nRWs = nrow(dfrUCs);
+    vals  = AD(array(0,nRWs)); #
+    for (rw in 1:nrow(dfrUCs)){
+      #--testing: rw = 1;
+      dfrUCr = dfrUCs[rw,];
+      p = AD(0);
+      if (!is.na(dfrUCr$mpr_idx[1])) {
+        p = p + params$pAllom_MPs[dfrUCr$mpr_idx[1]];
+      }
+      if (!is.na(dfrUCr$opr_idx[1])) {
+        if (dfrUCr$op_type=="additive") {
+          p = p + params$pAllom_OPs[dfrUCr$opr_idx[1]];
+        } else {p = p * params$pAllom_OPs[dfrUCr$opr_idx[1]];}
+      }
+      if (!is.na(dfrUCr$dpr_idx[1])) {
+        if (dfrUCr$dv_type=="additive") {
+          p = p + params$pAllom_DPs[dfrUCr$dpr_idx[1]];
+        } else {p = p * params$pAllom_DPs[dfrUCr$dpr_idx[1]];}
+      }
+      vals[rw] = p;
+    }
+    dfrUCs$val = vals;#--just for testing (this is NOT AD-compatible)
+    names(vals) = dfrUCs$idx;
+
+    idxVals = 1:length(vals);
+    names(idxVals) = dfrUCs$idx;
+
+    pwrLaw1<-function(pA,pB,z){
+      return(pA*(as.numeric(z)^pB));
+    }
+    pwrLaw2<-function(pLnA,pLnS,pB,pZ0,z){
+      return(exp(pLnA-pLnS+pB*(as.numeric(z)-pZ0)));
+    }
+
     for (iy_ in 1:dims$nYs){
       #--iy_ = 1;
       y_ = dims$y[iy_];
@@ -69,10 +86,15 @@ calcAllometry<-function(dims,info,params,verbose=FALSE){
         for (ic_ in 1:dims$nCs){
           #--ic_ = 1;
           dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_))[ic_,];
-          dfrIdxs = dfrDims |> dplyr::left_join(info$dfrDims2Pars);
-          pidx = dfrIdxs$pidx[1];
-          wAtZ[iy_,is_,ic_] = p[pidx];
-        }
+          dfrIdxs = dfrDims |> dplyr::left_join(info$dfrHCs,by = join_by(y, s, r, x, m, p, z));
+          if (dfrIdxs$fcn=="pwrLaw1"){
+            wAtZ[iy_,is_,ic_] = pwrLaw1(vals[idxVals[dfrIdxs$pA]],vals[idxVals[dfrIdxs$pB]],dfrIdxs$z);
+          } else
+          if (dfrIdxs$fcn=="pwrLaw2"){
+            wAtZ[iy_,is_,ic_] = pwrLaw2(vals[idxVals[dfrIdxs$pLnA]],vals[idxVals[dfrIdxs$pLnS]],
+                                        vals[idxVals[dfrIdxs$pB]],vals[idxVals[dfrIdxs$pZ0]],dfrIdxs$z);
+          }
+        }#--ic_ loop
       }#--is_ loop
     }#--iy_ loop
   } else {

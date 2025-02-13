@@ -71,6 +71,7 @@ obj_fun<-function(params){
 params$dummy = 0;
 obj = MakeADFun(obj_fun,params,random=NULL,map=list(),silent=FALSE);
 
+################################################################################
 ##--set up options----
 ##--set up data----
 ###--data likelihood components----

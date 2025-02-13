@@ -53,20 +53,22 @@ extractParamInfo_Allometry<-function(lst,
 
     ####--functions----
     if (verbose) message("in extractParameters_Allometry: processing functions.")
-    dfrFcns = lst$Fcns$dfr |> expandDataframe(lstAlls,verbose=verbose);
+    dfrFcns = lst$Fcns$dfr |> expandDataframe(lstAlls,verbose=verbose) |>
+                dplyr::select(y,s,r,x,m,p,z,fcn,fcn_idx);
     dfrFcns_RefLvls = NULL;
     if (!is.null(lst$Fcns$reflvls$dfr))
       dfrFcns_RefLvls = lst$Fcns$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
 
     ###--main parameters----
     if (verbose) message("in extractParameters_Allometry: processing main parameters.")
-    ####--add index "within" parameter names
+    ####--mp_idx: input "index" for main parameters (not necessarily sequential)--use as join index for other tables
+    ####--add mpr_idx: sequential row "index" for main parameters parameter vector
+    ####--add in_mp_idx: sequential index "within" parameter names (??)
     dfrMP1s = lst$MPs$dfr |>
-                dplyr::rename(inp_idx=par_idx) |>                        #--rename input parameter index
-                dplyr::group_by(param) |>
-                dplyr::mutate(in_par_idx=row_number(),.after=inp_idx) |> #--add index within parameter name
-                dplyr::ungroup() |>
-                dplyr::mutate(pv_idx=row_number(),.after=in_par_idx);    #--add index for parameter vector
+                dplyr::mutate(mpr_idx=dplyr::row_number(),.after=mp_idx);      #--add index for vector of parameter values
+                # dplyr::group_by(param) |>
+                # dplyr::mutate(in_mp_idx=row_number(),.after=mpr_idx) |> #--add index within parameter name
+                # dplyr::ungroup();
     ####--transform initial and associated values
     dfrMP2s = dfrMP1s  |> dplyr::rowwise() |>
                 dplyr::mutate(IV=tf_apply(tform,IV),
@@ -74,25 +76,27 @@ extractParamInfo_Allometry<-function(lst,
                               UB=-tf_apply(tform,UB),
                               Pr1=tf_apply(tform,Pr1)) |>
                 dplyr::ungroup();
-    ####--reorder by index "within" parameter name
-    dfrMP3s = dfrMP2s |> dplyr::arrange(param,pv_idx);
+    # ####--reorder by index "within" parameter name
+    # dfrMP3s = dfrMP2s |> dplyr::arrange(param,pv_idx);
     ####--assign initial values to parameters vector (indexed by `pv_idx`)
-    mpParams = dfrMP3s$IV;
-    ####--expand by all dimensions and drop values
+    mpParams = dfrMP2s$IV;
+    ####--expand by all dimensions and drop values info
     dfrMPs = dfrMP2s |> expandDataframe(lstAlls,verbose=verbose) |>
-               dplyr::select(!c(tform,IV,LB,UB,phz,PriorType,Pr1,Pr2));
+               dplyr::select(y,s,r,x,m,p,z,fcn_idx,grp_idx,param,mp_idx,mpr_idx);
 
     ###--offset parameters----
     if (verbose) message("in extractParameters_Allometry: processing offset parameters.")
     dfrOPs = NULL;
     if (!is.null(lst$OPs$dfr)){
-      ####--add offset index "within" parameter names
+    ####--mp_idx: "index" identifying main parameters (not necessarily sequential)
+    ####--op_idx: "index" identifying offset parameters (not necessarily sequential)
+    ####--add opr_idx: sequential row "index" for offset parameters parameter vector
+    ####--add in_op_idx: sequential index "within" parameter names (??)
       dfrOP1s = lst$OPs$dfr |>
-                  dplyr::rename(inp_par_idx=par_idx,inp_off_idx=off_idx) |>    #--rename input parameter and offset indices
-                  dplyr::group_by(param) |>
-                  dplyr::mutate(in_off_idx=row_number(),.after=inp_off_idx) |> #--add offset index "within" parameter name
-                  dplyr::ungroup() |>
-                  dplyr::mutate(pv_idx=row_number(),.after=in_off_idx);        #--add index for parameter vector
+                  dplyr::mutate(opr_idx=row_number(),.after=op_idx);        #--add index for vector of parameter values
+                  # dplyr::group_by(param) |>
+                  # dplyr::mutate(in_off_idx=row_number(),.after=opr_idx) |> #--add offset index "within" parameter name
+                  # dplyr::ungroup() |>
       ####--transform initial and associated values
       dfrOP2s = dfrOP1s  |> dplyr::rowwise() |>
                   dplyr::mutate(IV=tf_apply(tform,IV),
@@ -101,12 +105,12 @@ extractParamInfo_Allometry<-function(lst,
                                 Pr1=tf_apply(tform,Pr1))|>
                   dplyr::ungroup();
       ####--reorder by offset index "within" parameter name
-      dfrOP3s = dfrOP2s |> dplyr::arrange(param,pv_idx);
+      # dfrOP3s = dfrOP2s |> dplyr::arrange(param,pv_idx);
       ####--assign initial values to parameters vector (indexed by `pv_idx`)
-      opParams = dfrOP3s$IV;
-      ####--expand by all dimensions and drop values
+      opParams = dfrOP2s$IV;
+      ####--expand by all dimensions and drop values info
       dfrOPs  = dfrOP2s |> expandDataframe(lstAlls,verbose=verbose) |>
-                  dplyr::select(!c(offset_type,tform,IV,LB,UB,phz,PriorType,Pr1,Pr2));
+                  dplyr::select(y,s,r,x,m,p,z,param,mp_idx,op_idx,opr_idx,op_type);
     }
 
     ###--devs parameter vectors----
@@ -114,11 +118,11 @@ extractParamInfo_Allometry<-function(lst,
     dfrDPs = NULL; dfrDPs_RefLvls = NULL;
     if (!is.null(lst$DPs$dfr)){
       ####--add devs vector index "within" parameter names
-      dfrDP1s = lst$DPs$dfr |>
-                  dplyr::rename(inp_par_idx=par_idx,inp_dvec_idx=dvec_idx) |>    #--rename input parameter and dev vector indices
-                  dplyr::group_by(param) |>
-                  dplyr::mutate(in_par_dvec_idx=row_number(),.after=inp_dvec_idx) |> #--add index for vectors "within" a parameter name
-                  dplyr::ungroup();
+      dfrDP1s = lst$DPs$dfr; # |>
+                  # dplyr::rename(inp_par_idx=par_idx,inp_dvec_idx=dvec_idx) |>    #--rename input parameter and dev vector indices
+                  # dplyr::group_by(param) |>
+                  # dplyr::mutate(in_par_dvec_idx=row_number(),.after=inp_dvec_idx) |> #--add index for vectors "within" a parameter name
+                  # dplyr::ungroup();
       ####--transform initial and associated values
       dfrDP2s = dfrDP1s  |> dplyr::rowwise() |>
                   dplyr::mutate(IV=tf_apply(tform,IV),
@@ -127,7 +131,7 @@ extractParamInfo_Allometry<-function(lst,
                                 Pr1=tf_apply(tform,Pr1)) |>
                   dplyr::ungroup();
       ####--reorder by dev vector indices "within" parameter name
-      dfrDP3s = dfrDP2s |> dplyr::arrange(param,in_par_dvec_idx);
+      # dfrDP3s = dfrDP2s |> dplyr::arrange(param,in_par_dvec_idx);
       ####--create parameter index within each dev vector
       lstDP4s = list();
       for (rw in 1:nrow(dfrDP2s)){
@@ -136,15 +140,15 @@ extractParamInfo_Allometry<-function(lst,
         sm_xpnd = rlang::sym(xpnd);
         lstDP4s[[rw]] = dfrDP2r |> dplyr::select(!any_of(c("expand_across",xpnd))) |>
                           dplyr::cross_join(tibble::tibble({{sm_xpnd}}:=as.character(eval(parse(text=dfrDP2r[[xpnd]][1]))))) |>
-                          dplyr::mutate(in_dvec_idx=row_number(),.after=in_par_dvec_idx);
+                          dplyr::mutate(in_dv_idx=row_number(),.after=dv_idx);
       }
       dfrDP4s = dplyr::bind_rows(lstDP4s); rm(lstDP4s,dfrDP2r,xpnd,sm_xpnd);
       ####--add dev parameter index
-      dfrDP4s = dfrDP4s |> dplyr::mutate(dev_par_idx=dplyr::row_number(),.after=in_dvec_idx);
+      dfrDP4s = dfrDP4s |> dplyr::mutate(dpr_idx=dplyr::row_number(),.after=in_dv_idx);
       ####--assign initial values to parameters across vectors (dfrDP4s$dev_par_idx identifies index into vector)
       dpParams = dfrDP4s$IV;
       dfrDPs  = dfrDP4s |> expandDataframe(lstAlls,verbose=verbose) |>
-                  dplyr::select(!c(dev_type,rw_type,tform,IV,LB,UB,phz,PriorType,Pr1,Pr2));
+                  dplyr::select(y,s,r,x,m,p,z,param,mp_idx,dv_idx,in_dv_idx,dpr_idx,dv_type);
       ####--get reference levels information
       if (!is.null(lst$DPs$reflvls$dfr))
         dfrDPs_RefLvls = lst$DPs$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
@@ -182,6 +186,30 @@ extractParamInfo_Allometry<-function(lst,
       dfrFPs = lst$FPs$dfr |> expandDataframe(lstAlls,verbose=verbose);
     }
 
+    ###--create full indexing dataframe----
+    ####--TODO: need to add:
+    ####--RE parameter vectors
+    ####--parameter-related covariates
+    ####--function-related covariates
+    ####--logic for missing components (i.e. dfrOPs, etc. are NULL)
+    dfrCmbs = dfrFcns |>
+                dplyr::left_join(dfrMPs,by = join_by(y, s, r, x, m, p, z, fcn_idx)) |>
+                dplyr::left_join(dfrOPs,by = join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                dplyr::left_join(dfrDPs,by = join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                dplyr::mutate(idx=paste0(param," + ",mpr_idx," + ",opr_idx," + ",dpr_idx));
+
+    dfrUniqCmbs = dfrCmbs |>
+                    dplyr::select(!c(y, s, r, x, m, p, z)) |>
+                    dplyr::distinct();
+
+    dfrHCs = dfrCmbs  |>
+               dplyr::select(y,s,r,x,m,p,z,fcn,fcn_idx,grp_idx,param,idx) |>
+               tidyr::pivot_wider(names_from=param,values_from=idx);
+
+    dfrUHCs = dfrHCs |>
+                dplyr::select(!c(y,s,r,x,m,p,z)) |>
+                dplyr::distinct();
+
     ###--create output list----
     dfrRefLvlsFcns=NULL;
     if (!is.null(lst$Fcns$reflvls)) dfrRefLvlsFcns=lst$Fcns$reflvls$dfr;
@@ -197,17 +225,17 @@ extractParamInfo_Allometry<-function(lst,
                          dfrDims2Idxs=dfrFcns),
                MPs=list(dfrMP1s=get0("dfrMP1s",ifnotfound=NULL),
                         dfrMP2s=get0("dfrMP2s",ifnotfound=NULL),
-                        dfrMP3s=get0("dfrMP3s",ifnotfound=NULL),
+                        # dfrMP3s=get0("dfrMP3s",ifnotfound=NULL),
                         dfrMPs =get0("dfrMPs", ifnotfound=NULL),
                         params=get0("mpParams",ifnotfound=NULL)),
                OPs=list(dfrOP1s=get0("dfrOP1s",ifnotfound=NULL),
                         dfrOP2s=get0("dfrOP2s",ifnotfound=NULL),
-                        dfrOP3s=get0("dfrOP3s",ifnotfound=NULL),
+                        # dfrOP3s=get0("dfrOP3s",ifnotfound=NULL),
                         dfrOPs =get0("dfrOPs", ifnotfound=NULL),
                         params=get0("opParams",ifnotfound=NULL)),
                DPs=list(dfrDP1s=get0("dfrDP1s",ifnotfound=NULL),
                         dfrDP2s=get0("dfrDP2s",ifnotfound=NULL),
-                        dfrDP3s=get0("dfrDP3s",ifnotfound=NULL),
+                        # dfrDP3s=get0("dfrDP3s",ifnotfound=NULL),
                         dfrDP4s=get0("dfrDP4s",ifnotfound=NULL),
                         dfrDPs =get0("dfrDPs", ifnotfound=NULL),
                         params=get0("dpParams",ifnotfound=NULL)),
@@ -219,7 +247,11 @@ extractParamInfo_Allometry<-function(lst,
                          dfrRefLvls=dfrRefLvlsFECs,
                          dfrDims2Idxs=dfrFECs,
                          params=lst$FECs$dfr$IV),
-               dfrFPs=dfrFPs)
+               dfrFPs=dfrFPs,
+               dfrCmbs=dfrCmbs,
+               dfrUniqCmbs=dfrUniqCmbs,
+               dfrHCs=dfrHCs,
+               dfrUHCs=dfrUHCs);
     ####--TODO (??): combine model dimensions with all parameter/vector-related indices into one dataframe----
     # dfrp = out$MPs
     # dfrp = out$MPs$dfrDims2Idxs |>
