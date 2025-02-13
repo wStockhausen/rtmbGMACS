@@ -7,17 +7,29 @@
 compareSelFun(fr, z, params, consts, title, verbose = FALSE)
 }
 \arguments{
-\item{fr}{- gmacs selectivity function}
+\item{fr}{\itemize{
+\item gmacs selectivity function
+}}
 
-\item{z}{- vector of sizes at which to evaluate selectivity function}
+\item{z}{\itemize{
+\item vector of sizes at which to evaluate selectivity function
+}}
 
-\item{params}{- vector of "true" parameter values for function}
+\item{params}{\itemize{
+\item vector of "true" parameter values for function
+}}
 
-\item{consts}{- vector of constants}
+\item{consts}{\itemize{
+\item vector of constants
+}}
 
-\item{title}{- plot title}
+\item{title}{\itemize{
+\item plot title
+}}
 
-\item{verbose}{- flag (T/F) to print/plot extra information}
+\item{verbose}{\itemize{
+\item flag (T/F) to print/plot extra information
+}}
 }
 \value{
 nothing
@@ -28,14 +40,14 @@ Function to compare a gmacs selectivity function in R and AD contexts.
 \details{
 This function:
 \enumerate{
-  \item calculates `fr` using normal R evaluation
-  \item creates an RTMB tape of the function and evaluates it in an AD context
-  \item prints the tape information and jacobian (if verbose=TRUE)
-  \item adds noise to the "data" created in 1.
-  \item creates an RTMB objective function to fit the data
-  \item fits the data using nlminb
-  \item prints out the estimated parameters (if verbose=TRUE)
-  \item returns a ggplot2 with a comparison of the R, AD, observed and estimated values
+\item calculates \code{fr} using normal R evaluation
+\item creates an RTMB tape of the function and evaluates it in an AD context
+\item prints the tape information and jacobian (if verbose=TRUE)
+\item adds noise to the "data" created in 1.
+\item creates an RTMB objective function to fit the data
+\item fits the data using nlminb
+\item prints out the estimated parameters (if verbose=TRUE)
+\item returns a ggplot2 with a comparison of the R, AD, observed and estimated values
 }
 
 See testing/testSelFunctions.R for example usage.

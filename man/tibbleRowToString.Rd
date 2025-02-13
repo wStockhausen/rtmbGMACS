@@ -7,14 +7,20 @@
 tibbleRowToString(tbl_rw)
 }
 \arguments{
-\item{tbl_rw}{- a row of a tibble}
+\item{tbl_rw}{\itemize{
+\item a row of a tibble
+}}
 
-\item{libname}{- library name (?)}
+\item{libname}{\itemize{
+\item library name (?)
+}}
 
-\item{pkgname}{- package name}
+\item{pkgname}{\itemize{
+\item package name
+}}
 }
 \value{
-see [tools::vignetteEngine()].
+see \code{\link[tools:vignetteEngine]{tools::vignetteEngine()}}.
 
 a string
 }
@@ -24,6 +30,6 @@ Function to allow Quarto-based vignettes
 Function to convert a tibble row to a string.
 }
 \details{
-Uses [tools::vignetteEngine()] to create a Quarto-based vignette engine
+Uses \code{\link[tools:vignetteEngine]{tools::vignetteEngine()}} to create a Quarto-based vignette engine
 for this package.
 }

@@ -7,12 +7,14 @@
 createSparseDimsMap(..., debug = FALSE)
 }
 \arguments{
-\item{...}{<[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> name/value dimension pairs}
 
-\item{debug}{- flag (T/F) to print debugging info}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging info
+}}
 }
 \value{
-a `DimsMap` object, which is a tibble (see [tibble::tibble()]) with
+a \code{DimsMap} object, which is a tibble (see \code{\link[tibble:tibble]{tibble::tibble()}}) with
 class "DimsMap" and attributes
 \itemize{
 \item{"dmnms" - vector of dimension names}
@@ -29,7 +31,7 @@ the associated level for each dimension.
 Each name in
 \code{...} should be the name of the terminal dimension in the associated value (a
 possibly-nested dimension list or a vector of levels). For each name, the
-associated value is transformed to a tibble using [traverseDimsList()], then all the
+associated value is transformed to a tibble using \code{\link[=traverseDimsList]{traverseDimsList()}}, then all the
 tibbles are crossed to create a tibble with only the desired combinations of
 actual dimension levels. The first column ("i") contains the 1-d index associated
 with each combination of actual dimension levels.

@@ -7,18 +7,26 @@
 getAllometry(dims, opts, params, verbose = FALSE)
 }
 \arguments{
-\item{dims}{-}
+\item{dims}{\itemize{
+\item 
+}}
 
-\item{opts}{-}
+\item{opts}{\itemize{
+\item 
+}}
 
-\item{params}{- (full) parameters list}
+\item{params}{\itemize{
+\item (full) parameters list
+}}
 
-\item{verbose}{- flag (T/F) to print diagnostics}
+\item{verbose}{\itemize{
+\item flag (T/F) to print diagnostics
+}}
 }
 \value{
 list with elements
 \itemize{
-  \item{wAtZ - 3-d array (y,s,c) with weight-at-size by year, season, pop class}
+\item{wAtZ - 3-d array (y,s,c) with weight-at-size by year, season, pop class}
 }
 }
 \description{

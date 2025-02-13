@@ -7,9 +7,13 @@
 parseVector(lns, verbose = FALSE)
 }
 \arguments{
-\item{lns}{- the text lines parse}
+\item{lns}{\itemize{
+\item the text lines parse
+}}
 
-\item{verbose}{- flag (T/F) to print debugging info}
+\item{verbose}{\itemize{
+\item flag (T/F) to print debugging info
+}}
 }
 \value{
 vector of parsed values
@@ -18,7 +22,7 @@ vector of parsed values
 Function to parse a 1-element text vector into a vector.
 }
 \details{
-IMPORTANT: A counter with the name `iln` should be defined in the global environment
-while this function runs. The line `lns[iln]` is parsed to create the vector.
-The value of `iln` is not incremented (because there was no search).
+IMPORTANT: A counter with the name \code{iln} should be defined in the global environment
+while this function runs. The line \code{lns[iln]} is parsed to create the vector.
+The value of \code{iln} is not incremented (because there was no search).
 }

@@ -7,9 +7,13 @@
 alls_ExpandInDataframe(dfr, lstAlls, verbose = FALSE)
 }
 \arguments{
-\item{dfr}{- dataframe with dimensions to expand from "all" to levels}
+\item{dfr}{\itemize{
+\item dataframe with dimensions to expand from "all" to levels
+}}
 
-\item{lstAlls}{- list returned by [alls_GetLevels()]}
+\item{lstAlls}{\itemize{
+\item list returned by \code{\link[=alls_GetLevels]{alls_GetLevels()}}
+}}
 }
 \value{
 expanded dataframe

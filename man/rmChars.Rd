@@ -7,9 +7,13 @@
 rmChars(str, pattern = "")
 }
 \arguments{
-\item{str}{- character vector to search}
+\item{str}{\itemize{
+\item character vector to search
+}}
 
-\item{pattern}{- regex of pattern to remove}
+\item{pattern}{\itemize{
+\item regex of pattern to remove
+}}
 }
 \value{
 character vector with pattern removed

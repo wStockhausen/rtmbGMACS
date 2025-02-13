@@ -7,9 +7,13 @@
 dropDims(dms, drop)
 }
 \arguments{
-\item{dms}{- dimensions map}
+\item{dms}{\itemize{
+\item dimensions map
+}}
 
-\item{drop}{- vector (character or integer) with dimensions to drop}
+\item{drop}{\itemize{
+\item vector (character or integer) with dimensions to drop
+}}
 }
 \value{
 dimensions map without dropped dimensions

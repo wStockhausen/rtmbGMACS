@@ -7,13 +7,21 @@
 dbllogistic5095(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute selectivities}
+\item{z}{\itemize{
+\item vector of sizes at which to compute selectivities
+}}
 
-\item{params}{- 4-element parameter vector}
+\item{params}{\itemize{
+\item 4-element parameter vector
+}}
 
-\item{refZ}{- reference size}
+\item{refZ}{\itemize{
+\item reference size
+}}
 
-\item{debug}{- flag (T/F) to print debugging messages}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging messages
+}}
 }
 \value{
 named vector with selectivity values at the elements of z
@@ -22,15 +30,5 @@ named vector with selectivity values at the elements of z
 Function to calculate a logistic function parameterized by z50, z95 on ascending/descending limbs.
 }
 \details{
-The parameters are
-\itemize{
- \item{params[1] - ascending limb size at 50\% selected}
- \item{params[2] - ascending limb size at 95\% selected}
- \item{params[3] - descending limb size at 95\% selected}
- \item{params[4] - descending limb size at 50\% selected}
-}
 
-If `refZ`>0, refZ is the fully-selected size.
-if `refZ`<0, function is normalized to max.
-if `refZ`=0, no re-scaling is done.
 }

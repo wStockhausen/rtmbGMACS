@@ -7,9 +7,11 @@
 createDimsMaps(..., debug = FALSE)
 }
 \arguments{
-\item{...}{<[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> name/value dimension pairs}
 
-\item{debug}{- flag (T/F) to print debugging info}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging info
+}}
 }
 \value{
 a list with elements
@@ -24,7 +26,7 @@ Function to create maps between sparse and dense dimension indices.
 \details{
 Each name in
 \code{...} should be the name of the terminal dimension in the associated value (a
-possibly-nested dimension list or a vector of levels), as in [createSparseDimsMap()].
+possibly-nested dimension list or a vector of levels), as in \code{\link[=createSparseDimsMap]{createSparseDimsMap()}}.
 In \code{dfrS2D}, the row index corresponds to the 1's-based sparse index value.
 In \code{dfrF2S}, the row index corresponds to the 1's-based full index value.
 }

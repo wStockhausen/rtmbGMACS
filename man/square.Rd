@@ -7,7 +7,9 @@
 square(x)
 }
 \arguments{
-\item{x}{- variable to square}
+\item{x}{\itemize{
+\item variable to square
+}}
 }
 \value{
 vector x*x with same names as x
@@ -16,5 +18,5 @@ vector x*x with same names as x
 ADMB-equivalent function to square a variable.
 }
 \details{
-Substitution for ADMB `square` function.
+Substitution for ADMB \code{square} function.
 }

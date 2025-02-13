@@ -7,7 +7,9 @@
 createIntrinsicDims(udfr)
 }
 \arguments{
-\item{udfr}{- dataframe representing user dimensions map (sparse or full)}
+\item{udfr}{\itemize{
+\item dataframe representing user dimensions map (sparse or full)
+}}
 }
 \value{
 a dataframe representing the intrinsic model dimensions.
@@ -16,17 +18,19 @@ a dataframe representing the intrinsic model dimensions.
 Function to create the intrinsic model dimensions from the user model dimension.
 }
 \details{
-The user dimensions defined by `udfr` are expanded to the full set of
+The user dimensions defined by \code{udfr} are expanded to the full set of
 intrinsic model dimensions ("y","s","r","x","m","a","p","z"), with default values
 ("all") added for intrinsic dimensions undefined in the user dimensions.
-   * `y` - year index
-   * `s` - season index
-   * `r` - region index
-   * `x` - sex index
-   * `m` - maturity state index
-   * `a` - age index
-   * `p` - post-molt age (or shell condition) index
-   * `z` - size index
+\itemize{
+\item \code{y} - year index
+\item \code{s} - season index
+\item \code{r} - region index
+\item \code{x} - sex index
+\item \code{m} - maturity state index
+\item \code{a} - age index
+\item \code{p} - post-molt age (or shell condition) index
+\item \code{z} - size index
+}
 }
 \examples{
 #--create user dimensions----

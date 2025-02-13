@@ -7,21 +7,29 @@
 selSpline(z, params, consts, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute function values}
+\item{z}{\itemize{
+\item vector of sizes at which to compute function values
+}}
 
-\item{params}{- logit-scale vector of function parameters}
+\item{params}{\itemize{
+\item logit-scale vector of function parameters
+}}
 
-\item{consts}{- vector of knots}
+\item{consts}{\itemize{
+\item vector of knots
+}}
 }
 \value{
-- named vector of selectivity values
+\itemize{
+\item named vector of selectivity values
+}
 }
 \description{
 Function to calculate a selectivity curve using a spline function.
 }
 \details{
 Calculates a selectivity curve using a spline function based on
-[RTMB::splinefun()]. The values in the `params` vector are the logit-scale
-values at the knots. The first `n` values in the `consts` vector are the knots,
-where `n` is th length of `params`.
+\link[RTMB:splinefun-method]{RTMB::splinefun-method}. The values in the \code{params} vector are the logit-scale
+values at the knots. The first \code{n} values in the \code{consts} vector are the knots,
+where \code{n} is th length of \code{params}.
 }

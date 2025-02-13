@@ -141,7 +141,7 @@ extractTextBetweenParens<-function(txt){
 #' @param txt - character vector from which to extract strings
 #' @return character vector of extracted strings
 #' @details For each element in the vector, this extracts the string between the
-#' *first* "[" and *last* "]" from each element of the input
+#' *first* "\[" and *last* "\]" from each element of the input
 #' character vector, or `NA` if no matching brackets.
 #'
 #' @examples

@@ -7,9 +7,13 @@
 \method{expand}{ragged_array}(x, y)
 }
 \arguments{
-\item{x}{- the ragged array to convert}
+\item{x}{\itemize{
+\item the ragged array to convert
+}}
 
-\item{y}{- the dimensions map used to expand `x`}
+\item{y}{\itemize{
+\item the dimensions map used to expand \code{x}
+}}
 }
 \value{
 a ragged_array
@@ -18,9 +22,9 @@ a ragged_array
 S3 method to expand a ragged_array using a dimensions map.
 }
 \details{
-`x`'s dimension map (it's "dfrDims" attribute) is expanded by `y` using
-expand.DimsMap, then the vector underlying `x` is suitably replicated across
-the dimensions in `y`.
+\code{x}'s dimension map (it's "dfrDims" attribute) is expanded by \code{y} using
+expand.DimsMap, then the vector underlying \code{x} is suitably replicated across
+the dimensions in \code{y}.
 
-This is an S3 generic method, so just use `expand(x,y)`.
+This is an S3 generic method, so just use \code{expand(x,y)}.
 }

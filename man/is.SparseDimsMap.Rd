@@ -7,7 +7,9 @@
 is.SparseDimsMap(x)
 }
 \arguments{
-\item{x}{- object to test}
+\item{x}{\itemize{
+\item object to test
+}}
 }
 \value{
 logical

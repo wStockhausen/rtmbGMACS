@@ -7,9 +7,13 @@
 tf_apply(tform, x)
 }
 \arguments{
-\item{tform}{- name of transform function}
+\item{tform}{\itemize{
+\item name of transform function
+}}
 
-\item{x}{- vector of values to convert}
+\item{x}{\itemize{
+\item vector of values to convert
+}}
 }
 \value{
 vector of transformed values

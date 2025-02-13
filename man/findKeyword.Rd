@@ -7,12 +7,16 @@
 findKeyword(lns, kw)
 }
 \arguments{
-\item{lns}{- vector of text to check}
+\item{lns}{\itemize{
+\item vector of text to check
+}}
 
-\item{kw}{- key word to check}
+\item{kw}{\itemize{
+\item key word to check
+}}
 }
 \value{
-index of `lns` at first occurrence of `kw`, or NULL if not found
+index of \code{lns} at first occurrence of \code{kw}, or NULL if not found
 }
 \description{
 Function to find the line index corresponding to a keyword in a vector of text lines.

@@ -7,14 +7,22 @@
 dblnormal4a(z, params, refZ, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute function values}
+\item{z}{\itemize{
+\item vector of sizes at which to compute function values
+}}
 
-\item{params}{- vector of function parameters}
+\item{params}{\itemize{
+\item vector of function parameters
+}}
 
-\item{refZ}{- max possible size (e.g., max(z))}
+\item{refZ}{\itemize{
+\item max possible size (e.g., max(z))
+}}
 }
 \value{
-- named vector of selectivity values
+\itemize{
+\item named vector of selectivity values
+}
 }
 \description{
 Function to calculate a 4-parameter normal selectivity curve.
@@ -22,9 +30,9 @@ Function to calculate a 4-parameter normal selectivity curve.
 \details{
 Calculates 4-parameter normal function parameterized by
 \itemize{
-     \item params[1]: size at which ascending limb reaches 1
-     \item params[2]: width of ascending limb
-     \item params[3]: scaled increment to params[1] at which descending limb departs from 1
-     \item params[4]: width of descending limb
+\item params\link{1}: size at which ascending limb reaches 1
+\item params\link{2}: width of ascending limb
+\item params\link{3}: scaled increment to params\link{1} at which descending limb departs from 1
+\item params\link{4}: width of descending limb
 }
 }

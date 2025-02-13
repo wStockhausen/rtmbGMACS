@@ -7,16 +7,24 @@
 createAggregatorMap(dms_frm, dms_to, keepOrigDims = FALSE)
 }
 \arguments{
-\item{dms_frm}{- aggregating from dimensions map}
+\item{dms_frm}{\itemize{
+\item aggregating from dimensions map
+}}
 
-\item{dms_to}{- aggregating to dimensions map}
+\item{dms_to}{\itemize{
+\item aggregating to dimensions map
+}}
 
-\item{keepOrigDims}{- flag (T/F) to keep original dimensions (T) or aggregated dimensions (F)}
+\item{keepOrigDims}{\itemize{
+\item flag (T/F) to keep original dimensions (T) or aggregated dimensions (F)
+}}
 }
 \value{
 map from original dimensions to aggregated dimensions.
-   * column "idx_to" gives index into vector with aggregated dimensions
-   * column "idx_from" gives index into vector with original dimensions
+\itemize{
+\item column "idx_to" gives index into vector with aggregated dimensions
+\item column "idx_from" gives index into vector with original dimensions
+}
 }
 \description{
 Function to create an aggregator map from one set of dimensions to another.

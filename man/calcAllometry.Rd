@@ -4,19 +4,29 @@
 \alias{calcAllometry}
 \title{Calculate allometry for all model categories across time}
 \usage{
-calcAllometry(dims, info, params, verbose = FALSE)
+calcAllometry(dims, info, params, verbose = FALSE, loopIC_ = TRUE)
 }
 \arguments{
-\item{dims}{- dimensions list}
+\item{dims}{\itemize{
+\item dimensions list
+}}
 
-\item{info}{- info list (output list from [extractParamInfo_Allometry()])}
+\item{info}{\itemize{
+\item info list (output list from \code{\link[=extractParamInfo_Allometry]{extractParamInfo_Allometry()}})
+}}
 
-\item{params}{- RTMB parameters list with allometry-specific elements}
+\item{params}{\itemize{
+\item RTMB parameters list with allometry-specific elements
+}}
 
-\item{verbose}{- flag to print diagnostic info}
+\item{verbose}{\itemize{
+\item flag to print diagnostic info
+}}
 }
 \value{
-list
+3-d array with dimensions \verb{\[nYs, nSs,nCs\]}, where \code{nYs} is the number
+of model years, \code{nSs} is the number of seasons/year, and \code{nCs} is the number of
+population categories.
 }
 \description{
 Function to calculate allometryfor all model categories across time.

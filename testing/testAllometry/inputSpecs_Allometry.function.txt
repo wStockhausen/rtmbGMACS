@@ -21,9 +21,9 @@ fcn_idx   grp_idx  mp_idx param       y      r     x      m      tform      IV  
    1        3        5    pA     2020:2023  EBS  female immature g2kg   0.000562 0.00010 0.00060 -1     none     0.000562 0.0001  #--IV in grams
    1        3        6    pB     2020:2023  EBS  female immature none   2.816928 1.00000 6.00000 -1     none     3.00     1.00
    2        4        7    pLnA   2024:2024  all    all    all    log    0.00027  0.00010 0.00050 -1     none     0.00027  0.0001  #--IV in grams
-   2        4        8    pLnS   2024:2024  all    all    all    g2kg   1.00000  0.50000 2.00000 -1     none     3.00     1.00    #--scale to kg
-   2        4        9    pB     2024:2024  all    all    all    none   3.022134 1.00000 6.00000 -1     none     3.00     1.00
-   2        4       10    pZ0    2024:2024  all    all    all    none   1.000000 0.50000 2.00000 -1     none     3.00     1.00    #--scale to mm CW
+   2        4        8    pLnS   2024:2024  all    all    all    log    1000.00   999.00 1001.00 -1     none     0.00     1.00    #--scale to kg
+   2        4        9    pB     2024:2024  all    all    all    none   3.022134 1.00000 6.00000 -1     none     0.00     1.00    #--exponent
+   2        4       10    pZ0    2024:2024  all    all    all    none   1.000000 0.50000 2.00000 -1     none     0.00     1.00    #--scale to mm CW
 ##--Offset parameters----
 2 #--number of offset parameters defined
    mp_idx  param   op_idx    op_type      y       p     tform    IV       LB       UB     phz   PriorType  Pr1    Pr2
@@ -41,13 +41,13 @@ fcn_idx   grp_idx  mp_idx param       y      r     x      m      tform      IV  
      2       pB    2021   male mature  new_shell  98
 ##--"RE" vectors (TODO: finalize format of this section)----
 0 #--number of RE vectors defined
-#  par_idx  param   dvec_idx   dev_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
+#  mp_idx  param   rv_idx   rv_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
 ###--RE covariance definitions
 
 ##--parameter-level environmental covariates----
 ###--definitions
  2 #--number of environmental covariate relationships defined
-mp_idx  param  pcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
+mp_idx  param   cv_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
   1      pA       1       AO    additive    0     -1     1     1      none      0     999  2021:2023
   1      pA       2      PDO    additive    0     -1     1     1      none      0     999  2021:2023
 ###--reference levels

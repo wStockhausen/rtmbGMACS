@@ -7,13 +7,21 @@
 calcInitN(dims, options, params, verbose)
 }
 \arguments{
-\item{dims}{- model dimensions list}
+\item{dims}{\itemize{
+\item model dimensions list
+}}
 
-\item{options}{- model options list}
+\item{options}{\itemize{
+\item model options list
+}}
 
-\item{params}{- model parameters list}
+\item{params}{\itemize{
+\item model parameters list
+}}
 
-\item{verbose}{- flag to print diagnostic info}
+\item{verbose}{\itemize{
+\item flag to print diagnostic info
+}}
 }
 \value{
 (ad)vector with initial population abundance
@@ -24,7 +32,7 @@ Calculate initial population abundance.
 \details{
 Options for calculating the initial N vector include:
 \itemize{
- \item{zeroPop - all elements of the initial N vector are zero}
- \item{inputPop - all elements of the initial N vector are given}
+\item{zeroPop - all elements of the initial N vector are zero}
+\item{inputPop - all elements of the initial N vector are given}
 }
 }

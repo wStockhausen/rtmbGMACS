@@ -7,7 +7,9 @@
 mfexp(x)
 }
 \arguments{
-\item{x}{- variable to exponentiate}
+\item{x}{\itemize{
+\item variable to exponentiate
+}}
 }
 \value{
 vector x*x with same names as x
@@ -16,5 +18,5 @@ vector x*x with same names as x
 ADMB-equivalent  to exponentiate a variable.
 }
 \details{
-Substitution for ADMB `mfexp` function.
+Substitution for ADMB \code{mfexp} function.
 }

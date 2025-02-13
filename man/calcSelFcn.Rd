@@ -7,15 +7,25 @@
 calcSelFcn(type, z, params, ref = 0, debug = FALSE)
 }
 \arguments{
-\item{type}{- the type of selectivity function to calculate}
+\item{type}{\itemize{
+\item the type of selectivity function to calculate
+}}
 
-\item{z}{- vector of values at which to calculate the function}
+\item{z}{\itemize{
+\item vector of values at which to calculate the function
+}}
 
-\item{params}{- the selectivity function parameters, as a vector}
+\item{params}{\itemize{
+\item the selectivity function parameters, as a vector
+}}
 
-\item{debug}{- flag to print debugging info}
+\item{debug}{\itemize{
+\item flag to print debugging info
+}}
 
-\item{consts}{- any required constants, as a vector}
+\item{consts}{\itemize{
+\item any required constants, as a vector
+}}
 }
 \value{
 vector matching size of z, with names given by elements of z

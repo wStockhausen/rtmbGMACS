@@ -7,9 +7,13 @@
 elem_div(x, y)
 }
 \arguments{
-\item{x}{- numerator variable (vector, matrix, etc.)}
+\item{x}{\itemize{
+\item numerator variable (vector, matrix, etc.)
+}}
 
-\item{y}{- divisor variable conformable to x}
+\item{y}{\itemize{
+\item divisor variable conformable to x
+}}
 }
 \value{
 (unnamed) object x/y
@@ -18,5 +22,5 @@ elem_div(x, y)
 ADMB-equivalent to calculate the element-wise division of two variables.
 }
 \details{
-Substitution for ADMB `elem_div` function.
+Substitution for ADMB \code{elem_div} function.
 }

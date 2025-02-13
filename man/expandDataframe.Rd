@@ -7,11 +7,17 @@
 expandDataframe(dfr, lstAlls = NULL, verbose = TRUE)
 }
 \arguments{
-\item{dfr}{- dataframe with expressions and dimensions to expand from "all" to levels}
+\item{dfr}{\itemize{
+\item dataframe with expressions and dimensions to expand from "all" to levels
+}}
 
-\item{lstAlls}{- list returned by [alls_GetLevels()], or NULL}
+\item{lstAlls}{\itemize{
+\item list returned by \code{\link[=alls_GetLevels]{alls_GetLevels()}}, or NULL
+}}
 
-\item{verbose}{- flag (T/F) to print diagnostic info}
+\item{verbose}{\itemize{
+\item flag (T/F) to print diagnostic info
+}}
 }
 \value{
 dataframe expanded first by lstAlls, then by evaluating expressions

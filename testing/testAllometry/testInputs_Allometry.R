@@ -15,6 +15,7 @@ if (FALSE){
   source(file.path(dirPrj,"R","MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R","readParamInfo_Allometry.R"))
   source(file.path(dirPrj,"R","extractParamInfo_Allometry.R"))
+  source(file.path(dirPrj,"R","calcAllometry.R"))
 }
 
 inputs = list();
@@ -31,14 +32,16 @@ if (type=="data-vertical"){
   res      = readParamInfo_Allometry(conn,TRUE);
   lstAllom = extractParamInfo_Allometry(res,dims,FALSE);
   params = list(pAllom_FPs=lstAllom$params);#--"FP" for "fixed" parameters
-} else if (type=="data-horizontal"){
+} else
+if (type=="data-horizontal"){
   ###--allometry with data-horizontal----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
   conn     = file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data-horizontal.txt");
   res      = readParamInfo_Allometry(conn,TRUE);
   lstAllom = extractParamInfo_Allometry(res,dims);
   params = list(pAllom_FPs=lstAllom$params);#--"FP" for "fixed" parameters
-} else if (type=="function"){
+} else
+if (type=="function"){
   ###--allometry with function----
   dims = setupModelDims(zcs=seq(55.5,104.5,5));
   conn     = file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.function.txt");
@@ -53,7 +56,8 @@ inputs$lstAllom = lstAllom;#--add lstAllom to inputs
 
 #--test wAtZ function----
 source(file.path(dirPrj,"R/calcAllometry.R"));
-wAtZ = calcAllometry(inputs$dims,inputs$lstAllom,params,FALSE);
+wAtZ = calcAllometry(inputs$dims,inputs$lstAllom,params,FALSE,loopIC_=TRUE); #--slower
+wAtZ = calcAllometry(inputs$dims,inputs$lstAllom,params,FALSE,loopIC_=FALSE);#--faster
 
 #--test wAtZ in RTMB objective function----
 obj_fun<-function(params){

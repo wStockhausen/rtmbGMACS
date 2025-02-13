@@ -7,7 +7,9 @@
 logit(x)
 }
 \arguments{
-\item{x}{- variable}
+\item{x}{\itemize{
+\item variable
+}}
 }
 \value{
 vector log(x/(1-x)) with same names as x

@@ -9,23 +9,35 @@ calcSelFcns(mc, showPlot = TRUE)
 calcSelFcns(mc, showPlot = TRUE)
 }
 \arguments{
-\item{mc}{- model configuration object}
+\item{mc}{\itemize{
+\item model configuration object
+}}
 
-\item{showPlot}{- flag to show plots}
+\item{showPlot}{\itemize{
+\item flag to show plots
+}}
 
-\item{dims}{- model dimensions list}
+\item{dims}{\itemize{
+\item model dimensions list
+}}
 
-\item{options}{- model options list}
+\item{options}{\itemize{
+\item model options list
+}}
 
-\item{params}{- model parameters list}
+\item{params}{\itemize{
+\item model parameters list
+}}
 
-\item{verbose}{- flag to print diagnostic info}
+\item{verbose}{\itemize{
+\item flag to print diagnostic info
+}}
 }
 \value{
 list with
 
 array sel_cz with dimensions 'pc', 'z'. The label associated with
-each pc can be obtained as mc$dims$selfcns$lbls[pc].
+each pc can be obtained as mc$dims$selfcns$lbls\link{pc}.
 }
 \description{
 Function to calculate all selectivity/retention functions.
@@ -35,7 +47,7 @@ Function to calculate selectivity/retention functions.
 \details{
 Options for calculating selectivity/retention functions include:
 \itemize{
- \item{?? - ??}
+\item{?? - ??}
 }
 
 None.

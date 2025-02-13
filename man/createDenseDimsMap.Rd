@@ -7,12 +7,16 @@
 createDenseDimsMap(map, debug = FALSE)
 }
 \arguments{
-\item{map}{- a DimsMap object created using [createSparseDimsMap()]}
+\item{map}{\itemize{
+\item a DimsMap object created using \code{\link[=createSparseDimsMap]{createSparseDimsMap()}}
+}}
 
-\item{debug}{- flag (T/F) to print debugging info}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging info
+}}
 }
 \value{
-a DimsMap object, which is atibble (see [tibble::tibble()]) with class "DimsMap"
+a DimsMap object, which is atibble (see \code{\link[tibble:tibble]{tibble::tibble()}}) with class "DimsMap"
 and attributes
 \itemize{
 \item{"dmnms" - vector of dimension names}

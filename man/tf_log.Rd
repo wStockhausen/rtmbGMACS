@@ -7,7 +7,9 @@
 tf_log(x)
 }
 \arguments{
-\item{x}{- vector of values to convert}
+\item{x}{\itemize{
+\item vector of values to convert
+}}
 }
 \value{
 vector of transformed values

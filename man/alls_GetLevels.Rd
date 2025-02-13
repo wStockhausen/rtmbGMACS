@@ -7,7 +7,9 @@
 alls_GetLevels(dfrDims, verbose = FALSE)
 }
 \arguments{
-\item{dfrDims}{- dataframe with model dimensions to use for expansion}
+\item{dfrDims}{\itemize{
+\item dataframe with model dimensions to use for expansion
+}}
 }
 \value{
 list with a dataframe for each dimension mapping "all" to every value (and every value to itself).

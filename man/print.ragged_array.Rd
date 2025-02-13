@@ -7,7 +7,9 @@
 \method{print}{ragged_array}(x)
 }
 \arguments{
-\item{x}{- the ragged array to print}
+\item{x}{\itemize{
+\item the ragged array to print
+}}
 }
 \value{
 none
@@ -17,5 +19,5 @@ S3 method to print a ragged_array (as a tibble).
 }
 \details{
 Prints the ragged array as a tibble with the values of the vector
-in the "val" column. This is an S3 generic method, so just use `print(x)`.
+in the "val" column. This is an S3 generic method, so just use \code{print(x)}.
 }

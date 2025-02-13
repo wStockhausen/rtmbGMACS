@@ -2,7 +2,7 @@
 % Please edit documentation in R/MiscFunctions_ReadParse.R
 \name{advance}
 \alias{advance}
-\title{Advance (increment) the global counter `iln` by 1}
+\title{Advance (increment) the global counter \code{iln} by 1}
 \usage{
 advance()
 }
@@ -10,8 +10,8 @@ advance()
 NULL.
 }
 \description{
-Function to advance (increment) the global counter `iln` by 1.
+Function to advance (increment) the global counter \code{iln} by 1.
 }
 \details{
-On return, `iln` in the global environment will have been advanced by 1
+On return, \code{iln} in the global environment will have been advanced by 1
 }

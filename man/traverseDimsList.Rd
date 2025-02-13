@@ -8,16 +8,24 @@ recursively traversing it}
 traverseDimsList(lst0, name, level = 0, debug = FALSE)
 }
 \arguments{
-\item{lst0}{- dimensions list (or vector of levels for single dimension) to traverse}
+\item{lst0}{\itemize{
+\item dimensions list (or vector of levels for single dimension) to traverse
+}}
 
-\item{name}{- character string to associate with the terminal nesting level}
+\item{name}{\itemize{
+\item character string to associate with the terminal nesting level
+}}
 
-\item{level}{- counter for outer nesting level (leave at 0)}
+\item{level}{\itemize{
+\item counter for outer nesting level (leave at 0)
+}}
 
-\item{debug}{- flag (T/F) to print debugging info (default is FALSE)}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging info (default is FALSE)
+}}
 }
 \value{
-a tibble (see [tibble::tibble()]) with extra attribute "dmnms" copied
+a tibble (see \code{\link[tibble:tibble]{tibble::tibble()}}) with extra attribute "dmnms" copied
 from \code{lst0} (or the value of \code{name} if \code{lst0} does not have a
 "dmnms" attribute).
 }

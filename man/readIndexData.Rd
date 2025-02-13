@@ -7,7 +7,7 @@
 readIndexData(lns)
 }
 \value{
-a tibble (see [tibble::tibble]) with attribute "type" = "relative abundance data dataframe"
+a tibble (see \link[tibble:tibble]{tibble::tibble}) with attribute "type" = "relative abundance data dataframe"
 }
 \description{
 Read the Index Data section of an input data file

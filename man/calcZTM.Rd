@@ -7,11 +7,13 @@
 calcZTM(mc, showPlot = TRUE)
 }
 \arguments{
-\item{mc}{- model configuration object}
+\item{mc}{\itemize{
+\item model configuration object
+}}
 }
 \value{
 list with elements:
-mnZAM_cxz: mean size after molt, by time block and sex 
+mnZAM_cxz: mean size after molt, by time block and sex
 T_cxzz: 4d array with size transition matrices by time block/sex
 T_yxszz: 5d array with size transition matrices by year/sex/shell condition
 }

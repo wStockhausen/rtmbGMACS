@@ -7,24 +7,34 @@
 parseTextToDataframe(lns, iln, nlns, col_names = TRUE, show_col_types = FALSE)
 }
 \arguments{
-\item{lns}{- character vector of text lines to parse}
+\item{lns}{\itemize{
+\item character vector of text lines to parse
+}}
 
-\item{iln}{- index to line at which to start parsing}
+\item{iln}{\itemize{
+\item index to line at which to start parsing
+}}
 
-\item{nlns}{- number of lines to parse}
+\item{nlns}{\itemize{
+\item number of lines to parse
+}}
 
-\item{col_names}{- flag (T/F) or column names (see [readr::read_delim()])}
+\item{col_names}{\itemize{
+\item flag (T/F) or column names (see \code{\link[readr:read_delim]{readr::read_delim()}})
+}}
 
-\item{show_col_types}{- flag (T/F) to show column types (see [readr::read_delim()])}
+\item{show_col_types}{\itemize{
+\item flag (T/F) to show column types (see \code{\link[readr:read_delim]{readr::read_delim()}})
+}}
 }
 \value{
-a tibble (see [tibble::tibble])
+a tibble (see \link[tibble:tibble]{tibble::tibble})
 }
 \description{
 Parse a text vector to create a dataframe
 }
 \details{
-Uses [readr::read_delim()] to parse the vector of text lines after
+Uses \code{\link[readr:read_delim]{readr::read_delim()}} to parse the vector of text lines after
 removing all trailing comments and replacing all white space with a
 single space.
 }

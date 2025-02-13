@@ -7,13 +7,21 @@
 const_sel(z, params, ref = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- sizes at which to compute selectivity values}
+\item{z}{\itemize{
+\item sizes at which to compute selectivity values
+}}
 
-\item{params}{- 1-element parameter vector}
+\item{params}{\itemize{
+\item 1-element parameter vector
+}}
 
-\item{debug}{- flag (T/F) to print debugging messages}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging messages
+}}
 
-\item{refZ}{- reference size (dummy input)}
+\item{refZ}{\itemize{
+\item reference size (dummy input)
+}}
 }
 \value{
 named vector with selectivity values at the elements of z
@@ -24,6 +32,6 @@ Function to calculate a constant-valued selectivity curve
 \details{
 The parameter vector has values
 \itemize{
- \item{params[1]: the constant value}
+\item{params\link{1}: the constant value}
 }
 }

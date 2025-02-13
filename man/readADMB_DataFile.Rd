@@ -7,7 +7,9 @@
 readADMB_DataFile(fn)
 }
 \arguments{
-\item{fn}{- path to input data file}
+\item{fn}{\itemize{
+\item path to input data file
+}}
 }
 \value{
 list
@@ -24,12 +26,12 @@ The input ADMB GMACS file should be modified in the following manner:
 
 The output list has an attribute "type" = "admb input data list" with elements
 \itemize{
-  \item{dfrCDF - list of catch data dataframes}
-  \item{dfrID  - list of index data dataframes}
-  \item{dfrZCD - list of size comps dataframes}
-  \item{dfrGrD - list of growth (molt increment) data dataframes}
-  \item{dfrMOD - list of maturity ogive data dataframes}
-  \item{dfrTD - list of tagging data dataframes}
-  \item{dfrED - list of environmental data dataframes}
+\item{dfrCDF - list of catch data dataframes}
+\item{dfrID  - list of index data dataframes}
+\item{dfrZCD - list of size comps dataframes}
+\item{dfrGrD - list of growth (molt increment) data dataframes}
+\item{dfrMOD - list of maturity ogive data dataframes}
+\item{dfrTD - list of tagging data dataframes}
+\item{dfrED - list of environmental data dataframes}
 }
 }

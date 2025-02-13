@@ -7,7 +7,9 @@
 is.ragged_array(x)
 }
 \arguments{
-\item{x}{- the object}
+\item{x}{\itemize{
+\item the object
+}}
 }
 \value{
 TRUE or FALSE

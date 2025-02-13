@@ -7,14 +7,22 @@
 stackedLogistic2(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute function values}
+\item{z}{\itemize{
+\item vector of sizes at which to compute function values
+}}
 
-\item{params}{- vector of function parameters}
+\item{params}{\itemize{
+\item vector of function parameters
+}}
 
-\item{refZ}{- ignored}
+\item{refZ}{\itemize{
+\item ignored
+}}
 }
 \value{
-- named vector of selectivity values
+\itemize{
+\item named vector of selectivity values
+}
 }
 \description{
 Function to calculate a 6-parameter "stacked" logistic selectivity curve.
@@ -22,11 +30,11 @@ Function to calculate a 6-parameter "stacked" logistic selectivity curve.
 \details{
 Calculates 6-parameter "stacked" logistic selectivity curve parameterized by
 \itemize{
-     \item params[1]: asymptote for 1st logistic curve
-     \item params[2]: size at inflection point for 1st logistic curve
-     \item params[3]: sd for 1st logistic curve
-     \item params[4]: asymptote for complete stacked curve
-     \item params[5]: size at inflection point for 2nd logistic curve
-     \item params[6]: sd for the 2nd logistic curve
+\item params\link{1}: asymptote for 1st logistic curve
+\item params\link{2}: size at inflection point for 1st logistic curve
+\item params\link{3}: sd for 1st logistic curve
+\item params\link{4}: asymptote for complete stacked curve
+\item params\link{5}: size at inflection point for 2nd logistic curve
+\item params\link{6}: sd for the 2nd logistic curve
 }
 }

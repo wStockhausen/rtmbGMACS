@@ -7,7 +7,7 @@
 readSizeComps(lns)
 }
 \value{
-a tibble (see [tibble::tibble]) with attribute "type" = "size comps dataframe"
+a tibble (see \link[tibble:tibble]{tibble::tibble}) with attribute "type" = "size comps dataframe"
 }
 \description{
 Read the Size Comps section of an input data file

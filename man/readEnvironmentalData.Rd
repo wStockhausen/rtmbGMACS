@@ -7,7 +7,7 @@
 readEnvironmentalData(lns)
 }
 \value{
-a tibble (see [tibble::tibble]) with attribute "type" = "environmental data dataframes"
+a tibble (see \link[tibble:tibble]{tibble::tibble}) with attribute "type" = "environmental data dataframes"
 }
 \description{
 Read the Environmental Data section of an input data file

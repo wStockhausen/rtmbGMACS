@@ -7,12 +7,16 @@
 expand(x, y)
 }
 \arguments{
-\item{x}{- object to expand}
+\item{x}{\itemize{
+\item object to expand
+}}
 
-\item{y}{- object to expand by}
+\item{y}{\itemize{
+\item object to expand by
+}}
 }
 \value{
-object of `class(x)` expanded by object y
+object of \code{class(x)} expanded by object y
 }
 \description{
 Generic S3 method to expand an object by another.

@@ -7,7 +7,7 @@
 readCatchData(lns)
 }
 \value{
-a tibble (see [tibble::tibble]) with attribute "type" = "catch data dataframe"
+a tibble (see \link[tibble:tibble]{tibble::tibble}) with attribute "type" = "catch data dataframe"
 }
 \description{
 Read the Catch Data section of an input data file

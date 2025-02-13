@@ -7,14 +7,22 @@
 dblnormal6(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute function values}
+\item{z}{\itemize{
+\item vector of sizes at which to compute function values
+}}
 
-\item{params}{- vector of function parameters}
+\item{params}{\itemize{
+\item vector of function parameters
+}}
 
-\item{refZ}{- ignored}
+\item{refZ}{\itemize{
+\item ignored
+}}
 }
 \value{
-- named vector of selectivity values
+\itemize{
+\item named vector of selectivity values
+}
 }
 \description{
 Function to calculate a 6-parameter normal selectivity curve.
@@ -22,11 +30,11 @@ Function to calculate a 6-parameter normal selectivity curve.
 \details{
 Calculates 6-parameter normal function parameterized by
 \itemize{
-     \item params[1]: size at which ascending limb reaches 1
-     \item params[2]: width of ascending limb
-     \item params[3]: size at which descending limb departs from 1
-     \item params[4]: width of descending limb
-     \item params[5]: floor of ascending limb
-     \item params[6]: floor of descending limb
+\item params\link{1}: size at which ascending limb reaches 1
+\item params\link{2}: width of ascending limb
+\item params\link{3}: size at which descending limb departs from 1
+\item params\link{4}: width of descending limb
+\item params\link{5}: floor of ascending limb
+\item params\link{6}: floor of descending limb
 }
 }

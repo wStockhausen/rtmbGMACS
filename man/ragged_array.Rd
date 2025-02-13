@@ -7,23 +7,27 @@
 ragged_array(x, dfrDims = NULL)
 }
 \arguments{
-\item{x}{- object coercible to a vector, or a ragged_array}
+\item{x}{\itemize{
+\item object coercible to a vector, or a ragged_array
+}}
 
-\item{dfrDims}{- tibble defining dimensions (optional if `x` is itself a ragged_array)}
+\item{dfrDims}{\itemize{
+\item tibble defining dimensions (optional if \code{x} is itself a ragged_array)
+}}
 }
 \description{
 Helper function to create a ragged array (an object of class "ragged_array").
 }
 \details{
 A ragged_array object is essentially a vector with an attribute (a tibble)
-that maps the index of the vector to a set of dimensions. `x` is coerced to a vector
-(using `as.vector(x)`) and truncated or replicated enough to match the number of rows in
-`dfrDims`. The columns of dfrDims then constitute the values of the dimension indices
+that maps the index of the vector to a set of dimensions. \code{x} is coerced to a vector
+(using \code{as.vector(x)}) and truncated or replicated enough to match the number of rows in
+\code{dfrDims}. The columns of dfrDims then constitute the values of the dimension indices
 for the resulting ragged_array object and a row indicates the index of each dimension
 associated with the corresponding value of the vector.
 
-If `x` is a ragged_array object, then the tibble `dfrDims` is used to subset `x` based on
-the latter's `dfrDims` attribute.
+If \code{x} is a ragged_array object, then the tibble \code{dfrDims} is used to subset \code{x} based on
+the latter's \code{dfrDims} attribute.
 
 This is a "helper" function (see https://adv-r.hadley.nz/s3.html#helpers) for package users.
 }

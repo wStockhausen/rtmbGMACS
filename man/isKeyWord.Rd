@@ -7,9 +7,13 @@
 isKeyWord(str, kws = c("list", "vector", "matrix", "dataframe"))
 }
 \arguments{
-\item{str}{- string to check}
+\item{str}{\itemize{
+\item string to check
+}}
 
-\item{kws}{- vector of key words to check against}
+\item{kws}{\itemize{
+\item vector of key words to check against
+}}
 }
 \value{
 TRUE or FALSE.
@@ -18,5 +22,5 @@ TRUE or FALSE.
 Function to check if a string matches a key word.
 }
 \details{
-uses [stringr::str_trim()] to trim starting/ending whitespace.
+uses \code{\link[stringr:str_trim]{stringr::str_trim()}} to trim starting/ending whitespace.
 }

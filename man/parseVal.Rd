@@ -7,17 +7,21 @@
 parseVal(con, nl, ln = NULL)
 }
 \arguments{
-\item{str}{- string to parse}
+\item{str}{\itemize{
+\item string to parse
+}}
 
-\item{type}{- expected value type (not used currently)}
+\item{type}{\itemize{
+\item expected value type (not used currently)
+}}
 }
 \value{
-a value with mode as determined by [readr::parse_guess()]
+a value with mode as determined by \code{\link[readr:parse_guess]{readr::parse_guess()}}
 }
 \description{
 Function to parse a string from an input data file to a value.
 }
 \details{
 Splits the string by whitespace and drops anything after the comment character,
-using [scan()] with `comment.char`="#" and `strip.white`=TRUE followed by [readr::parse_guess()].
+using \code{\link[=scan]{scan()}} with \code{comment.char}="#" and \code{strip.white}=TRUE followed by \code{\link[readr:parse_guess]{readr::parse_guess()}}.
 }

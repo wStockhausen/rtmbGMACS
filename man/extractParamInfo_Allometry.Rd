@@ -7,9 +7,13 @@
 extractParamInfo_Allometry(lst, dims = NULL, verbose = TRUE)
 }
 \arguments{
-\item{lst}{- parameter info list from [readParamInfo_Allometry()]}
+\item{lst}{\itemize{
+\item parameter info list from \code{\link[=readParamInfo_Allometry]{readParamInfo_Allometry()}}
+}}
 
-\item{dims}{- `dims` list from `setupModelDims`}
+\item{dims}{\itemize{
+\item \code{dims} list from \code{setupModelDims}
+}}
 }
 \value{
 a list (see details)
@@ -18,22 +22,22 @@ a list (see details)
 Function to extract allometry parameters from parameter info list.
 }
 \details{
-The format of the returned list depends on the `option` specified in `lst`.
-If `lst$option` is "data" (i.e., the input parameter values are fixed values of weight-at-size
+The format of the returned list depends on the \code{option} specified in \code{lst}.
+If \code{lst$option} is "data" (i.e., the input parameter values are fixed values of weight-at-size
 specified at least for every population category), the output list has elements
 \itemize{
 \item{option - format option}
 \item{params - vector of weight-at-size values}
-\item{map - vector for the RTMB `map` list indicating the parameters are fixed; i.e. not to be estimated}
+\item{map - vector for the RTMB \code{map} list indicating the parameters are fixed; i.e. not to be estimated}
 \item{dfrIdx2Pars - dataframe with columns "pidx", dimension names (y,s,r,x,m,p,z), and parameter specs IV,LB,UB,phz,PriorType,Pr1,Pr2
-indicating the un-expanded mapping from `pidx` to the parameter input values ("IV"). `pidx` is the index into the parameter vector.
+indicating the un-expanded mapping from \code{pidx} to the parameter input values ("IV"). \code{pidx} is the index into the parameter vector.
 The dimension columns are incidental and reflect the specification from the input text file.}
 \item{dfrDims2Pars - dataframe with columns "pidx" and the dimension names (y,s,r,x,m,p,z).
 The dimension levels are fully expanded such that each row corresponds to a single "multidimensional" level.
-The value of `pidx` for each row indicates the index of the associated weight-at-size value in the parameter vector.}
+The value of \code{pidx} for each row indicates the index of the associated weight-at-size value in the parameter vector.}
 }
 
-If `lst$option` is "function", the output list has elements
+If \code{lst$option} is "function", the output list has elements
 \itemize{
 }
 }

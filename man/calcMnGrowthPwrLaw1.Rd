@@ -7,13 +7,21 @@
 calcMnGrowthPwrLaw1(z, params, consts = NULL, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of pre-molt sizes (bin mid-points)}
+\item{z}{\itemize{
+\item vector of pre-molt sizes (bin mid-points)
+}}
 
-\item{params}{- vector of parameters (potentially estimated)}
+\item{params}{\itemize{
+\item vector of parameters (potentially estimated)
+}}
 
-\item{consts}{- vector of constants (not estimated)}
+\item{consts}{\itemize{
+\item vector of constants (not estimated)
+}}
 
-\item{debug}{- debugging flag (T/F)}
+\item{debug}{\itemize{
+\item debugging flag (T/F)
+}}
 }
 \value{
 named vector of mean molt increments or post-molt size
@@ -22,12 +30,12 @@ named vector of mean molt increments or post-molt size
 Function to calculate power law model 1 for mean growth
 }
 \details{
-Mean growth (molt increment *or* post-molt size) `g` is described as
-a power law function of pre-molt size `z` by
-g(z|p, c) = exp(p[1]) * z^p[2]
-where `p` represents the parameter vector.
-exp(`p[1]`) represents the mean growth at pre-molt size z=1.
+Mean growth (molt increment \emph{or} post-molt size) \code{g} is described as
+a power law function of pre-molt size \code{z} by
+g(z|p, c) = exp(p\link{1}) * z^p\link{2}
+where \code{p} represents the parameter vector.
+exp(\code{p[1]}) represents the mean growth at pre-molt size z=1.
 
-The interpretation of `g` as representing a molt increment or post-molt size
+The interpretation of \code{g} as representing a molt increment or post-molt size
 is up to the user.
 }

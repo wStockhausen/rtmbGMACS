@@ -7,11 +7,17 @@
 \method{[}{ragged_array}(v) <- value
 }
 \arguments{
-\item{v}{- the values to assign}
+\item{v}{\itemize{
+\item the values to assign
+}}
 
-\item{x}{- the LHS ragged array object in the assignment}
+\item{x}{\itemize{
+\item the LHS ragged array object in the assignment
+}}
 
-\item{y}{- the indices into x, or a dimsMap}
+\item{y}{\itemize{
+\item the indices into x, or a dimsMap
+}}
 }
 \value{
 x, the LHS object

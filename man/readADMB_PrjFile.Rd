@@ -7,9 +7,13 @@
 readADMB_PrjFile(fn, nFlts)
 }
 \arguments{
-\item{fn}{- filename for admb gmacs prj file}
+\item{fn}{\itemize{
+\item filename for admb gmacs prj file
+}}
 
-\item{nFlts}{- number of fleets defined}
+\item{nFlts}{\itemize{
+\item number of fleets defined
+}}
 }
 \value{
 list of options for projections, with attribute "type" = "admb prj file inputs"
@@ -20,13 +24,13 @@ Function to read an ADMB gmacs prj file.
 \details{
 The returned list has the following elements:
 \itemize{
-  \item {optMSY}
-  \item {dfrOptsFixedF - dataframe indicating which fleets have fixed Fs for OFL calculations}
-  \item {dfrOptsTBs - dataframe with time blocks for OFL calculations}
-  \item {dfrOptsOFL - dataframe with OFL calculation options}
-  \item {dfrOptsPrj - dataframe with projection options}
-  \item {dfrOptsHSs - dataframe with state harvest strategy options}
-  \item {optMaxMCMC - max number of MCMC draws}
-  \item {optFullDiagnostics - flag to print full diagnostics}
+\item {optMSY}
+\item {dfrOptsFixedF - dataframe indicating which fleets have fixed Fs for OFL calculations}
+\item {dfrOptsTBs - dataframe with time blocks for OFL calculations}
+\item {dfrOptsOFL - dataframe with OFL calculation options}
+\item {dfrOptsPrj - dataframe with projection options}
+\item {dfrOptsHSs - dataframe with state harvest strategy options}
+\item {optMaxMCMC - max number of MCMC draws}
+\item {optFullDiagnostics - flag to print full diagnostics}
 }
 }

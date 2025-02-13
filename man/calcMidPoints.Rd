@@ -7,7 +7,9 @@
 calcMidPoints(v)
 }
 \arguments{
-\item{v}{- a numeric vector}
+\item{v}{\itemize{
+\item a numeric vector
+}}
 }
 \value{
 a numeric vector with 1 less element than v with corresponding midpoints of intervals

@@ -7,9 +7,13 @@
 parseList(lns, verbose = FALSE)
 }
 \arguments{
-\item{lns}{- the text lines parse}
+\item{lns}{\itemize{
+\item the text lines parse
+}}
 
-\item{names}{- the names of the elements of the output list}
+\item{names}{\itemize{
+\item the names of the elements of the output list
+}}
 }
 \value{
 named list of parsed values
@@ -22,9 +26,9 @@ Each element in the text to be parsed is identified as to type
 using a line that starts with "name: type", where type is one of "vector", "matrix",
 or "dataframe".
 
-IMPORTANT: A counter with the name `iln` should be defined in the global environment
-while this function runs. The parsing of lines in `lns` uses the value of iln
-at the time the function is called as the starting index in `lns`.
-When the function exits, the value of `iln` indicates the index of the last element
+IMPORTANT: A counter with the name \code{iln} should be defined in the global environment
+while this function runs. The parsing of lines in \code{lns} uses the value of iln
+at the time the function is called as the starting index in \code{lns}.
+When the function exits, the value of \code{iln} indicates the index of the last element
 examined.
 }

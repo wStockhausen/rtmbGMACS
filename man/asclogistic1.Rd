@@ -7,29 +7,28 @@
 asclogistic1(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute selectivities}
+\item{z}{\itemize{
+\item vector of sizes at which to compute selectivities
+}}
 
-\item{params}{- 2-element vector with selectivity function parameters}
+\item{params}{\itemize{
+\item 2-element vector with selectivity function parameters
+}}
 
-\item{refZ}{- reference size}
+\item{refZ}{\itemize{
+\item reference size
+}}
 
-\item{debug}{- flag (T/F) to print debugging messages}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging messages
+}}
 }
 \value{
-named vector with selectivity values at the elements of `z`
+named vector with selectivity values at the elements of \code{z}
 }
 \description{
 Function to calculate an ascending logistic function parameterized by z50 and width.
 }
 \details{
-The parameter values are
 
-\itemize{
-\item{params[1] - `pZ50`: size at 50\% selectivity}
-\item{params[2] - `pWdZ`: width (1/slope) at `pZ50`}
-}
-
-If `refZ`>0, `refZ`=fully-selected size.
-If `refZ`<0, function is normalized to max.
-If `refZ`=0, no re-scaling is done.
 }

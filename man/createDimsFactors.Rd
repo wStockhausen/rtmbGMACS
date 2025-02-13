@@ -7,10 +7,14 @@
 createDimsFactors(dfr)
 }
 \arguments{
-\item{dfr}{- dimensions map dataframe/tibble (e.g. output from [createSparseDimsMap()])}
+\item{dfr}{\itemize{
+\item dimensions map dataframe/tibble (e.g. output from \code{\link[=createSparseDimsMap]{createSparseDimsMap()}})
+}}
 }
 \value{
-- dimensions map with dimension values converted to factors
+\itemize{
+\item dimensions map with dimension values converted to factors
+}
 }
 \description{
 Function to convert dimension values to factor levels in a dimensions map.

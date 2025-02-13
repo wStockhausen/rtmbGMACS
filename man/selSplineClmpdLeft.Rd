@@ -7,27 +7,35 @@
 selSplineClmpdLeft(z, params, consts, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute function values}
+\item{z}{\itemize{
+\item vector of sizes at which to compute function values
+}}
 
-\item{params}{- logit-scale vector of function parameters (values at knots)}
+\item{params}{\itemize{
+\item logit-scale vector of function parameters (values at knots)
+}}
 
-\item{consts}{- vector of knots}
+\item{consts}{\itemize{
+\item vector of knots
+}}
 }
 \value{
-- named vector of selectivity values at `z`
+\itemize{
+\item named vector of selectivity values at \code{z}
+}
 }
 \description{
 Function to calculate a selectivity curve using a left-clamped spline function.
 }
 \details{
 Calculates a selectivity curve using a clamped spline function based on
-[RTMB::splinefun()]. The values in the `params` vector are the logit-scale
-values at the knots. The first `n` values in the `consts` vector are the knots,
-where `n` is th length of `params`. The spline is "clamped" at the left end
-by adding `nr` extra knots at each end with values equal to `param[1]`.
+\code{\link[RTMB:splinefun]{RTMB::splinefun()}}. The values in the \code{params} vector are the logit-scale
+values at the knots. The first \code{n} values in the \code{consts} vector are the knots,
+where \code{n} is th length of \code{params}. The spline is "clamped" at the left end
+by adding \code{nr} extra knots at each end with values equal to \code{param[1]}.
 The separation of the extra knots is
-taken as `1/(nr+1)` times the minimum separation in the `z` vector. Any values extrapolated
-for `z` values less than the first extra knot
+taken as \code{1/(nr+1)} times the minimum separation in the \code{z} vector. Any values extrapolated
+for \code{z} values less than the first extra knot
 will be the same as the the inverse logit-transformed value of the first value
-of the `param` vector.
+of the \code{param} vector.
 }

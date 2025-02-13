@@ -102,8 +102,8 @@ const_sel<-function(z, params,ref=0,debug=FALSE){
 #'@details The parameter values are
 #'
 #'\itemize{
-#' \item{params[1] - `pZ50`: size at 50\% selectivity}
-#' \item{params[2] - `pSlp`: slope at `pZ50`}
+#' \item{params\[1\] - `pZ50`: size at 50\% selectivity}
+#' \item{params\[2\] - `pSlp`: slope at `pZ50`}
 #'}
 #'
 #'If `refZ`>0, `refZ`=fully-selected size.
@@ -639,7 +639,7 @@ stackedLogistic2<-function(z,params,refZ=0,debug=FALSE){
 #' @title Calculates a selectivity curve using a spline function
 #' @description Function to calculate a selectivity curve using a spline function.
 #' @details Calculates a selectivity curve using a spline function based on
-#' [RTMB::splinefun()]. The values in the `params` vector are the logit-scale
+#' [RTMB::splinefun-method]. The values in the `params` vector are the logit-scale
 #' values at the knots. The first `n` values in the `consts` vector are the knots,
 #' where `n` is th length of `params`.
 #' @param z      - vector of sizes at which to compute function values

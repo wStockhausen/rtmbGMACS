@@ -7,13 +7,21 @@
 calcRecruitment(dims, options, params, verbose)
 }
 \arguments{
-\item{dims}{- model dimensions list}
+\item{dims}{\itemize{
+\item model dimensions list
+}}
 
-\item{options}{- model options list}
+\item{options}{\itemize{
+\item model options list
+}}
 
-\item{params}{- model parameters list}
+\item{params}{\itemize{
+\item model parameters list
+}}
 
-\item{verbose}{- flag to print diagnostic info}
+\item{verbose}{\itemize{
+\item flag to print diagnostic info
+}}
 }
 \value{
 list with
@@ -24,10 +32,10 @@ Function to calculate recruitment-related quantities.
 \details{
 Options for calculating recruitment-related quantities include:
 \itemize{
- \item{?? - ??}
+\item{?? - ??}
 }
 Returned list includes:
 \itemize{
- \item{?? - ??}
+\item{?? - ??}
 }
 }

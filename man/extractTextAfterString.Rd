@@ -7,9 +7,13 @@
 extractTextAfterString(txt, str)
 }
 \arguments{
-\item{txt}{- character vector from which to extract strings}
+\item{txt}{\itemize{
+\item character vector from which to extract strings
+}}
 
-\item{str}{- string to extract after (see NOTE under details)}
+\item{str}{\itemize{
+\item string to extract after (see NOTE under details)
+}}
 }
 \value{
 character vector of extracted strings
@@ -19,11 +23,11 @@ Function to extract text after a string
 }
 \details{
 For each element in the vector, this extracts the string following
-the `after` string from each element of the input
-character vector, or `NA` if no `after` string found.
+the \code{after} string from each element of the input
+character vector, or \code{NA} if no \code{after} string found.
 
 NOTE: Characters with special regex meanings (e.g., ")","]") need to
-be double-escaped to use in `str`.
+be double-escaped to use in \code{str}.
 }
 \examples{
 # example code

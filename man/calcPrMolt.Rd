@@ -7,9 +7,13 @@
 calcPrMolt(mc, showPlot = TRUE)
 }
 \arguments{
-\item{mc}{- model configuration object}
+\item{mc}{\itemize{
+\item model configuration object
+}}
 
-\item{showPlot}{- flag to show plots}
+\item{showPlot}{\itemize{
+\item flag to show plots
+}}
 }
 \value{
 prMolt_yxsz

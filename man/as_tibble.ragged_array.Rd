@@ -2,21 +2,23 @@
 % Please edit documentation in R/ragged_array.R
 \name{as_tibble.ragged_array}
 \alias{as_tibble.ragged_array}
-\title{Convert a ragged_array to a [tibble::tibble]}
+\title{Convert a ragged_array to a \link[tibble:tibble]{tibble::tibble}}
 \usage{
 \method{as_tibble}{ragged_array}(x)
 }
 \arguments{
-\item{x}{- the ragged array to convert}
+\item{x}{\itemize{
+\item the ragged array to convert
+}}
 }
 \value{
 a tibble
 }
 \description{
-Function to convert a ragged_array to a [tibble::tibble].
+Function to convert a ragged_array to a \link[tibble:tibble]{tibble::tibble}.
 }
 \details{
 The ragged array is converted to a tibble with the values of the vector
 in the "val" column. Other columns correspond to the row index and the associated
-dimension indices. This is *not* an S3 method, so use `as_tibble.ragged_array(x)`.
+dimension indices. This is \emph{not} an S3 method, so use \code{as_tibble.ragged_array(x)}.
 }

@@ -7,9 +7,13 @@
 \method{as.vector}{ragged_array}(x, mode = "any")
 }
 \arguments{
-\item{x}{- the ragged_array}
+\item{x}{\itemize{
+\item the ragged_array
+}}
 
-\item{mode}{- mode for resulting vector (default="any")}
+\item{mode}{\itemize{
+\item mode for resulting vector (default="any")
+}}
 }
 \value{
 vector of specified mode (default mode is the same as that of the underlying vector)
@@ -19,5 +23,5 @@ Function to convert a ragged_array to a vector.
 }
 \details{
 Returns the vector underlying the ragged_array without the "dfrDims" attribute.
-This is an S3 generic method, so just ue `as.vector(x)`
+This is an S3 generic method, so just ue \code{as.vector(x)}
 }

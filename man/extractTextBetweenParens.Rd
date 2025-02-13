@@ -7,7 +7,9 @@
 extractTextBetweenParens(txt)
 }
 \arguments{
-\item{txt}{- character vector from which to extract strings}
+\item{txt}{\itemize{
+\item character vector from which to extract strings
+}}
 }
 \value{
 character vector of extracted strings
@@ -17,8 +19,8 @@ Function to extract text between first and last parentheses
 }
 \details{
 For each element in the vector, this extracts the string between the
-*first* "(" and *last* ")" from each element of the input
-character vector, or `NA` if no matching parentheses.
+\emph{first} "(" and \emph{last} ")" from each element of the input
+character vector, or \code{NA} if no matching parentheses.
 }
 \examples{
 # example code

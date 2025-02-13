@@ -7,9 +7,13 @@
 new_ragged_array(x, dfrDims)
 }
 \arguments{
-\item{x}{- vector (or other object that can be converted to a vector using `as.vector(x)`)}
+\item{x}{\itemize{
+\item vector (or other object that can be converted to a vector using \code{as.vector(x)})
+}}
 
-\item{dfrDims}{- dimensions dataframe (a DimsMap)}
+\item{dfrDims}{\itemize{
+\item dimensions dataframe (a DimsMap)
+}}
 }
 \value{
 a vector of class "ragged_array" with a "dfrDims" attribute
@@ -20,11 +24,11 @@ Internal constructor to create a new ragged_array object.
 \details{
 A ragged_array object is essentially a vector with an attribute (a tibble)
 that maps the index of the vector to a set of dimensions.
-If `length(as.vector(x))` is < `nrow(dfrDims)`, it is replicated using `rep_len(as.vector(x),nrow(dfrDims))`
-to a length of `nrow(dfrDims)`. If `length(x)` is > `nrow(dfrDims)`, it is truncated to the
+If \code{length(as.vector(x))} is < \code{nrow(dfrDims)}, it is replicated using \code{rep_len(as.vector(x),nrow(dfrDims))}
+to a length of \code{nrow(dfrDims)}. If \code{length(x)} is > \code{nrow(dfrDims)}, it is truncated to the
 latter.
 
-This function is not exported. Use `ragged_array(x,dfrDims)` instead.
+This function is not exported. Use \code{ragged_array(x,dfrDims)} instead.
 
 See https://adv-r.hadley.nz/s3.html#s3-constructor for details on constructors.
 }

@@ -7,9 +7,13 @@
 stepPopNs(y, s, N_z)
 }
 \arguments{
-\item{y}{- year index}
+\item{y}{\itemize{
+\item year index
+}}
 
-\item{s}{- season index}
+\item{s}{\itemize{
+\item season index
+}}
 }
 \description{
 Function to step the population numbers one season
@@ -17,10 +21,12 @@ Function to step the population numbers one season
 \details{
 The population is propagated forward one season (i.e.) time step. Potential processes involved
 in the process are:
- - molting/change in shell condition
- - maturation
- - growth
- - natural mortality
- - fishing mortality
- -
+\itemize{
+\item molting/change in shell condition
+\item maturation
+\item growth
+\item natural mortality
+\item fishing mortality
+\item 
+}
 }

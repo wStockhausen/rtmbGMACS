@@ -7,11 +7,17 @@
 getDenseDimsIndex(v, n, rev = FALSE)
 }
 \arguments{
-\item{v}{- vector of dimension indices}
+\item{v}{\itemize{
+\item vector of dimension indices
+}}
 
-\item{n}{- vector of the number of corresponding dimension levels}
+\item{n}{\itemize{
+\item vector of the number of corresponding dimension levels
+}}
 
-\item{rev}{- flag to get the index for the reverse order}
+\item{rev}{\itemize{
+\item flag to get the index for the reverse order
+}}
 }
 \value{
 an integer, the 1-d index into the fully-crossed dimensions array

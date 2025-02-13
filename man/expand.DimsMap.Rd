@@ -7,9 +7,13 @@
 \method{expand}{DimsMap}(m1, m2)
 }
 \arguments{
-\item{m1}{- dimensions map to expand}
+\item{m1}{\itemize{
+\item dimensions map to expand
+}}
 
-\item{m2}{- dimensions map to expand by}
+\item{m2}{\itemize{
+\item dimensions map to expand by
+}}
 }
 \value{
 a dimensions map with expanded dimensions (a tibble with class "DimsMap")
@@ -18,16 +22,16 @@ a dimensions map with expanded dimensions (a tibble with class "DimsMap")
 Function to expand a dimensions map by additional dimensions.
 }
 \details{
-This function uses [dplyr::cross_join()] to cross join the two dimension maps to create
+This function uses \code{\link[dplyr:cross_join]{dplyr::cross_join()}} to cross join the two dimension maps to create
 a map with expanded dimensions. The two maps should not have any dimensions in common.
 
-This is *not* a S3 generic method, so you must use `expand.DimsMap(m1,m2)`.
+This is \emph{not} a S3 generic method, so you must use \code{expand.DimsMap(m1,m2)}.
 
 If both maps are "dense", the result is a "dense" map.
 If either is "sparse", the result is a "sparse" map.
 The other map attributes are appropriately expanded.
 
-IMPORTANT NOTE: the (sparse or dense) index of `m1` is replicated `n` times, where `n` is
-the number of rows in `m2`. It is the USER'S RESPONSIBILITY to re-number the index column as
+IMPORTANT NOTE: the (sparse or dense) index of \code{m1} is replicated \code{n} times, where \code{n} is
+the number of rows in \code{m2}. It is the USER'S RESPONSIBILITY to re-number the index column as
 appropriate for further use.
 }

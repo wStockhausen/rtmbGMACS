@@ -93,7 +93,7 @@ extractParamInfo_Allometry<-function(lst,
     ####--add opr_idx: sequential row "index" for offset parameters parameter vector
     ####--add in_op_idx: sequential index "within" parameter names (??)
       dfrOP1s = lst$OPs$dfr |>
-                  dplyr::mutate(opr_idx=row_number(),.after=op_idx);        #--add index for vector of parameter values
+                  dplyr::mutate(opr_idx=dplyr::row_number(),.after=op_idx);        #--add index for vector of parameter values
                   # dplyr::group_by(param) |>
                   # dplyr::mutate(in_off_idx=row_number(),.after=opr_idx) |> #--add offset index "within" parameter name
                   # dplyr::ungroup() |>
@@ -140,7 +140,7 @@ extractParamInfo_Allometry<-function(lst,
         sm_xpnd = rlang::sym(xpnd);
         lstDP4s[[rw]] = dfrDP2r |> dplyr::select(!any_of(c("expand_across",xpnd))) |>
                           dplyr::cross_join(tibble::tibble({{sm_xpnd}}:=as.character(eval(parse(text=dfrDP2r[[xpnd]][1]))))) |>
-                          dplyr::mutate(in_dv_idx=row_number(),.after=dv_idx);
+                          dplyr::mutate(in_dv_idx=dplyr::row_number(),.after=dv_idx);
       }
       dfrDP4s = dplyr::bind_rows(lstDP4s); rm(lstDP4s,dfrDP2r,xpnd,sm_xpnd);
       ####--add dev parameter index
@@ -156,9 +156,37 @@ extractParamInfo_Allometry<-function(lst,
 
     ###--RE parameter vectors----
     if (verbose) message("in extractParameters_Allometry: processing RE parameter vectors.")
-    dfrREs = NULL;
+    dfrREs = NULL; dfrDPs_RefLvls = NULL;
     if (!is.null(lst$REs$dfr)){
-      ####--TODO: FILL THIS IN
+      ####--add RE vector index "within" parameter names
+      dfrRE1s = lst$REs$dfr;
+      ####--transform initial and associated values
+      dfrRE2s = dfrRE1s  |> dplyr::rowwise() |>
+                  dplyr::mutate(IV=tf_apply(tform,IV),
+                                LB=tf_apply(tform,LB),
+                                UB=-tf_apply(tform,UB),
+                                Pr1=tf_apply(tform,Pr1)) |>
+                  dplyr::ungroup();
+      ####--create parameter index within each RE vector
+      lstRE4s = list();
+      for (rw in 1:nrow(dfrRE2s)){
+        dfrRE2r = dfrRE2s[rw,];
+        xpnd    = dfrRE2r$expand_across[1];
+        sm_xpnd = rlang::sym(xpnd);
+        lstRE4s[[rw]] = dfrRE2r |> dplyr::select(!any_of(c("expand_across",xpnd))) |>
+                          dplyr::cross_join(tibble::tibble({{sm_xpnd}}:=as.character(eval(parse(text=dfrRE2r[[xpnd]][1]))))) |>
+                          dplyr::mutate(in_rv_idx=dplyr::row_number(),.after=rv_idx);
+      }
+      dfrRE4s = dplyr::bind_rows(lstRE4s); rm(lstRE4s,dfrRE2r,xpnd,sm_xpnd);
+      ####--add RE parameter index
+      dfrRE4s = dfrRE4s |> dplyr::mutate(rpr_idx=dplyr::row_number(),.after=in_rv_idx);
+      ####--assign initial values to parameters across vectors
+      reParams = dfrRE4s$IV;
+      dfrREs  = dfrRE4s |> expandDataframe(lstAlls,verbose=verbose) |>
+                  dplyr::select(y,s,r,x,m,p,z,param,mp_idx,rv_idx,in_rv_idx,rpr_idx,rv_type);
+      ####--get reference levels information
+      if (!is.null(lst$REs$reflvls$dfr))
+        dfrREs_RefLvls = lst$REs$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
     }
 
     ###--parameter-related environmental covariates----
@@ -193,10 +221,20 @@ extractParamInfo_Allometry<-function(lst,
     ####--function-related covariates
     ####--logic for missing components (i.e. dfrOPs, etc. are NULL)
     dfrCmbs = dfrFcns |>
-                dplyr::left_join(dfrMPs,by = join_by(y, s, r, x, m, p, z, fcn_idx)) |>
-                dplyr::left_join(dfrOPs,by = join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
-                dplyr::left_join(dfrDPs,by = join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
-                dplyr::mutate(idx=paste0(param," + ",mpr_idx," + ",opr_idx," + ",dpr_idx));
+                dplyr::left_join(dfrMPs,by = dplyr::join_by(y, s, r, x, m, p, z, fcn_idx)) |>
+                dplyr::mutate(idx=paste0(param," + ",mpr_idx));
+    if (!is.null(dfrOPs))
+      dfrCmbs = dfrCmbs |>
+                  dplyr::left_join(dfrOPs,by = dplyr::join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                  dplyr::mutate(idx=paste0(idx," + ",opr_idx));
+    if (!is.null(dfrDPs))
+      dfrCmbs = dfrCmbs |>
+                  dplyr::left_join(dfrDPs,by = dplyr::join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                  dplyr::mutate(idx=paste0(idx," + ",dpr_idx));
+    if (!is.null(dfrREs))
+      dfrCmbs = dfrCmbs |>
+                  dplyr::left_join(dfrREs,by = dplyr::join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                  dplyr::mutate(idx=paste0(idx," + ",rpr_idx));
 
     dfrUniqCmbs = dfrCmbs |>
                     dplyr::select(!c(y, s, r, x, m, p, z)) |>
@@ -239,6 +277,11 @@ extractParamInfo_Allometry<-function(lst,
                         dfrDP4s=get0("dfrDP4s",ifnotfound=NULL),
                         dfrDPs =get0("dfrDPs", ifnotfound=NULL),
                         params=get0("dpParams",ifnotfound=NULL)),
+               REs=list(dfrRE1s=get0("dfrRE1s",ifnotfound=NULL),
+                        dfrRE2s=get0("dfrRE2s",ifnotfound=NULL),
+                        dfrRE4s=get0("dfrRE4s",ifnotfound=NULL),
+                        dfrREs =get0("dfrREs", ifnotfound=NULL),
+                        params=get0("reParams",ifnotfound=NULL)),
                PECs=list(dfrIdxs=lst$PECs$dfr,
                          dfrRefLvls=dfrRefLvlsPECs,
                          dfrDims2Idxs=dfrPECs,

@@ -7,13 +7,21 @@
 ascnormal1(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute selectivity values}
+\item{z}{\itemize{
+\item vector of sizes at which to compute selectivity values
+}}
 
-\item{params}{- 2-element vector of selectivity function parameters}
+\item{params}{\itemize{
+\item 2-element vector of selectivity function parameters
+}}
 
-\item{refZ}{- reference size (not used)}
+\item{refZ}{\itemize{
+\item reference size (not used)
+}}
 
-\item{debug}{- flag (T/F) to print debugging messages}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging messages
+}}
 }
 \value{
 named vector with selectivity values at the elements of z
@@ -24,7 +32,7 @@ Function to calculate an ascending normal selectivity curve.
 \details{
 The parameters are
 \itemize{
-\item{params[1] - width of ascending limb (standard deviation of a normal distribution)}
-\item{params[2] - size at which ascending limb hits 1 (mean of a normal distribution)}
+\item{params\link{1} - width of ascending limb (standard deviation of a normal distribution)}
+\item{params\link{2} - size at which ascending limb hits 1 (mean of a normal distribution)}
 }
 }

@@ -9,13 +9,21 @@ calcMnGrowthPwrLaw3(z, params, consts, debug = FALSE)
 calcMnGrowthPwrLaw3(z, params, consts, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of pre-molt sizes (bin mid-points)}
+\item{z}{\itemize{
+\item vector of pre-molt sizes (bin mid-points)
+}}
 
-\item{params}{- vector of parameters (potentially estimated)}
+\item{params}{\itemize{
+\item vector of parameters (potentially estimated)
+}}
 
-\item{consts}{- vector of constants (not estimated)}
+\item{consts}{\itemize{
+\item vector of constants (not estimated)
+}}
 
-\item{debug}{- debugging flag (T/F)}
+\item{debug}{\itemize{
+\item debugging flag (T/F)
+}}
 }
 \value{
 named vector of mean molt increments or post-molt size
@@ -28,22 +36,22 @@ Function to calculate power law model 2 for mean growth
 Function to calculate power law model 3 for mean growth
 }
 \details{
-Mean growth (molt increment *or* post-molt size) `g` is described as
-a power law function of pre-molt size `z` by
-g(z|p, c) = p[1] * (z/c[1])^(log(p[2]/p[1])/log(c[2]/c[1]))
-where `p` represents the parameter vector and `c` represents the consts vector.
-`p[1]` is the mean growth at pre-molt size `c[1]`.
-`p[2]` is the mean growth at pre-molt size `c[2]`.
+Mean growth (molt increment \emph{or} post-molt size) \code{g} is described as
+a power law function of pre-molt size \code{z} by
+g(z|p, c) = p\link{1} * (z/c\link{1})^(log(p\link{2}/p\link{1})/log(c\link{2}/c\link{1}))
+where \code{p} represents the parameter vector and \code{c} represents the consts vector.
+\code{p[1]} is the mean growth at pre-molt size \code{c[1]}.
+\code{p[2]} is the mean growth at pre-molt size \code{c[2]}.
 
-The interpretation of `g` as representing a molt increment or post-molt size
+The interpretation of \code{g} as representing a molt increment or post-molt size
 is up to the user.
 
-Mean growth (molt increment *or* post-molt size) `g` is described as
-a power law function of pre-molt size `z` by
-g(z|p, c) = p[1] * (z/c[1])^p[2]
-where `p` represents the parameter vector and `c` represents the consts vector.
-`p[1]` is the mean growth at pre-molt size `c[1]`.
+Mean growth (molt increment \emph{or} post-molt size) \code{g} is described as
+a power law function of pre-molt size \code{z} by
+g(z|p, c) = p\link{1} * (z/c\link{1})^p\link{2}
+where \code{p} represents the parameter vector and \code{c} represents the consts vector.
+\code{p[1]} is the mean growth at pre-molt size \code{c[1]}.
 
-The interpretation of `g` as representing a molt increment or post-molt size
+The interpretation of \code{g} as representing a molt increment or post-molt size
 is up to the user.
 }

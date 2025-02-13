@@ -7,9 +7,13 @@
 parseMatrix(lns, verbose = FALSE)
 }
 \arguments{
-\item{lns}{- the text lines parse}
+\item{lns}{\itemize{
+\item the text lines parse
+}}
 
-\item{verbose}{- flag (T/F) to print debugging info}
+\item{verbose}{\itemize{
+\item flag (T/F) to print debugging info
+}}
 }
 \value{
 matrix of parsed values
@@ -18,9 +22,9 @@ matrix of parsed values
 Function to parse multiple text lines into a matrix until reaching an ">EOM<" marker.
 }
 \details{
-IMPORTANT: A counter with the name `iln` should be defined in the global environment
-while this function runs. The parsing of lines in `lns` uses the value of iln
-at the time the function is called as the starting index in `lns`.
-When the function exits, the value of `iln` indicates the index of the last element
+IMPORTANT: A counter with the name \code{iln} should be defined in the global environment
+while this function runs. The parsing of lines in \code{lns} uses the value of iln
+at the time the function is called as the starting index in \code{lns}.
+When the function exits, the value of \code{iln} indicates the index of the last element
 examined.
 }

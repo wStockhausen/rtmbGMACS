@@ -7,13 +7,21 @@
 asclogistic50D95(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute selectivity values}
+\item{z}{\itemize{
+\item vector of sizes at which to compute selectivity values
+}}
 
-\item{params}{- 2-element vector with selectivity function parameters}
+\item{params}{\itemize{
+\item 2-element vector with selectivity function parameters
+}}
 
-\item{refZ}{- reference size}
+\item{refZ}{\itemize{
+\item reference size
+}}
 
-\item{debug}{- flag (T/F) to print debugging messages}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging messages
+}}
 }
 \value{
 named vector with selectivity values at the elements of z
@@ -22,13 +30,5 @@ named vector with selectivity values at the elements of z
 Function to calculate an ascending logistic function parameterized by z50 and D95.
 }
 \details{
-The parameter values are
-\itemize{
-\item{params[1] - z50: size at which selectivity = 0.5 (logit-scale mean)}
-\item{params[2] - z95-z50: difference between sizes at 95\% and 50\%-selected}
-}
 
-If `refZ`>0, `refZ`=fully-selected size.
-If `refZ`<0, function is normalized to max.
-If `refZ`=0, no re-scaling is done.
 }

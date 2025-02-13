@@ -7,9 +7,13 @@
 \method{[}{ragged_array}(x, i = NULL)
 }
 \arguments{
-\item{x}{- the ragged array object}
+\item{x}{\itemize{
+\item the ragged array object
+}}
 
-\item{i}{- a vector of indices by which to subset `x`}
+\item{i}{\itemize{
+\item a vector of indices by which to subset \code{x}
+}}
 }
 \value{
 the subsetted ragged_array object
@@ -19,8 +23,8 @@ Subset a ragged_array object by its vector index.
 }
 \details{
 The "dfrDims" attribute for the returned ragged_array object is
-the "dfrDims" attribute of `x`, but appropriately subsetted based on its row index
-to match the subsetted vector underlying `x`.
+the "dfrDims" attribute of \code{x}, but appropriately subsetted based on its row index
+to match the subsetted vector underlying \code{x}.
 }
 \examples{
 # simple subsetting

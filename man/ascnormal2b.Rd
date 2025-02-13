@@ -7,14 +7,22 @@
 ascnormal2b(z, params, refS = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- dvector of sizes at which to compute function values}
+\item{z}{\itemize{
+\item dvector of sizes at which to compute function values
+}}
 
-\item{params}{- dvar_vector of function parameters}
+\item{params}{\itemize{
+\item dvar_vector of function parameters
+}}
 
-\item{refS}{- selectivity at params[1]-params[2]}
+\item{refS}{\itemize{
+\item selectivity at params\link{1}-params\link{2}
+}}
 }
 \value{
-- named vector of selectivity values
+\itemize{
+\item named vector of selectivity values
+}
 }
 \description{
 Function to calculate an ascending normal selectivity curve.
@@ -22,7 +30,7 @@ Function to calculate an ascending normal selectivity curve.
 \details{
 Function is parameterized by
 \itemize{
-     \item params[1]: size at which ascending limb reaches 1
-     \item params[2]: delta from size at 1 to size at which selectivity=refS
+\item params\link{1}: size at which ascending limb reaches 1
+\item params\link{2}: delta from size at 1 to size at which selectivity=refS
 }
 }

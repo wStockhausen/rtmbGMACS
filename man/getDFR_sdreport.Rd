@@ -7,11 +7,17 @@
 getDFR_sdreport(obj, report = TRUE, model = "")
 }
 \arguments{
-\item{obj}{- RTMB sdreport object}
+\item{obj}{\itemize{
+\item RTMB sdreport object
+}}
 
-\item{report}{- flag (T/F) to ??}
+\item{report}{\itemize{
+\item flag (T/F) to ??
+}}
 
-\item{model}{- name of model}
+\item{model}{\itemize{
+\item name of model
+}}
 }
 \value{
 dataframe

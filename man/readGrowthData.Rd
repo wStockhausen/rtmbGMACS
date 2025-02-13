@@ -7,7 +7,7 @@
 readGrowthData(lns)
 }
 \value{
-a tibble (see [tibble::tibble]) with attribute "type" = "growth data dataframe"
+a tibble (see \link[tibble:tibble]{tibble::tibble}) with attribute "type" = "growth data dataframe"
 }
 \description{
 Read the Growth Data section of an input data file

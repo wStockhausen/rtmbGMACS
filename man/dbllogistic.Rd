@@ -7,13 +7,21 @@
 dbllogistic(z, params, refZ = 0, debug = FALSE)
 }
 \arguments{
-\item{z}{- vector of sizes at which to compute selectivity curve}
+\item{z}{\itemize{
+\item vector of sizes at which to compute selectivity curve
+}}
 
-\item{params}{- 4-element vector of selectivity function parameters}
+\item{params}{\itemize{
+\item 4-element vector of selectivity function parameters
+}}
 
-\item{refZ}{- reference size}
+\item{refZ}{\itemize{
+\item reference size
+}}
 
-\item{debug}{- flag (T/F) to print debugging messages}
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging messages
+}}
 }
 \value{
 named vector with selectivity values at the elements of z
@@ -22,15 +30,5 @@ named vector with selectivity values at the elements of z
 Function to calculate a logistic selectivity curve.
 }
 \details{
-The parameter values are
-\itemize{
-\item{params[1] - ascZ50   - ascending limb size at which selectivity = 0.5 (logit-scale mean)}
-\item{params[2] - ascSlope - ascending limb slope at 50\%-selected}
-\item{params[3] - dscZ50   - descending limb size at which selectivity = 0.5 (logit-scale mean)}
-\item{params[4] - dscSlope - descending limb slope at 50\%-selected}
-}
 
-If `refZ`>0, `refZ`=fully-selected size.
-if `refZ`<0, function is normalized to max.
-if `refZ`=0, no re-scaling is done.
 }

@@ -7,11 +7,17 @@
 convertColsToNum(dfr, cols)
 }
 \arguments{
-\item{dfr}{- dataframe to convert}
+\item{dfr}{\itemize{
+\item dataframe to convert
+}}
 
-\item{cols}{- names of columns to convert to numeric}
+\item{cols}{\itemize{
+\item names of columns to convert to numeric
+}}
 
-\item{verbose}{- flag (T/F) to print diagnostic info}
+\item{verbose}{\itemize{
+\item flag (T/F) to print diagnostic info
+}}
 }
 \value{
 dataframe with requisite columns converted to numeric

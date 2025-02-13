@@ -7,12 +7,16 @@
 findNextLine(lns, iln)
 }
 \arguments{
-\item{lns}{- character vector to search}
+\item{lns}{\itemize{
+\item character vector to search
+}}
 
-\item{iln}{- index at which to start search}
+\item{iln}{\itemize{
+\item index at which to start search
+}}
 }
 \value{
-index into `lns` at which the next uncommented line occurs
+index into \code{lns} at which the next uncommented line occurs
 }
 \description{
 Function to find the next uncommented line in a vector of character strings.

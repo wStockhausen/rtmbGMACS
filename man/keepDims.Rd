@@ -7,9 +7,13 @@
 keepDims(dms, keep)
 }
 \arguments{
-\item{dms}{- dimensions map}
+\item{dms}{\itemize{
+\item dimensions map
+}}
 
-\item{drop}{- vector (character or integer) with dimensions to keep}
+\item{drop}{\itemize{
+\item vector (character or integer) with dimensions to keep
+}}
 }
 \value{
 dimensions map with only kept dimensions

@@ -7,9 +7,13 @@
 elem_prod(x, y)
 }
 \arguments{
-\item{x}{- variable (vector, matrix, etc.)}
+\item{x}{\itemize{
+\item variable (vector, matrix, etc.)
+}}
 
-\item{y}{- variable conformable to x}
+\item{y}{\itemize{
+\item variable conformable to x
+}}
 }
 \value{
 (unnamed) object x*y
@@ -18,5 +22,5 @@ elem_prod(x, y)
 ADMB-equivalent to calculate the element-wise product of two variables.
 }
 \details{
-Substitution for ADMB `elem_prod` function.
+Substitution for ADMB \code{elem_prod} function.
 }
