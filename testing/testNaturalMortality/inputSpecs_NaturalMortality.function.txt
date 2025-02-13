@@ -1,0 +1,67 @@
+#--rtmbGMACS natural mortality specifications----
+#----------------------EXAMPLE: natural mortality---------------------------
+NATURAL_MORTALITY
+function #--input option ("function", "data")
+#--Function definitions----
+2 #--number of functions defined
+fcn_idx     fcn              y      # main_params...
+   1      natMort        2020:2023  # pLnM             M = exp(pLnM)
+   2      natMortZ       2024:2024  # pLnM pZ0  M(z) = exp(pLnM)*(z/pZ0)
+###--reference levels
+ 0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
+# fcn_idx  param  y   r   x   m   a   z
+
+#--Parameters----
+##--Main parameters----
+3 #--number of main parameters defined
+param   mp_idx   fcn_idx   grp_idx   tform   IV   LB   UB   phz   PriorType   Pr1   Pr2   y   # y,s,r,x,m,p,z
+pLnM      1         1         1       log   0.3   0.03   3   -1   none        0.3   0.0001  2020:2023   #--base M
+pLnM      2         2         2       log   0.3   0.03   3   -1   none        0.3   1       (2024)      #--base M
+pZ0       3         2         2      none  50.0  25.00 125   -1   none       50.0 100       (2024)      #--Lorenzon size scale
+
+##--Offset parameters----
+2 #--number of offset parameters defined
+param   mp_idx   op_idx   op_type   tform   IV   LB   UB   phz   PriorType   Pr1   Pr2       y        x
+pLnM      1        1     additive   none    0.1   -1   1   -1      none        0   0.1   2020:2023   male
+pLnM      1        2     additive   none   -0.1   -1   1   -1      none        0   0.1   2020:2023   female
+
+##--"devs" (fixed effects) vectors----
+1 #--number of devs vectors defined
+param   mp_idx   dv_idx   dv_type   rw_type   tform    IV    LB   UB   phz   PriorType   Pr1   Pr2   expand_across     y      m
+pLnM      1        1      additive   RW0      none   0.025   -1   1   -1       none       0    0.1        m         (2021)   all
+###--reference levels
+0 #--number of reference levels
+#  param   mp_idx  dv_idx   y      x     m         p       z
+ 
+##--"RE" vectors (TODO: finalize format of this section)----
+0 #--number of RE vectors defined
+#  param   mp_idx  rv_idx   rv_type  tform    IV    LB         UB     phz   PriorType  Pr1    Pr2  expand_across     #--y,s,r,x,m,p,z    
+###--RE covariance definitions
+
+##--parameter-level environmental covariates----
+###--definitions
+ 2 #--number of environmental covariate relationships defined
+mp_idx  param   cv_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
+  1      pA       1       AO    additive    0     -1     1     1      none      0     999  2021:2023
+  1      pA       2      PDO    additive    0     -1     1     1      none      0     999  2021:2023
+###--reference levels
+0 #--number of reference levels
+# pcov_idx  covar   y   r   x   m   a   z
+
+##--function-level environmental covariates----
+###--definitions
+ 2 #--number of environmental covariate relationships defined
+fcn_idx  fcn       fcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
+     1   pwrLaw1     1       AO    additive    0     -1     1     1      none      0     999  2021:2023
+     1   pwrLaw1     2      PDO    additive    0     -1     1     1      none      0     999  2021:2023
+###--reference levels
+0 #--number of reference levels
+# fcov_idx  fcn   y   r   x   m   p   z
+
+#--functional priors----
+0 #--number of functional priors
+# fcn_idx  tform   PriorType  Pr1    Pr2  # y   r   x    m    p    z   
+
+END
+
+

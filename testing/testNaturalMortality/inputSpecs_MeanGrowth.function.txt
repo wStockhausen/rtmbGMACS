@@ -1,0 +1,73 @@
+#--rtmbGMACS growth specifications----
+#----------------------EXAMPLE: growth---------------------------
+GROWTH
+function #--input option ("function", "data")
+#--Function definitions----
+2 #--number of functions defined
+fcn_idx     fcn           y      # main_params...
+   1     grwPwrLaw1   2020:2023  # pGrA, pGrB, zGrA, zGrB, pGrBeta  mean(z_pst) or mean(mi) = exp(pGrA + grB * z_pre)
+   2     grwPwrLaw2   2024:2024  # pGrA, pGrB, pGrBeta              mean(z_pst) or mean(mi) = exp(pGrA + grB * z_pre
+###--reference levels
+ 0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
+# fcn_idx  param  y   r   x   m   a   z
+
+#--Parameters----
+##--Main parameters----
+16 #--number of main parameters defined
+param   mp_idx   fcn_idx   grp_idx   tform   IV   LB   UB   phz PriorType   Pr1 Pr2        x   # y,s,r,x,m,p,z
+pGrA      1         1         1      none  32.3   25   40   -1   none        0   1       male   #--power law param
+pGrB      2         1         1      none 166.0  125  185   -1   none        0   1       male   #--power law param
+zGrA      3         1         1      none  25.0   20   30   -1   none        0   1       male   #--power law param
+zGrB      4         1         1      none 125.0  120  130   -1   none        0   1       male   #--power law param
+pGrBeta   5         1         1      none   0.8  0.2  2.0   -1   none        0   1       male   #--variance scale
+pGrA      6         1         2      none  32.3   25   40   -1   none        0   1       male   #--power law param
+pGrB      7         1         2      none 114.0  100  150   -1   none        0   1       male   #--power law param
+zGrA      8         1         2      none  25.0   20   30   -1   none        0   1       male   #--power law param
+zGrB      9         1         2      none 100.0   80  130   -1   none        0   1       male   #--power law param
+pGrBeta  10         1         2      none   0.8  0.2  2.0   -1   none        0   1       male   #--variance scale
+pGrA     11         2         1      none  32.3   25   40   -1   none        0   1       male   #--power law param
+pGrB     12         2         1      none 166.0  125  185   -1   none        0   1       male   #--power law param
+pGrBeta  13         2         1      none   0.8  0.2  2.0   -1   none        0   1       male   #--variance scale
+pGrA     14         2         2      none  32.3   25   40   -1   none        0   1       male   #--power law param
+pGrB     15         2         2      none 114.0  100  150   -1   none        0   1       male   #--power law param
+pGrBeta  16         2         2      none   0.8  0.2  2.0   -1   none        0   1       male   #--variance scale
+
+##--Offset parameters----
+0 #--number of offset parameters defined
+# param   mp_idx   op_idx   op_type   tform   IV   LB   UB   phz   PriorType   Pr1   Pr2       y        x
+
+##--"devs" (fixed effects) vectors----
+0 #--number of devs vectors defined
+# param   mp_idx   dv_idx   dv_type   rw_type   tform    IV    LB   UB   phz   PriorType   Pr1   Pr2   expand_across     y      m
+###--reference levels
+0 #--number of reference levels
+#  param   mp_idx  dv_idx   y      x     m         p       z
+ 
+##--"RE" vectors (TODO: finalize format of this section)----
+0 #--number of RE vectors defined
+#  param   mp_idx  rv_idx   rv_type  tform    IV    LB         UB     phz   PriorType  Pr1    Pr2  expand_across     #--y,s,r,x,m,p,z    
+###--RE covariance definitions
+
+##--parameter-level environmental covariates----
+###--definitions
+ 0 #--number of environmental covariate relationships defined
+# mp_idx  param   cv_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
+###--reference levels
+0 #--number of reference levels
+# pcov_idx  covar   y   r   x   m   a   z
+
+##--function-level environmental covariates----
+###--definitions
+ 0 #--number of environmental covariate relationships defined
+# fcn_idx  fcn       fcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z   
+##--reference levels
+0 #--number of reference levels
+# fcov_idx  fcn   y   r   x   m   p   z
+
+#--functional priors----
+0 #--number of functional priors
+# fcn_idx  tform   PriorType  Pr1    Pr2  # y   r   x    m    p    z   
+
+END
+
+

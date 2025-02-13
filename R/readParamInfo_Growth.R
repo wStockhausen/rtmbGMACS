@@ -1,6 +1,6 @@
-#--read allometry info
-#' @title Read allometry info
-#' @description Function to read allometry info.
+#--read growth info
+#' @title Read growth info
+#' @description Function to read growth info.
 #' @param conn - connection (or filename) to read from
 #' @param verbose - flag to print extra info
 #' @return nested list with elements (see **Details**)
@@ -58,20 +58,20 @@
 #' @examples
 #' # example code reading "vertical" data format
 #' if (FALSE){
-#'   conn="inputSpecs_Allometry.data_vertical.txt";
-#'   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
+#'   conn="inputSpecs_Growth.data_vertical.txt";
+#'   lstResults = readParamInfo_Growth(conn,verbose=TRUE);
 #' }
 #'
 #' # example code reading "horizontal" data format
 #' if (FALSE){
-#'   conn="inputSpecs_Allometry.data_horizontal.txt";
-#'   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
+#'   conn="inputSpecs_Growth.data_horizontal.txt";
+#'   lstResults = readParamInfo_Growth(conn,verbose=TRUE);
 #' }
 #'
 #' # example code reading "function" format
 #' if (FALSE){
-#'   conn="inputSpecs_Allometry.function.txt";
-#'   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
+#'   conn="inputSpecs_Growth.function.txt";
+#'   lstResults = readParamInfo_Growth(conn,verbose=TRUE);
 #' }
 #'
 #' @import dplyr
@@ -81,10 +81,10 @@
 #' @md
 #' @export
 #'
-readParamInfo_Allometry<-function(conn,verbose=FALSE){
+readParamInfo_Growth<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
-          extractLines(start="ALLOMETRY",end="END");
+          extractLines(start="GROWTH",end="END");
   out = readParamInfoSectionType1(lns,verbose);
   return(out);
 }
@@ -94,8 +94,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data-vertical.txt");
-  resV = readParamInfo_Allometry(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-vertical.txt");
+  resV = readParamInfo_Growth(conn,TRUE);
   View(resV$dfr);
 }
 
@@ -104,8 +104,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.data-horizontal.txt");
-  resH = readParamInfo_Allometry(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-horizontal.txt");
+  resH = readParamInfo_Growth(conn,TRUE);
   View(resH$dfr);
 }
 
@@ -114,8 +114,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.function.txt");
-  resF = readParamInfo_Allometry(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.function.txt");
+  resF = readParamInfo_Growth(conn,TRUE);
   View(resF$dfr);
 }
 

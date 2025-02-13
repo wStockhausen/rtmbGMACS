@@ -8,8 +8,9 @@ fcn_idx     fcn              y      # main_params...
    1      pwrLaw1        2020:2023  # pA   pB             w(z) = pA * (z^pB)
    2      pwrLaw2        2024:2024  # pLnA pLnS pLnB pZ0  w(z) = exp(pLnA+pLnS+pB*ln(z/pZ0))
 ###--reference levels
- 0 #--number of reference levels
+ 0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
 # fcn_idx  param  y   r   x   m   a   z
+
 #--Parameters----
 ##--Main parameters----
 10 #--number of main parameters defined
@@ -24,11 +25,13 @@ fcn_idx   grp_idx  mp_idx param       y      r     x      m      tform      IV  
    2        4        8    pLnS   2024:2024  all    all    all    log    1000.00   999.00 1001.00 -1     none     0.00     1.00    #--scale to kg
    2        4        9    pB     2024:2024  all    all    all    none   3.022134 1.00000 6.00000 -1     none     0.00     1.00    #--exponent
    2        4       10    pZ0    2024:2024  all    all    all    none   1.000000 0.50000 2.00000 -1     none     0.00     1.00    #--scale to mm CW
+
 ##--Offset parameters----
 2 #--number of offset parameters defined
    mp_idx  param   op_idx    op_type      y       p     tform    IV       LB       UB     phz   PriorType  Pr1    Pr2
      1       pA      1      additive      2022   new_shell g2kg  0.00003  -0.00006 0.00006    2     normal     0    0.0001
      1       pA      2      additive      2022   old_shell g2kg -0.00003  -0.00006 0.00006    2     normal     0    0.0001
+
 ##--"devs" (fixed effects) vectors----
 3 #--number of devs vectors defined
    mp_idx  param   dv_idx     dv_type   rw_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
@@ -37,11 +40,12 @@ fcn_idx   grp_idx  mp_idx param       y      r     x      m      tform      IV  
      2      pB       3       additive     RW1         y        2021:2024  male   g2kg    0.0  -0.00006 0.00006    2     normal   0    0.0001
 ###--reference levels
 1 #--number of reference levels
-  dvec_idx  param   y      x     m         p       z
-     2       pB    2021   male mature  new_shell  98
-##--"RE" vectors (TODO: finalize format of this section)----
+   param  mp_idx  dv_idx     y      x     m         p       z
+     pB     1       2      2021   male mature  new_shell   98
+
+##--"RE" vectors----
 0 #--number of RE vectors defined
-#  mp_idx  param   rv_idx   rv_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
+#  param   mp_idx  rv_idx   rv_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
 ###--RE covariance definitions
 
 ##--parameter-level environmental covariates----

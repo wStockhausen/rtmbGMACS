@@ -1,4 +1,4 @@
-#--test the gmacs objective function
+#--test allometry specifications for the gmacs objective function
 require(RTMB);
 require(ggplot2);
 dirPrj = rstudioapi::getActiveProject();
@@ -13,6 +13,7 @@ if (FALSE){
   source(file.path(dirPrj,"R","MiscFunctions_Dataframe.R"))
   source(file.path(dirPrj,"R","MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R","MiscFunctions_Transforms.R"))
+  source(file.path(dirPrj,"R","readParamInfoSectionType1.R"))
   source(file.path(dirPrj,"R","readParamInfo_Allometry.R"))
   source(file.path(dirPrj,"R","extractParamInfo_Allometry.R"))
   source(file.path(dirPrj,"R","calcAllometry.R"))
@@ -47,9 +48,10 @@ if (type=="function"){
   conn     = file.path(dirPrj,"testing/testAllometry/inputSpecs_Allometry.function.txt");
   res      = readParamInfo_Allometry(conn,FALSE);
   lstAllom = extractParamInfo_Allometry(res,dims,FALSE);
-  params = list(pAllom_MPs=lstAllom$MPs$params,
-                pAllom_OPs=lstAllom$OPs$params,
-                pAllom_DPs=lstAllom$DPs$params);
+  params = list(pAllom_MPs=lstAllom$MPs$params);
+  if (!is.null(lstAllom$OPs$params)) params[["pAllom_OPs"]]=lstAllom$OPs$params;
+  if (!is.null(lstAllom$OPs$params)) params[["pAllom_DPs"]]=lstAllom$DPs$params;
+  if (!is.null(lstAllom$OPs$params)) params[["pAllom_REs"]]=lstAllom$REs$params;
 }
 inputs$dims     = dims;
 inputs$lstAllom = lstAllom;#--add lstAllom to inputs
@@ -74,42 +76,4 @@ obj_fun<-function(params){
 
 params$dummy = 0;
 obj = MakeADFun(obj_fun,params,random=NULL,map=list(),silent=FALSE);
-
-################################################################################
-##--set up options----
-##--set up data----
-###--data likelihood components----
-###--non-data likelihood components----
-
-##--set up information regarding model functions and parameters----
-params_info = list(); #--list with input parameter information
-params_list = list(); #--list with extracted parameter information
-parameters_ = list(); #--list defining parameters (MakeADFun input `parameters`)
-params_map_ = list(); #--list defining how to collect and fix parameters (MakeADFun input `map`)
-REs         = vector("character",length=0); #--character vector identifying random effect parameters (MakeADFun input `random`)
-
-###--allometry----
-###--initial abundance----
-###--recruitment----
-###--natural mortality----
-###--growth & ageing----
-####--molting----
-####--growth|molt----
-####--combined----
-###--maturity
-###--selectivity----
-###--fishing mortality----
-###--survey catchability----
-###--movement
-
-#--define parameters list
-par_list = list();
-if (inputs$testing) {
-  param_list[["dummy"]] = 0.0;
-}
-
-#--make objective function
-source(file.path(dirThs,"obj_fun_Allometry.R"))
-##--`inputs` list is implicit
-obj = MakeADFun(obj_fun,param_list,random=NULL,map=list(),silent=FALSE);
 
