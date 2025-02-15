@@ -60,9 +60,25 @@ grwPwrLaw2<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs){
 #' @param params - RTMB parameters list with growth-specific elements
 #' @param verbose - flag to print diagnostic info
 #'
-#' @return 3-d array with dimensions `\[nYs, nSs,nCs\]`, where `nYs` is the number
-#' of model years, `nSs` is the number of seasons/year, and `nCs` is the number of
-#' population categories.
+#' @return TODO: might want to return a list of a list of matrices
+#'
+#' @details Growth matrix for any given y_, s_ is technically an upper triangle
+#' block-diagonal, with non-zero elements only for z_row <= z_column (i.e., post-molt size)
+#' AND {r,x,m,p}_row == {r,x,m,p}_, followed by ??
+#'
+#' At start, {r,x,m,p,z} has probability of molting prM(r,x,m,p,z), which splits
+#' n_{r,x,m,p,z} into molting (mn_{r,x,m,p,z}) and non-molting (nn_{r,x,m,p,z}) components.
+#' If terminal molt depends on pre-molt size, it should be evaluated now on molting animals
+#' (e.g. immature->mature for mn).
+#'
+#' The non-molting component should have p->max(p+1,p_max).
+#'
+#' The molting component undergoes growth as a block-diagonal with non-zero transitions possible only
+#' for z_row <= z_column (i.e., post-molt size) AND {r,x,m,p}_row == {r,x,m,p}_column, followed
+#' by p->post-molt age 0.
+#'
+#' If terminal molt depends on post-molt size, it would be evaluated now on molted crab
+#' (e.g., immature-> mature).
 #'
 #' @export
 #'
