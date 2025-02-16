@@ -198,14 +198,15 @@ obj_fun<-function(params){
                 nn_cp = 1-lstGTMs$prMolt[y,s,] * n_cp; #--crab that will skip the molt
                 mn_cp =   lstGTMs$prMolt[y,s,] * n_cp; #--crab that will molt
                 ######--increment post-molt age for non-molting crab----
-                nn_cp = lstGTMs$adjP4NMC %*% nn_cp;
+                nn_cp = inputs$growth$tmPMAI %*% nn_cp;
                 ######--determine which crab will undergo the molt-to-maturity based on pre-molt size
                 if (tolower(opts$maturity$molt2maturity)=="pre-molt_size")
                   mn_cp = lstGTMs$prM2M[y,s,,] %*% mn_cp;
                 ######--do molt: apply growth matrix to crab that will molt----
                 mn_cp = lstGTMs$prGr[y,s,,] %*% mn_cp;
                 ######--decrement post-molt age to 0 for molting crab----
-                mn_cp = lstGTMs$adjP4MC %*% mn_cp;
+                mn_cp = inputs$growth$tmPMAD %*% mn_cp;
+                ######--determine which crab will undergo the molt-to-maturity based on pre-molt size
                 if (tolower(opts$maturity$molt2maturity)=="post-molt_size")
                   mn_cp = lstGTMs$prM2M[y,s,,] %*% mn_cp;
               }

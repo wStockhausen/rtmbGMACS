@@ -27,7 +27,7 @@ source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
 
 type = "data-vertical";
 if (type=="data-vertical"){
-  ###--allometry with data-vertical----
+  ###--growth with data-vertical----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-vertical.txt");
   res   = readParamInfo_Growth(conn,TRUE);
@@ -35,7 +35,7 @@ if (type=="data-vertical"){
   params = list(pNM_FPs=lstNM$params);#--"FP" for "fixed" parameters
 } else
 if (type=="data-horizontal"){
-  ###--allometry with data-horizontal----
+  ###--growth with data-horizontal----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-horizontal.txt");
   res   = readParamInfo_Growth(conn,TRUE);
@@ -43,7 +43,7 @@ if (type=="data-horizontal"){
   params = list(pNM_FPs=lstNM$params);#--"FP" for "fixed" parameters
 } else
 if (type=="function"){
-  ###--allometry with function----
+  ###--growth with function----
   dims = setupModelDims(zcs=seq(55.5,104.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.function.txt");
   res   = readParamInfo_Growth(conn,FALSE);
