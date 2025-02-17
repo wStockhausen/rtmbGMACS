@@ -1,8 +1,8 @@
-#--extract growth parameters
+#--extract Growth_PrM2M parameters
 #'
-#' @title Extract growth parameters from parameter info list
-#' @description Function to extract growth parameters from parameter info list.
-#' @param lst - parameter info list from [readParamInfo_Growth()]
+#' @title Extract Growth_PrM2M parameters from parameter info list
+#' @description Function to extract Growth_PrM2M parameters from parameter info list.
+#' @param lst - parameter info list from [readParamInfo_Growth_PrM2M()]
 #' @param dims - `dims` list from `setupModelDims`
 #' @return a list (see details)
 #' @details The format of the returned list depends on the `option` specified in `lst`.
@@ -28,22 +28,22 @@
 #'
 #' @export
 #'
-extractParamInfo_Growth<-function(lst,
+extractParamInfo_Growth_PrM2M<-function(lst,
                                             dims=NULL,
                                             verbose=TRUE){
-  if (verbose) message("starting extractParameters_Growth.")
+  if (verbose) message("starting extractParameters_Growth_PrM2M.")
   if (FALSE){
     #--NOTE: run this section if you are just stepping through the code for development purposes
     ##--assumes you've created `dims` via `dims = setupModelDims();`
     verbose = TRUE;
-    lst = res;#--assumed output from `res  = readParamInfo_Growth(conn,verbose=FALSE);`
+    lst = res;#--assumed output from `res  = readParamInfo_Growth_PrM2M(conn,verbose=FALSE);`
   }
 
-  #--expand growth parameter information----
+  #--expand Growth_PrM2M parameter information----
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Growth",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Growth_PrM2M",verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----
@@ -55,7 +55,7 @@ extractParamInfo_Growth<-function(lst,
       ###--values are character strings----
       ###--need to evaluate and transform `value`s to get (fixed) parameter values
       if (verbose){
-        message("in extractParamInfo_Growth: lst$dfr:")
+        message("in extractParamInfo_Growth_PrM2M: lst$dfr:")
         print(lst$dfr);
       }
       dfrp = lst$dfr |> dplyr::select(!c(z,value));
@@ -94,12 +94,12 @@ extractParamInfo_Growth<-function(lst,
     dfr = dfr |> dplyr::select(pidx,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2);
     ###--extract parameter values----
     if (verbose) {
-      message("in extractParameters_Growth: resolved 'data' option values");
+      message("in extractParameters_Growth_PrM2M: resolved 'data' option values");
       print(dfr);
     }
     pWatZ = dfr$IV;#--weight-at-size in kg
     map = list(pWatZ=factor(NA+pWatZ));#--NAs indicate fixed values
-    if (verbose) message("in extractParameters_Growth: expanding dataframe.")
+    if (verbose) message("in extractParameters_Growth_PrM2M: expanding dataframe.")
     ###--create list of all dimension levels in `dims$dmsYSN` to convert "all"'s to pop levels----
     ####--listAlls is a list with all individual dimension levels, by individual dimension y, s, r, x, m, a, p, z
     lstAlls = NULL;
@@ -126,13 +126,13 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Growth.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Growth.R"))
+  source(file.path(dirPrj,"R/readParamInfo_Growth_PrM2M.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_Growth_PrM2M.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-vertical.txt");
-  res1v  = readParamInfo_Growth(conn,verbose=FALSE);
-  res2v = extractParamInfo_Growth(res1v,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testGrowth_PrM2M/inputSpecs_Growth_PrM2M.data-vertical.txt");
+  res1v  = readParamInfo_Growth_PrM2M(conn,verbose=FALSE);
+  res2v = extractParamInfo_Growth_PrM2M(res1v,dims,verbose=FALSE);
 }
 
 if (FALSE){
@@ -142,13 +142,13 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Growth.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Growth.R"))
+  source(file.path(dirPrj,"R/readParamInfo_Growth_PrM2M.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_Growth_PrM2M.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-horizontal.txt");
-  res1h  = readParamInfo_Growth(conn,verbose=FALSE);
-  res2h = extractParamInfo_Growth(res1h,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testGrowth_PrM2M/inputSpecs_Growth_PrM2M.data-horizontal.txt");
+  res1h  = readParamInfo_Growth_PrM2M(conn,verbose=FALSE);
+  res2h = extractParamInfo_Growth_PrM2M(res1h,dims,verbose=FALSE);
 }
 
 if (FALSE){
@@ -158,11 +158,11 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Growth.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Growth.R"))
+  source(file.path(dirPrj,"R/readParamInfo_Growth_PrM2M.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_Growth_PrM2M.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.function.txt");
-  res1f  = readParamInfo_Growth(conn,verbose=FALSE);
-  res2f = extractParamInfo_Growth(res1f,dims,verbose=TRUE);
+  conn = file.path(dirPrj,"testing/testGrowth_PrM2M/inputSpecs_Growth_PrM2M.function.txt");
+  res1f  = readParamInfo_Growth_PrM2M(conn,verbose=FALSE);
+  res2f = extractParamInfo_Growth_PrM2M(res1f,dims,verbose=TRUE);
 }

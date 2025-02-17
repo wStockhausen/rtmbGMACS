@@ -1,4 +1,4 @@
-#--test growth specifications for the gmacs objective function
+#--test Growth_PrGr specifications for the gmacs objective function
 require(RTMB);
 require(ggplot2);
 dirPrj = rstudioapi::getActiveProject();
@@ -14,9 +14,9 @@ if (FALSE){
   source(file.path(dirPrj,"R","MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R","MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R","readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R","readParamInfo_Growth.R"))
-  source(file.path(dirPrj,"R","extractParamInfo_Growth.R"))
-  source(file.path(dirPrj,"R","calcGrowth.R"))
+  source(file.path(dirPrj,"R","readParamInfo_Growth_PrGr.R"))
+  source(file.path(dirPrj,"R","extractParamInfo_Growth_PrGr.R"))
+  source(file.path(dirPrj,"R","calcGrowth_PrGr.R"))
 }
 
 inputs = list();
@@ -29,25 +29,25 @@ type = "data-vertical";
 if (type=="data-vertical"){
   ###--growth with data-vertical----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
-  conn  = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-vertical.txt");
-  res   = readParamInfo_Growth(conn,TRUE);
-  lstNM = extractParamInfo_Growth(res,dims,FALSE);
+  conn  = file.path(dirPrj,"testing/testGrowth_PrGr/inputSpecs_Growth_PrGr.data-vertical.txt");
+  res   = readParamInfo_Growth_PrGr(conn,TRUE);
+  lstNM = extractParamInfo_Growth_PrGr(res,dims,FALSE);
   params = list(pNM_FPs=lstNM$params);#--"FP" for "fixed" parameters
 } else
 if (type=="data-horizontal"){
   ###--growth with data-horizontal----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
-  conn  = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-horizontal.txt");
-  res   = readParamInfo_Growth(conn,TRUE);
-  lstNM = extractParamInfo_Growth(res,dims);
+  conn  = file.path(dirPrj,"testing/testGrowth_PrGr/inputSpecs_Growth_PrGr.data-horizontal.txt");
+  res   = readParamInfo_Growth_PrGr(conn,TRUE);
+  lstNM = extractParamInfo_Growth_PrGr(res,dims);
   params = list(pNM_FPs=lstNM$params);#--"FP" for "fixed" parameters
 } else
 if (type=="function"){
   ###--growth with function----
   dims = setupModelDims(zcs=seq(55.5,104.5,5));
-  conn  = file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.function.txt");
-  res   = readParamInfo_Growth(conn,FALSE);
-  lstNM = extractParamInfo_Growth(res,dims,FALSE);
+  conn  = file.path(dirPrj,"testing/testGrowth_PrGr/inputSpecs_Growth_PrGr.function.txt");
+  res   = readParamInfo_Growth_PrGr(conn,FALSE);
+  lstNM = extractParamInfo_Growth_PrGr(res,dims,FALSE);
   params = list(pNM_MPs=lstNM$MPs$params);
   if (!is.null(lstNM$OPs$params)) params[["pNM_OPs"]]=lstNM$OPs$params;
   if (!is.null(lstNM$OPs$params)) params[["pNM_DPs"]]=lstNM$DPs$params;
@@ -57,9 +57,9 @@ inputs$dims  = dims;
 inputs$lstNM = lstNM;#--add lstNM to inputs
 
 #--test wAtZ function----
-source(file.path(dirPrj,"R/calcGrowth.R"));
-M = calcGrowth(inputs$dims,inputs$lstNM,params,FALSE,loopIC_=TRUE); #--slower
-M = calcGrowth(inputs$dims,inputs$lstNM,params,FALSE,loopIC_=FALSE);#--faster
+source(file.path(dirPrj,"R/calcGrowth_PrGr.R"));
+M = calcGrowth_PrGr(inputs$dims,inputs$lstNM,params,FALSE,loopIC_=TRUE); #--slower
+M = calcGrowth_PrGr(inputs$dims,inputs$lstNM,params,FALSE,loopIC_=FALSE);#--faster
 
 #--test M in RTMB objective function----
 obj_fun<-function(params){
@@ -67,7 +67,7 @@ obj_fun<-function(params){
   dims = inputs$dims;
   #--calculate weight-at-size----
   info = inputs$lstNM;
-  M = calcGrowth(dims,info,params,verbose);
+  M = calcGrowth_PrGr(dims,info,params,verbose);
   REPORT(M);
 
   nll = -dnorm(1,params$dummy,1,log=TRUE);

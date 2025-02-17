@@ -1,6 +1,6 @@
-#--rtmbGMACS growth specifications----
-#----------------------EXAMPLE: growth---------------------------
-GROWTH
+#--rtmbGMACS Growth_PrGr specifications----
+#----------------------EXAMPLE: Growth_PrGr---------------------------
+GROWTH_PrGr
 function #--input option ("function", "data")
 #--Function definitions----
 2 #--number of functions defined

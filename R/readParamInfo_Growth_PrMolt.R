@@ -1,6 +1,6 @@
-#--read growth info
-#' @title Read growth info
-#' @description Function to read growth info.
+#--read Growth_PrMolt info
+#' @title Read Growth_PrMolt info
+#' @description Function to read growth probability-of-molt info.
 #' @param conn - connection (or filename) to read from
 #' @param verbose - flag to print extra info
 #' @return nested list with elements (see **Details**)
@@ -81,10 +81,10 @@
 #' @md
 #' @export
 #'
-readParamInfo_Growth<-function(conn,verbose=FALSE){
+readParamInfo_Growth_PrMolt<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
-          extractLines(start="GROWTH",end="END");
+          extractLines(start="GROWTH_PrMolt",end="END");
   out = readParamInfoSectionType1(lns,verbose);
   return(out);
 }
@@ -94,8 +94,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-vertical.txt");
-  resV = readParamInfo_Growth(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth_PrMolt.data-vertical.txt");
+  resV = readParamInfo_Growth_PrMolt(conn,TRUE);
   View(resV$dfr);
 }
 
@@ -104,8 +104,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.data-horizontal.txt");
-  resH = readParamInfo_Growth(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth_PrMolt.data-horizontal.txt");
+  resH = readParamInfo_Growth_PrMolt(conn,TRUE);
   View(resH$dfr);
 }
 
@@ -114,8 +114,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth.function.txt");
-  resF = readParamInfo_Growth(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth_PrMolt.function.txt");
+  resF = readParamInfo_Growth_PrMolt(conn,TRUE);
   View(resF$dfr);
 }
 

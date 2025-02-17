@@ -1,0 +1,11 @@
+#--rtmbGMACS Growth_PrMolt specifications----
+#----------------------EXAMPLE: vertical Growth_PrMolt data---------------------------
+GROWTH_PrMolt
+data     #--input option ("function", "data")
+vertical #--orientation
+1        #--number of rows of data
+none     #--transform function (values: probabilities of molting)
+p         value
+new_shell  1.0    #--annual molt
+END
+
