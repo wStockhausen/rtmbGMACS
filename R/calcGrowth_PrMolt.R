@@ -46,12 +46,12 @@ prMolt_Constant<-function(pM,zBs){
 prMolt_DscNormal<-function(mdZ,wdZ,zBs){
   prM = AD(array(0,dim=length(zBs)));
   zBs = as.numeric(zBs);
-  cat("in prMolt_DscNormal\n")
-  cat("\t",zBs," \n");
-  cat("\t",exp(-0.5*((zBs-mdZ)/wdZ)^2)," \n");
-  cat("\t",squarewave_right(mdZ,zBs),"\n")
+  # cat("in prMolt_DscNormal\n")
+  # cat("\t",zBs," \n");
+  # cat("\t",exp(-0.5*((zBs-mdZ)/wdZ)^2)," \n");
+  # cat("\t",squarewave_right(mdZ,zBs),"\n")
   prM = AD(exp(-0.5*((zBs-mdZ)/wdZ)^2)*squarewave_right(mdZ,zBs));
-  cat("\t",prM,"\n");
+  # cat("\t",prM,"\n");
   return(prM);
 }
 
