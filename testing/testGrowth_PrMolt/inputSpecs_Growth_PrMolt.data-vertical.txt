@@ -3,9 +3,12 @@
 GROWTH_PrMolt
 data     #--input option ("function", "data")
 vertical #--orientation
-1        #--number of rows of data
+4        #--number of rows of data
 none     #--transform function (values: probabilities of molting)
-p         value
-new_shell  1.0    #--annual molt
+m           p      value
+immature new_shell  0.5    #--50% skip molting
+immature old_shell  1.0    #--definite molt if old_shell
+mature new_shell    0.0    #--have undergone terminal molt
+mature old_shell    0.0    #--have undergone terminal molt
 END
 

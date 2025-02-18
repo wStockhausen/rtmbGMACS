@@ -97,10 +97,10 @@ extractParamInfo_Growth_PrMolt<-function(lst,
       message("in extractParameters_Growth_PrMolt: resolved 'data' option values");
       print(dfr);
     }
-    pWatZ = dfr$IV;#--weight-at-size in kg
-    map = list(pWatZ=factor(NA+pWatZ));#--NAs indicate fixed values
+    pPrM = dfr$IV;#--probability of undergoing a molt
+    map = list(pPrM=factor(NA+pPrM));#--NAs indicate fixed values
     if (verbose) message("in extractParameters_Growth_PrMolt: expanding dataframe.")
-    ###--create list of all dimension levels in `dims$dmsYSN` to convert "all"'s to pop levels----
+    ###--create list of all dimension levels in `dims$dmsYSC` to convert "all"'s to pop levels----
     ####--listAlls is a list with all individual dimension levels, by individual dimension y, s, r, x, m, a, p, z
     lstAlls = NULL;
     if (!is.null(dims)) lstAlls = alls_GetLevels(dims$dmsYSC,verbose=verbose);
@@ -108,7 +108,7 @@ extractParamInfo_Growth_PrMolt<-function(lst,
               dplyr::select(!c(IV,LB,UB,phz,PriorType,Pr1,Pr2)) |>
               expandDataframe(lstAlls=lstAlls,verbose=verbose);#--expanded for "alls"
     out = list(option="data",
-               params=pWatZ,
+               params=pPrM,
                map=map,
                dfrIdx2Pars=dfr,
                dfrDims2Pars=dfrp);

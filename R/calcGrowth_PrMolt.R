@@ -1,93 +1,86 @@
 #'
-#' @title Calculate growth
-#' @description Function to calculate growth.
-#' @param pGrA - mean post-molt size at zSclGrA
-#' @param zGrA - pre-molt size at yielding pGrA as mean post-molt size
-#' @param pGrB - mean post-molt size at zSclGrB
-#' @param zGrB - pre-molt size at yielding pGrB as mean post-molt size
-#' @param pGrBeta - gamma distribution scale parameter for post-molt variability
-#' @param zBs - pre-molt sizes at which to calculate matrix
-#' @return growth matrix
+#' @title Calculate the size-independent probability of undergoing a molt
+#' @description Function to size-independent calculate the probability of undergoing a molt.
+#' @param prM - size-independent probability of undergoing a molt
+#' @param zBs - pre-molt sizes at which to calculate vector
+#' @return object same size as zBs
 #'
-#' @details The formula used is
-#'
-#' mnZs = pGrA\*exp(log(pGrB/pGrA)/log(zGrB/zGrA)\*log(zBs/zGrA));
+#' @details The returned object is the same size/shape as `zBs`, with the `prM`
+#' for all elements
 #'
 #' @examples
 #' # example code
-#' grM = grwPwrLaw1(33,25,150,125,1,seq(25,180,5));
+#' prM = prMolt_Constant(0.5,seq(25,100,5));
 #'
 #' @md
 #' @export
 #'
-grwPwrLaw1<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs){
-  mnZs = pGrA*exp(log(pGrB/pGrA)/log(zGrB/zGrA)*log(zBs/zGrA));
-  return(grM);
+prMolt_Constant<-function(pM,zBs){
+  prM = AD(array(pM,dim=length(zBs)));
+  return(prM);
 }
 #'
-#' @title Calculate size-dependent growth
-#' @description Function to calculate size-dependent growth.
-#' @param pLnM - log-scale base mortality
-#' @param pZ0 - reference size (fixed parameter)
-#' @param zBs - pre-molt sizes at which to calculate growth
-#' @return object with same dimensions as `z`.
+#' @title Calculate a size-dependent, descending normal probability of undergoing a molt
+#' @description Function to calculate a size-dependent growth, descending normal probability of undergoing a molt.
+#' @param mdZ - size at which curve starts to descend from 1
+#' @param wdZ - width of descent (standard deviation of normal curve)
+#' @param zBs - pre-molt sizes at which to calculate vector
+#' @param dZ - size bin width to use to set
+#' @return object with same dimensions as `zBs`.
 #'
 #' @details
 #'
 #' The formula for mean growth used is
 #'
-#' mnZs = exp(grA+grB*log(zBs));
+#' $$prM(zBs < mdZ) = 1.0$$
+#' $$prM(zBs \le mdZ) = exp(-0.5*((zBs-mdZ) \over wdZ)^2)$$
 #'
 #' @examples
 #' # example code
 #' z = seq(25,100,5);
-#' M = natMortZ(log(0.2),100,z);
+#' prM = prMolt_DscNormal(55,30,z);
 #'
 #' @md
 #' @export
 #'
-grwPwrLaw2<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs){
-  mnZs = exp(grA+grB*log(zBs));
-  return(grM);
+prMolt_DscNormal<-function(mdZ,wdZ,zBs){
+  prM = AD(array(0,dim=length(zBs)));
+  zBs = as.numeric(zBs);
+  cat("in prMolt_DscNormal\n")
+  cat("\t",zBs," \n");
+  cat("\t",exp(-0.5*((zBs-mdZ)/wdZ)^2)," \n");
+  cat("\t",squarewave_right(mdZ,zBs),"\n")
+  prM = AD(exp(-0.5*((zBs-mdZ)/wdZ)^2)*squarewave_right(mdZ,zBs));
+  cat("\t",prM,"\n");
+  return(prM);
 }
 
 #'
-#' @title Calculate growth for all model categories across time
+#' @title Calculate the probability of undergoing a molt for all model categories across time
 #' @description
-#' Function to calculate growth for all model categories across time.
+#' Function to calculate the probability of undergoing a molt for all model categories across time.
 #' @param dims - dimensions list
-#' @param info - info list (output list from [extractParamInfo_Growth()])
-#' @param params - RTMB parameters list with growth-specific elements
+#' @param info - info list (output list from [extractParamInfo_Growth_PrMolt()])
+#' @param params - RTMB parameters list with elements specific to the probability of undergoing a molt
 #' @param verbose - flag to print diagnostic info
 #'
 #' @return TODO: might want to return a list of a list of matrices
 #'
-#' @details Growth matrix for any given y_, s_ is technically an upper triangle
-#' block-diagonal, with non-zero elements only for z_row <= z_column (i.e., post-molt size)
-#' AND {r,x,m,p}_row == {r,x,m,p}_, followed by ??
+#' @details Application of the probability of molting vector, prM, to the
+#' population vector during the growth season decomposes it into molting and
+#' non-molting components.
 #'
-#' At start, {r,x,m,p,z} has probability of molting prM(r,x,m,p,z), which splits
-#' n_{r,x,m,p,z} into molting (mn_{r,x,m,p,z}) and non-molting (nn_{r,x,m,p,z}) components.
-#' If terminal molt depends on pre-molt size, it should be evaluated now on molting animals
-#' (e.g. immature->mature for mn).
+#' @import dplyr
 #'
-#' The non-molting component should have p->max(p+1,p_max).
-#'
-#' The molting component undergoes growth as a block-diagonal with non-zero transitions possible only
-#' for z_row <= z_column (i.e., post-molt size) AND {r,x,m,p}_row == {r,x,m,p}_column, followed
-#' by p->post-molt age 0.
-#'
-#' If terminal molt depends on post-molt size, it would be evaluated now on molted crab
-#' (e.g., immature-> mature).
-#'
+#' @md
 #' @export
 #'
-calGrowth<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
-  if (verbose) cat("Starting calcGrowth.\n")
-  M = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+calcGrowth_PrMolt<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
+  if (verbose) cat("Starting calcGrowth_PrMolt.\n")
+  prM = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
   if (info$option=="data"){
     ##--"data" option----
-    p = params$pNM_FPs;#--vector of weights-at-size
+    p = params$pPrMolt_FPs;#--vector of weights-at-size
     #--need to expand to p to all years, seasons, and population categories
     for (iy_ in 1:dims$nYs){
       #--iy_ = 1;
@@ -106,10 +99,10 @@ calGrowth<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
         dfrIdxs = dfrDims |> dplyr::left_join(info$dfrDims2Pars,
                                               by = dplyr::join_by(y, s, r, x, m, p, z));
         pidx = dfrIdxs$pidx;
-        M[iy_,is_,] = p[pidx];
+        prM[iy_,is_,] = p[pidx];
       }#--is_ loop
     }#--iy_ loop
-  } else if (info$option=="function"){
+  } else if (tolower(info$option)=="function"){
     ##--"function" option----
     ###--calculate inputs to functions----
     ####--for each input parameter to a function, p = MP + OP + DP + ...
@@ -122,17 +115,17 @@ calGrowth<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
       dfrUCr = dfrUCs[rw,];
       p = AD(0);
       if (!is.na(dfrUCr$mpr_idx[1])) {
-        p = p + params$pNM_MPs[dfrUCr$mpr_idx[1]];
+        p = p + params$pPrMolt_MPs[dfrUCr$mpr_idx[1]];
       }
-      if (!is.na(dfrUCr$opr_idx[1])) {
+      if ((!is.null(dfrUCr$opr_idx))&&(!is.na(dfrUCr$opr_idx[1]))) {
         if (dfrUCr$op_type=="additive") {
-          p = p + params$pNM_OPs[dfrUCr$opr_idx[1]];
-        } else {p = p * params$pNM_OPs[dfrUCr$opr_idx[1]];}
+          p = p + params$pPrMolt_OPs[dfrUCr$opr_idx[1]];
+        } else {p = p * params$pPrMolt_OPs[dfrUCr$opr_idx[1]];}
       }
-      if (!is.na(dfrUCr$dpr_idx[1])) {
+      if ((!is.null(dfrUCr$dpr_idx))&&(!is.na(dfrUCr$dpr_idx[1]))) {
         if (dfrUCr$dv_type=="additive") {
-          p = p + params$pNM_DPs[dfrUCr$dpr_idx[1]];
-        } else {p = p * params$pNM_DPs[dfrUCr$dpr_idx[1]];}
+          p = p + params$pPrMolt_DPs[dfrUCr$dpr_idx[1]];
+        } else {p = p * params$pPrMolt_DPs[dfrUCr$dpr_idx[1]];}
       }
       vals[rw] = p;
     }
@@ -144,7 +137,7 @@ calGrowth<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
     idxVals = 1:length(vals);
     names(idxVals) = dfrUCs$idx;
 
-    ###--calculate growth array----
+    ###--calculate probability of molting vector----
     ####--TODO: reorganize to speed up?? (see TMB email list discussions on assignment)
     ####--I think ic_ loop can be vectorized
     for (iy_ in 1:dims$nYs){
@@ -160,30 +153,30 @@ calGrowth<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
             #--ic_ = 1;
             dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_))[ic_,];
             dfrIdxs = dfrDims |> dplyr::left_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z));
-            if (tolower(dfrIdxs$fcn)=="natmort"){
-              M[iy_,is_,ic_] = natMort(vals[idxVals[dfrIdxs$pLnM]]);
+            if (tolower(dfrIdxs$fcn)=="constant"){
+              prM[iy_,is_,ic_] = prMolt_Constant(vals[idxVals[dfrIdxs$pPrM]],dfrIdxs$z);
             } else
-            if (tolower(dfrIdxs$fcn)=="natmortz"){
-              M[iy_,is_,ic_] = natMortZ(vals[idxVals[dfrIdxs$pLnM]],
-                                        vals[idxVals[dfrIdxs$pZ0]],
-                                        dfrIdxs$z);
+            if (tolower(dfrIdxs$fcn)=="dscnormal"){
+              prM[iy_,is_,ic_] = prMolt_DscNormal(vals[idxVals[dfrIdxs$pMdZ]],
+                                                  vals[idxVals[dfrIdxs$pWdZ]],
+                                                  dfrIdxs$z);
             }
           }#--ic_ loop
         }
         if (!loopIC_){
           dfrDims  = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |> dplyr::mutate(ic_=dplyr::row_number());
           dfrIdxsA = dfrDims |> dplyr::left_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z));
-          dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)=="natmort");
+          dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)=="constant");
           if (nrow(dfrIdxs) > 0){
             ic_ = dfrIdxs$ic_;
-            M[iy_,is_,ic_] = natMort(vals[idxVals[dfrIdxs$pLnM]]);
+            prM[iy_,is_,ic_] = prMolt_Constant(vals[idxVals[dfrIdxs$pPrM]],dfrIdxs$z);
           }
-          dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)=="natmortz");
+          dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)=="dscnormal");
           if (nrow(dfrIdxs) > 0){
             ic_ = dfrIdxs$ic_;
-            M[iy_,is_,ic_] = natMortZ(vals[idxVals[dfrIdxs$pLnM]],
-                                      vals[idxVals[dfrIdxs$pZ0]],
-                                      dfrIdxs$z);
+            prM[iy_,is_,ic_] = prMolt_DscNormal(vals[idxVals[dfrIdxs$pMdZ]],
+                                                vals[idxVals[dfrIdxs$pWdZ]],
+                                                dfrIdxs$z);
           }
         }
       }#--is_ loop
@@ -191,5 +184,5 @@ calGrowth<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
   } else {
     stop("unrecognized type option for growth:",info$option);
   }
-  return(M);
+  return(prM);
 }#--end of function

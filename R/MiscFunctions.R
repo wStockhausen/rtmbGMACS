@@ -67,3 +67,51 @@ elem_div<-function(x,y){
   z = x / y;
   return(z);
 }
+
+#'
+#' @title Create a "square wave" opened to the right
+#' @description Function to create a "square wave" opened to the right.
+#' @param z0 - smallest size at which function is non-zero
+#' @param - zs - object with sizes at which to calculate the function
+#' @param dz - width to use for rise of function from 0 to 1
+#' @return object same size as zs
+#' @details Provides a differentiable function such that w(z<z0) = 0 and
+#' w(z>z0) = 1.
+#' @export
+#'
+squarewave_right<-function(z0,zs,dz=0.05){
+  w = exp((zs-z0)/dz)/(1+exp((zs-z0)/dz));
+  return(w);
+}
+#'
+#' @title Create a "square wave" opened to the left
+#' @description Function to create a "square wave" opened to the left.
+#' @param z0 - largestest size at which function is non-zero
+#' @param - zs - object with sizes at which to calculate the function
+#' @param dz - width to use for the decline of the function from 1 to 0
+#' @return object same size as zs
+#' @details Provides a differentiable function such that w(z<z0) = 1 and
+#' w(z>z0) = 0.
+#' @export
+#'
+squarewave_left<-function(z0,zs,dz=0.05){
+  w = exp(-(zs-z0)/dz)/(1+exp(-(zs-z0)/dz));
+  return(w);
+}
+
+#'
+#' @title Create a "square wave"
+#' @description Function to create a "square wave".
+#' @param zL - smallest size at which function is non-zero
+#' @param zR - largest size at which function is non-zero
+#' @param - zs - object with sizes at which to calculate the function
+#' @param dz - width to use for rise of function from 0 to 1
+#' @return object same size as zs
+#' @details Provides a differentiable function such that w(zL<z<zR) = 1 and
+#' 0 otherwise.
+#' @export
+#'
+squarewave<-function(zL,zR,zs,dz=0.05){
+  w = squarewave_right(zL,zs,dz)-squarewave_right(zR,zs,dz);
+  return(w);
+}

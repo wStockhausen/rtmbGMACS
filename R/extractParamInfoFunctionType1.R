@@ -230,8 +230,8 @@ extractParamInfoFunctionType1<-function(lst,
     ####--parameter-related covariates
     ####--function-related covariates
     dfrCmbs = dfrFcns |>
-                dplyr::left_join(dfrMPs,by = dplyr::join_by(y, s, r, x, m, p, z, fcn_idx)) |>
-                dplyr::mutate(idx=paste0(param," + ",mpr_idx));
+                dplyr::inner_join(dfrMPs,by = dplyr::join_by(y, s, r, x, m, p, z, fcn_idx)) |>
+                dplyr::mutate(idx=paste0(param," + ",mpr_idx));#--need inner_join here, left_join in remainder
     if (!is.null(dfrOPs))
       dfrCmbs = dfrCmbs |>
                   dplyr::left_join(dfrOPs,by = dplyr::join_by(y, s, r, x, m, p, z, mp_idx, param)) |>

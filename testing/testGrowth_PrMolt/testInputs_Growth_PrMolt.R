@@ -15,6 +15,7 @@ if (FALSE){
   source(file.path(dirPrj,"R","MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R","readParamInfoSectionType1.R"))
   source(file.path(dirPrj,"R","readParamInfo_Growth_PrMolt.R"))
+  source(file.path(dirPrj,"R","extractParamInfoFunctionType1.R"))
   source(file.path(dirPrj,"R","extractParamInfo_Growth_PrMolt.R"))
   source(file.path(dirPrj,"R","calcGrowth_PrMolt.R"))
 }
@@ -31,49 +32,59 @@ if (type=="data-vertical"){
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth_PrMolt/inputSpecs_Growth_PrMolt.data-vertical.txt");
   res   = readParamInfo_Growth_PrMolt(conn,TRUE);
-  lstNM = extractParamInfo_Growth_PrMolt(res,dims,FALSE);
-  params = list(pNM_FPs=lstNM$params);#--"FP" for "fixed" parameters
+  lstPrMolt = extractParamInfo_Growth_PrMolt(res,dims,FALSE);
+  params = list(pPrMolt_FPs=lstPrMolt$params);#--"FP" for "fixed" parameters
 } else
 if (type=="data-horizontal"){
-  ###--growth with data-horizontal----
+  ###--probability of molting with data-horizontal----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth_PrMolt/inputSpecs_Growth_PrMolt.data-horizontal.txt");
   res   = readParamInfo_Growth_PrMolt(conn,TRUE);
-  lstNM = extractParamInfo_Growth_PrMolt(res,dims);
-  params = list(pNM_FPs=lstNM$params);#--"FP" for "fixed" parameters
+  lstPrMolt = extractParamInfo_Growth_PrMolt(res,dims);
+  params = list(pPrMolt_FPs=lstPrMolt$params);#--"FP" for "fixed" parameters
 } else
 if (type=="function"){
-  ###--growth with function----
+  ###--probability of molting with function----
   dims = setupModelDims(zcs=seq(55.5,104.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth_PrMolt/inputSpecs_Growth_PrMolt.function.txt");
   res   = readParamInfo_Growth_PrMolt(conn,FALSE);
-  lstNM = extractParamInfo_Growth_PrMolt(res,dims,FALSE);
-  params = list(pNM_MPs=lstNM$MPs$params);
-  if (!is.null(lstNM$OPs$params)) params[["pNM_OPs"]]=lstNM$OPs$params;
-  if (!is.null(lstNM$OPs$params)) params[["pNM_DPs"]]=lstNM$DPs$params;
-  if (!is.null(lstNM$OPs$params)) params[["pNM_REs"]]=lstNM$REs$params;
+  lstPrMolt = extractParamInfo_Growth_PrMolt(res,dims,FALSE);
+  params = list(pPrMolt_MPs=lstPrMolt$MPs$params);
+  if (!is.null(lstPrMolt$OPs$params)) params[["pPrMolt_OPs"]]=lstPrMolt$OPs$params;
+  if (!is.null(lstPrMolt$DPs$params)) params[["pPrMolt_DPs"]]=lstPrMolt$DPs$params;
+  if (!is.null(lstPrMolt$REs$params)) params[["pPrMolt_REs"]]=lstPrMolt$REs$params;
 }
 inputs$dims  = dims;
-inputs$lstNM = lstNM;#--add lstNM to inputs
+inputs$lstPrMolt = lstPrMolt;#--add lstPrMolt to inputs
 
-#--test wAtZ function----
+#--test function for probability of molting----
 source(file.path(dirPrj,"R/calcGrowth_PrMolt.R"));
-M = calcGrowth_PrMolt(inputs$dims,inputs$lstNM,params,FALSE,loopIC_=TRUE); #--slower
-M = calcGrowth_PrMolt(inputs$dims,inputs$lstNM,params,FALSE,loopIC_=FALSE);#--faster
+prM = calcGrowth_PrMolt(inputs$dims,inputs$lstPrMolt,params,FALSE,loopIC_=TRUE); #--slower
+prM = calcGrowth_PrMolt(inputs$dims,inputs$lstPrMolt,params,FALSE,loopIC_=FALSE);#--faster
 
 #--test M in RTMB objective function----
 obj_fun<-function(params){
   #--get dimensions----
   dims = inputs$dims;
+  REPORT(dims);
   #--calculate weight-at-size----
-  info = inputs$lstNM;
-  M = calcGrowth_PrMolt(dims,info,params,verbose);
-  REPORT(M);
+  info = inputs$lstPrMolt;
+  prM = calcGrowth_PrMolt(dims,info,params,verbose);
+  REPORT(prM);
 
   nll = -dnorm(1,params$dummy,1,log=TRUE);
   return(nll);
 }
 
+verbose=TRUE;
 params$dummy = 0;
 obj = MakeADFun(obj_fun,params,random=NULL,map=list(),silent=FALSE);
-
+rep = obj$report();
+dfrPrM = dplyr::bind_cols(rep$dims$dmsC,prM=rep$prM[1,1,]) |>
+         dplyr::mutate(z=as.numeric(as.character(z)),
+                       category=paste(x,m,p));
+View(dfrPrM)
+ggplot(dfrPrM,aes(x=z,y=prM,colour=category,shape=p)) +
+  geom_line() + geom_point() +
+  labs(x="size (mm CW)",y="probability of moting",shape="post-molt age") +
+  wtsPlots::getStdTheme()
