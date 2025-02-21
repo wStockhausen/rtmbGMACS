@@ -1,7 +1,7 @@
-#--extract function-type parameter info
+#--extract function-type parameter info for processes defined by transition matrices
 #'
-#' @title Extract function-type parameter info from a list
-#' @description Function to extract function-type parameter info from a list.
+#' @title Extract function-type parameter info for processes defined by transition matrices from a list
+#' @description Function to extract function-type parameter info for processes defined by transition matrices from a list.
 #' @param lst - function-type parameter info list from a `readParamInfo_`
 #' @param dms - appropriate `dms...` DimsMap from `setupModelDims`
 #' @return a list (see details)
@@ -10,32 +10,36 @@
 #' \itemize{
 #' \item{option - format option}
 #' \item{params - vector of weight-at-size values}
-#' \item{map - vector for the RTMB `map` list indicating the parameters are fixed; i.e. not to be estimated}
-#' \item{dfrIdx2Pars - dataframe with columns "pidx", dimension names (y,s,r,x,m,p,z), and parameter specs IV,LB,UB,phz,PriorType,Pr1,Pr2
-#' indicating the un-expanded mapping from `pidx` to the parameter input values ("IV"). `pidx` is the index into the parameter vector.
-#' The dimension columns are incidental and reflect the specification from the input text file.}
-#' \item{dfrDims2Pars - dataframe with columns "pidx" and the dimension names (y,s,r,x,m,p,z).
-#' The dimension levels are fully expanded such that each row corresponds to a single "multidimensional" level.
-#' The value of `pidx` for each row indicates the index of the associated weight-at-size value in the parameter vector.}
-#' }
-#'
-#' If `lst$option` is "function", the output list has elements
-#' \itemize{
 #' }
 #'
 #' @import dplyr
 #'
 #' @export
 #'
-extractParamInfoFunctionType1<-function(lst,
+extractParamInfoFunctionType2<-function(lst,
                                         dms=NULL,
                                         process_type="",
+                                        tmCats=NULL,
                                         verbose=TRUE){
-  if (verbose) message("starting extractParamInfoFunctionType1 for ",process_type);
+  if (verbose) message("starting extractParamInfoFunctionType2 for ",process_type);
+  if (is.null(tmCats)){
+    stop("tmCats is NULL, so no categories were identified to define transition matrices!!")
+  }
   #--create list of all dimension levels in `dms` to convert "all"'s to pop levels----
   ##--listAlls is a list with all individual dimension levels, by individual dimension name
   lstAlls = NULL;
   if (!is.null(dms)) lstAlls = alls_GetLevels(dms,verbose=verbose);
+  dmNms0 = names(lstAlls);
+  for (ctg in tmCats){
+      #--need to add `ctg_to`, `ctg_from` to expansion and drop `ctg`
+    ctgs = rlang::sym(ctg);
+    from = paste0(ctg,"_from");
+    to   = paste0(ctg,"_to");
+    lstAlls[[from]] = lstAlls[[ctg]] |> dplyr::rename({{from}}:=!!ctgs);
+    lstAlls[[to]]   = lstAlls[[ctg]] |> dplyr::rename({{to}}:=!!ctgs);
+    lstAlls[[ctg]]  = NULL;
+  }
+  dmNmsC = c(dmNms0[!(dmNms0 %in% tmCats)],paste0(tmCats,"_from"),paste0(tmCats,"_to"))
 
   #--create output list----
   out = list();
@@ -44,23 +48,21 @@ extractParamInfoFunctionType1<-function(lst,
     ##--inputs are functions and parameters definitions
 
     ####--functions----
-    if (verbose) message("in extractParamInfoFunctionType1 for ",process_type,": processing functions.")
+    if (verbose) message("in extractParamInfoFunctionType2 for ",process_type,": processing functions.")
+    xpnd = c(dmNmsC,"fcn","fcn_idx");
     dfrFcns = lst$Fcns$dfr |> expandDataframe(lstAlls,verbose=verbose) |>
-                dplyr::select(y,s,r,x,m,p,z,fcn,fcn_idx);
+                dplyr::select(dplyr::all_of(xpnd));
     dfrFcns_RefLvls = NULL;
     if (!is.null(lst$Fcns$reflvls$dfr))
       dfrFcns_RefLvls = lst$Fcns$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
 
     ###--main parameters----
-    if (verbose) message("in extractParamInfoFunctionType1 for ",process_type,": processing main parameters.")
+    if (verbose) message("in extractParamInfoFunctionType2 for ",process_type,": processing main parameters.")
     ####--mp_idx: input "index" for main parameters (not necessarily sequential)--use as join index for other tables
     ####--add mpr_idx: sequential row "index" for main parameters parameter vector
     ####--add in_mp_idx: sequential index "within" parameter names (??)
     dfrMP1s = lst$MPs$dfr |>
                 dplyr::mutate(mpr_idx=dplyr::row_number(),.after=mp_idx);      #--add index for vector of parameter values
-                # dplyr::group_by(param) |>
-                # dplyr::mutate(in_mp_idx=row_number(),.after=mpr_idx) |> #--add index within parameter name
-                # dplyr::ungroup();
     ####--transform initial and associated values
     dfrMP2s = dfrMP1s  |> dplyr::rowwise() |>
                 dplyr::mutate(IV=tf_apply(tform,IV),
@@ -68,16 +70,15 @@ extractParamInfoFunctionType1<-function(lst,
                               UB=-tf_apply(tform,UB),
                               Pr1=tf_apply(tform,Pr1)) |>
                 dplyr::ungroup();
-    # ####--reorder by index "within" parameter name
-    # dfrMP3s = dfrMP2s |> dplyr::arrange(param,pv_idx);
     ####--assign initial values to parameters vector (indexed by `pv_idx`)
     mpParams = dfrMP2s$IV;
     ####--expand by all dimensions and drop values info
+    xpnd = c(dmNmsC,"fcn_idx","grp_idx","param","mp_idx","mpr_idx");
     dfrMPs = dfrMP2s |> expandDataframe(lstAlls,verbose=verbose) |>
-               dplyr::select(y,s,r,x,m,p,z,fcn_idx,grp_idx,param,mp_idx,mpr_idx);
+               dplyr::select(dplyr::all_of(xpnd));
 
     ###--offset parameters----
-    if (verbose) message("in extractParamInfoFunctionType1 for ",process_type,": processing offset parameters.")
+    if (verbose) message("in extractParamInfoFunctionType2 for ",process_type,": processing offset parameters.")
     dfrOPs = NULL;
     if (!is.null(lst$OPs$dfr)){
     ####--mp_idx: "index" identifying main parameters (not necessarily sequential)
@@ -86,9 +87,6 @@ extractParamInfoFunctionType1<-function(lst,
     ####--add in_op_idx: sequential index "within" parameter names (??)
       dfrOP1s = lst$OPs$dfr |>
                   dplyr::mutate(opr_idx=dplyr::row_number(),.after=op_idx);        #--add index for vector of parameter values
-                  # dplyr::group_by(param) |>
-                  # dplyr::mutate(in_off_idx=row_number(),.after=opr_idx) |> #--add offset index "within" parameter name
-                  # dplyr::ungroup() |>
       ####--transform initial and associated values
       dfrOP2s = dfrOP1s  |> dplyr::rowwise() |>
                   dplyr::mutate(IV=tf_apply(tform,IV),
@@ -96,13 +94,12 @@ extractParamInfoFunctionType1<-function(lst,
                                 UB=-tf_apply(tform,UB),
                                 Pr1=tf_apply(tform,Pr1))|>
                   dplyr::ungroup();
-      ####--reorder by offset index "within" parameter name
-      # dfrOP3s = dfrOP2s |> dplyr::arrange(param,pv_idx);
       ####--assign initial values to parameters vector (indexed by `pv_idx`)
       opParams = dfrOP2s$IV;
       ####--expand by all dimensions and drop values info
+      xpnd = c(dmNmsC,"param","mp_idx","op_idx","opr_idx","op_type");
       dfrOPs  = dfrOP2s |> expandDataframe(lstAlls,verbose=verbose) |>
-                  dplyr::select(y,s,r,x,m,p,z,param,mp_idx,op_idx,opr_idx,op_type);
+                  dplyr::select(dplyr::all_of(xpnd));
     }
 
     ###--devs parameter vectors----
@@ -145,8 +142,9 @@ extractParamInfoFunctionType1<-function(lst,
       dfrDP4s = dfrDP4s |> dplyr::mutate(dpr_idx=dplyr::row_number(),.after=in_dv_idx);
       ####--assign initial values to parameters across vectors (dfrDP4s$dev_par_idx identifies index into vector)
       dpParams = dfrDP4s$IV;
+      xpnd = c(dmNmsC,"param","mp_idx","dv_idx","in_dv_idx","dpr_idx","dv_type");
       dfrDPs  = dfrDP4s |> expandDataframe(lstAlls,verbose=verbose) |>
-                  dplyr::select(y,s,r,x,m,p,z,param,mp_idx,dv_idx,in_dv_idx,dpr_idx,dv_type);
+                  dplyr::select(dplyr::all_of(xpnd));
       ####--get reference levels information
       if (!is.null(lst$DPs$reflvls$dfr))
         dfrDPs_RefLvls = lst$DPs$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
@@ -192,6 +190,7 @@ extractParamInfoFunctionType1<-function(lst,
       dfrRE4s = dfrRE4s |> dplyr::mutate(rpr_idx=dplyr::row_number(),.after=in_rv_idx);
       ####--assign initial values to parameters across vectors
       reParams = dfrRE4s$IV;
+      xpnd = c(dmNmsC,"param","mp_idx","rv_idx","in_rv_idx","rpr_idx","rv_type");
       dfrREs  = dfrRE4s |> expandDataframe(lstAlls,verbose=verbose) |>
                   dplyr::select(y,s,r,x,m,p,z,param,mp_idx,rv_idx,in_rv_idx,rpr_idx,rv_type);
       ####--get reference levels information
@@ -229,32 +228,40 @@ extractParamInfoFunctionType1<-function(lst,
     ####--RE covariance info
     ####--parameter-related covariates
     ####--function-related covariates
+    xpnd = rlang::syms(c(dmNmsC,"fcn_idx"));
     dfrCmbs = dfrFcns |>
-                dplyr::inner_join(dfrMPs,by = dplyr::join_by(y, s, r, x, m, p, z, fcn_idx)) |>
+                dplyr::inner_join(dfrMPs,by = dplyr::join_by(!!!xpnd)) |>
                 dplyr::mutate(idx=paste0(param," + ",mpr_idx));#--need inner_join here, left_join in remainder
-    if (!is.null(dfrOPs))
+    if (!is.null(dfrOPs)){
+      xpnd = rlang::syms(c(dmNmsC,"mp_idx","param"));
       dfrCmbs = dfrCmbs |>
-                  dplyr::left_join(dfrOPs,by = dplyr::join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                  dplyr::left_join(dfrOPs,by = dplyr::join_by(!!xpnd)) |>
                   dplyr::mutate(idx=paste0(idx," + ",opr_idx));
-    if (!is.null(dfrDPs))
+    }
+    if (!is.null(dfrDPs)){
+      xpnd = rlang::syms(c(dmNmsC,"mp_idx","param"));
       dfrCmbs = dfrCmbs |>
-                  dplyr::left_join(dfrDPs,by = dplyr::join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                  dplyr::left_join(dfrDPs,by = dplyr::join_by(!!!xpnd)) |>
                   dplyr::mutate(idx=paste0(idx," + ",dpr_idx));
-    if (!is.null(dfrREs))
+    }
+    if (!is.null(dfrREs)){
+      xpnd = rlang::syms(c(dmNmsC,"mp_idx","param"));
       dfrCmbs = dfrCmbs |>
-                  dplyr::left_join(dfrREs,by = dplyr::join_by(y, s, r, x, m, p, z, mp_idx, param)) |>
+                  dplyr::left_join(dfrREs,by = dplyr::join_by(!!!xpnd)) |>
                   dplyr::mutate(idx=paste0(idx," + ",rpr_idx));
+    }
 
     dfrUniqCmbs = dfrCmbs |>
-                    dplyr::select(!c(y, s, r, x, m, p, z)) |>
+                    dplyr::select(!dplyr::any_of(dmNmsC)) |>
                     dplyr::distinct();
 
+    selNms = c(dmNmsC,"fcn","fcn_idx","grp_idx","param","idx")
     dfrHCs = dfrCmbs  |>
-               dplyr::select(y,s,r,x,m,p,z,fcn,fcn_idx,grp_idx,param,idx) |>
+               dplyr::select(dplyr::all_of(selNms)) |>
                tidyr::pivot_wider(names_from=param,values_from=idx);
 
     dfrUHCs = dfrHCs |>
-                dplyr::select(!c(y,s,r,x,m,p,z)) |>
+                dplyr::select(!dplyr::any_of(dmNmsC)) |>
                 dplyr::distinct();
 
     ###--create output list----

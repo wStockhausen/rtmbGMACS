@@ -29,8 +29,8 @@
 #' @export
 #'
 extractParamInfo_Growth_PrM2M<-function(lst,
-                                            dims=NULL,
-                                            verbose=TRUE){
+                                        dims=NULL,
+                                        verbose=TRUE){
   if (verbose) message("starting extractParameters_Growth_PrM2M.")
   if (FALSE){
     #--NOTE: run this section if you are just stepping through the code for development purposes
@@ -43,7 +43,7 @@ extractParamInfo_Growth_PrM2M<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Growth_PrM2M",verbose);
+    out = extractParamInfoFunctionType2(lst,dims$dmsYSC,"Growth_PrM2M",tmCats="m",verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----
@@ -86,29 +86,36 @@ extractParamInfo_Growth_PrM2M<-function(lst,
                           Pr2=999) |>
             dplyr::mutate(pidx=dplyr::row_number(),.before=1) |> #--parameter index
             dplyr::rename(IV=value);
-    ###--add missing dimensions as "all"s
+    ###--add missing dimensions as "all"s----
     dmnms=attr(dims$dmsYSC,"dmnms");
     for (dmnm in dmnms){
       if (!(dmnm %in% names(dfr))) dfr[[dmnm]] = "all";
     }
-    dfr = dfr |> dplyr::select(pidx,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2);
+    dfr = dfr |> dplyr::select(!m);#--drop `m`
+    dfr = dfr |> dplyr::select(pidx,y,s,r,x,m_from,m_to,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2);
     ###--extract parameter values----
     if (verbose) {
       message("in extractParameters_Growth_PrM2M: resolved 'data' option values");
       print(dfr);
     }
-    pWatZ = dfr$IV;#--weight-at-size in kg
-    map = list(pWatZ=factor(NA+pWatZ));#--NAs indicate fixed values
+    pPrM2M = dfr$IV;#--weight-at-size in kg
+    map = list(pPrM2M=factor(NA+pPrM2M));#--NAs indicate fixed values
     if (verbose) message("in extractParameters_Growth_PrM2M: expanding dataframe.")
     ###--create list of all dimension levels in `dims$dmsYSN` to convert "all"'s to pop levels----
     ####--listAlls is a list with all individual dimension levels, by individual dimension y, s, r, x, m, a, p, z
     lstAlls = NULL;
-    if (!is.null(dims)) lstAlls = alls_GetLevels(dims$dmsYSC,verbose=verbose);
+    if (!is.null(dims)) {
+      lstAlls = alls_GetLevels(dims$dmsYSC,verbose=verbose);
+      #--need to add `m_to`, `m_from` to expansion and drop `m`
+      lstAlls[["m_from"]] = lstAlls$m |> dplyr::rename(m_from=m);
+      lstAlls[["m_to"]]   = lstAlls$m |> dplyr::rename(m_to=m);
+      lstAlls[["m"]] = NULL;
+    }
     dfrp = dfr |>
               dplyr::select(!c(IV,LB,UB,phz,PriorType,Pr1,Pr2)) |>
               expandDataframe(lstAlls=lstAlls,verbose=verbose);#--expanded for "alls"
     out = list(option="data",
-               params=pWatZ,
+               params=pPrM2M,
                map=map,
                dfrIdx2Pars=dfr,
                dfrDims2Pars=dfrp);

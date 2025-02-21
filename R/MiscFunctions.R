@@ -79,7 +79,7 @@ elem_div<-function(x,y){
 #' w(z>z0) = 1.
 #' @export
 #'
-squarewave_right<-function(z0,zs,dz=0.05){
+squarewave_right<-function(z0,zs,dz=0.5){
   w = exp((zs-z0)/dz)/(1+exp((zs-z0)/dz));
   return(w);
 }
@@ -94,7 +94,7 @@ squarewave_right<-function(z0,zs,dz=0.05){
 #' w(z>z0) = 0.
 #' @export
 #'
-squarewave_left<-function(z0,zs,dz=0.05){
+squarewave_left<-function(z0,zs,dz=0.5){
   w = exp(-(zs-z0)/dz)/(1+exp(-(zs-z0)/dz));
   return(w);
 }

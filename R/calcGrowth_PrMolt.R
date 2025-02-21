@@ -30,10 +30,10 @@ prMolt_Constant<-function(pM,zBs){
 #'
 #' @details
 #'
-#' The formula for mean growth used is
+#' The formula used is
 #'
 #' $$prM(zBs < mdZ) = 1.0$$
-#' $$prM(zBs \le mdZ) = exp(-0.5*((zBs-mdZ) \over wdZ)^2)$$
+#' $$prM(zBs \ge mdZ) = exp(-0.5*((zBs-mdZ) \over wdZ)^2)$$
 #'
 #' @examples
 #' # example code
@@ -117,16 +117,18 @@ calcGrowth_PrMolt<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
       if (!is.na(dfrUCr$mpr_idx[1])) {
         p = p + params$pPrMolt_MPs[dfrUCr$mpr_idx[1]];
       }
-      if ((!is.null(dfrUCr$opr_idx))&&(!is.na(dfrUCr$opr_idx[1]))) {
-        if (dfrUCr$op_type=="additive") {
-          p = p + params$pPrMolt_OPs[dfrUCr$opr_idx[1]];
-        } else {p = p * params$pPrMolt_OPs[dfrUCr$opr_idx[1]];}
-      }
-      if ((!is.null(dfrUCr$dpr_idx))&&(!is.na(dfrUCr$dpr_idx[1]))) {
-        if (dfrUCr$dv_type=="additive") {
-          p = p + params$pPrMolt_DPs[dfrUCr$dpr_idx[1]];
-        } else {p = p * params$pPrMolt_DPs[dfrUCr$dpr_idx[1]];}
-      }
+      if (!is.null(dfrUCr$opr_idx))
+        if(!is.na(dfrUCr$opr_idx[1])) {
+          if (dfrUCr$op_type=="additive") {
+            p = p + params$pPrMolt_OPs[dfrUCr$opr_idx[1]];
+          } else {p = p * params$pPrMolt_OPs[dfrUCr$opr_idx[1]];}
+        }
+      if (!is.null(dfrUCr$dpr_idx))
+        if (!is.na(dfrUCr$dpr_idx[1])) {
+          if (dfrUCr$dv_type=="additive") {
+            p = p + params$pPrMolt_DPs[dfrUCr$dpr_idx[1]];
+          } else {p = p * params$pPrMolt_DPs[dfrUCr$dpr_idx[1]];}
+        }
       vals[rw] = p;
     }
     if (verbose){
@@ -182,7 +184,7 @@ calcGrowth_PrMolt<-function(dims,info,params,verbose=FALSE,loopIC_=TRUE){
       }#--is_ loop
     }#--iy_ loop
   } else {
-    stop("unrecognized type option for growth:",info$option);
+    stop("unrecognized type option for calcGrowth_PrMolt:",info$option);
   }
   return(prM);
 }#--end of function

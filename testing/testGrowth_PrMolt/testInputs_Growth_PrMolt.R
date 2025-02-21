@@ -72,6 +72,7 @@ obj_fun<-function(params){
   prM = calcGrowth_PrMolt(dims,info,params,verbose);
   REPORT(prM);
 
+  #--calculate objective function value
   nll = -dnorm(1,params$dummy,1,log=TRUE);
   return(nll);
 }

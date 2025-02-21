@@ -1,0 +1,15 @@
+#--rtmbGMACS Growth_PrM2M specifications----
+#----------------------EXAMPLE: vertical Growth_PrM2M data---------------------------
+GROWTH_PrM2M
+data     #--input option ("function", "data")
+vertical #--orientation
+5        #--number of rows of data
+none     #--transform function (values: probabilities of molting)
+m_from  m_to     x        z        value
+immature mature   male seq(62,82,5)    0.5    #--50% transition probability (molt-to-maturity; immature->mature)
+immature mature   male seq(86,102,5)   1.0    #--100% transition probability (molt-to-maturity; immature->mature)
+immature mature female seq(62,82,5)    0.5    #--50% transition probability (molt-to-maturity; immature->mature)
+immature mature female seq(86,102,5)   1.0    #--100% transition probability (molt-to-maturity; immature->mature)
+mature   mature   all   all            1.0    #--all mature crab stay mature
+END
+

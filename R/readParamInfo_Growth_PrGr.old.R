@@ -1,6 +1,6 @@
 #--read Growth_PrGr info
 #' @title Read Growth_PrGr info
-#' @description Function to read growth info.
+#' @description Function to read proability of growth increment info.
 #' @param conn - connection (or filename) to read from
 #' @param verbose - flag to print extra info
 #' @return nested list with elements (see **Details**)
@@ -95,7 +95,7 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
   conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth_PrGr.data-vertical.txt");
-  resV = readParamInfo_Growth_PrGr(conn,TRUE);
+  resV = readParamInfo_Growth(conn,TRUE);
   View(resV$dfr);
 }
 
@@ -105,7 +105,7 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
   conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth_PrGr.data-horizontal.txt");
-  resH = readParamInfo_Growth_PrGr(conn,TRUE);
+  resH = readParamInfo_Growth(conn,TRUE);
   View(resH$dfr);
 }
 
@@ -115,7 +115,7 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
   conn=file.path(dirPrj,"testing/testGrowth/inputSpecs_Growth_PrGr.function.txt");
-  resF = readParamInfo_Growth_PrGr(conn,TRUE);
+  resF = readParamInfo_Growth(conn,TRUE);
   View(resF$dfr);
 }
 
