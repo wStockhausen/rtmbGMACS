@@ -61,6 +61,32 @@ inputs$lstPrGr = lstPrGr;#--add lstPrGr to inputs
 #--test probability of maturing function----
 source(file.path(dirPrj,"R/calcGrowth_PrGr.R"));
 PrGr = calcGrowth_PrGr(inputs$dims,inputs$lstPrGr,params,TRUE);
+tmPrGr = PrGr[["2020"]][["1"]];
+rownames(tmPrGr) = as.character(1:dims$nCs);
+colnames(tmPrGr) = as.character(1:dims$nCs);
+dfrPrGr=tibble::as_tibble(tmPrGr) |>
+         dplyr::mutate(row_id=dplyr::row_number()) |>
+         tidyr::pivot_longer(-row_id,names_to="col_id",values_to="value") |>
+         dplyr::mutate(col_id=as.numeric(col_id),
+                       r=dims$dmsC$r[col_id],
+                       x=dims$dmsC$x[col_id],
+                       m=dims$dmsC$m[col_id],
+                       p=dims$dmsC$p[col_id],
+                       mp=paste(m,p),
+                       rxmp_from=paste(r,x,m,p),
+                       rxmp_to=paste(dims$dmsC$r[row_id],dims$dmsC$x[row_id],
+                                     dims$dmsC$m[row_id],dims$dmsC$p[row_id]),
+                       z_from=dims$dmsC$z[col_id],
+                       z_to  =dims$dmsC$z[row_id]) |>
+         dplyr::arrange(r,x,m,p,z_from,z_to);
+View(dfrPrGr)
+View(dfrPrGr |> dplyr::filter(value>0))
+ggplot(dfrPrGr |> dplyr::filter(rxmp_to==rxmp_from),
+       aes(x=z_from,y=z_to,fill=value)) +
+  geom_raster() + geom_abline(slope=1,intercept=0,linetype=3,colour="white") +
+  facet_grid(x~mp) +
+  labs(x="pre-molt size (mm CW)",y="post-molt size (mm CW)",shape="probability\nof molt") +
+  wtsPlots::getStdTheme()
 
 #--test PrGr in RTMB objective function----
 obj_fun<-function(params){

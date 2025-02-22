@@ -21,9 +21,23 @@
 #' @md
 #' @export
 #'
-grwPwrLaw1<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs_from,zBs_to){
+grwPwrLaw1<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs_from,zBs_to,dZ){
+  #--mean post-molt sizes
   mnZs = pGrA*exp(log(pGrB/pGrA)/log(zGrB/zGrA)*log(zBs_from/zGrA));
-  return(grM);
+  #--mean molt increments
+  mnMIs = mnZs - zBs_from;
+  #--actual molt increments
+  mis = zBs_to - zBs_from;
+  #--scaled to gamma distribution alpha parameters
+  prGrsU = pgamma(mis+0.5*dZ,shape=mnMIs/pGrBeta,scale=pGrBeta);
+  prGrsL = pgamma(mis-0.5*dZ,shape=mnMIs/pGrBeta,scale=pGrBeta);
+  prGrs = prGrsU - prGrsL;
+  # tbl=tibble::tibble(zBs_from=zBs_from,zBs_to=zBs_to,
+  #                    mnZs=mnZs,mnMIs=mnMIs,
+  #                    prGrsU=prGrsU,prGrsL=prGrsL,
+  #                    prGrs=prGrs);
+  # print(tbl,n=Inf)
+  return(prGrs);
 }
 #'
 #' @title Calculate size-dependent growth
@@ -47,9 +61,81 @@ grwPwrLaw1<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs_from,zBs_to){
 #' @md
 #' @export
 #'
-grwPwrLaw2<-function(pGrA,pGrB,pGrBeta,zBs){
-  mnZs = exp(grA+grB*log(zBs));
-  return(grM);
+grwPwrLaw2<-function(pGrA,pGrB,pGrBeta,zBs_from,zBs_to,dZ){
+  #--mean post-molt size
+  mnZs = exp(grA+grB*log(zBs_from));
+  #--mean molt increments
+  mnMIs = mnZs - zBs_from;
+  #--actual molt increments
+  mis = zBs_to - zBs_from;
+  #--gamma distribution with shape and scale parameters
+  prGrs = pgamma(mis+0.5*dZ,shape=mnMIs/pGrBeta,scale=pGrBeta) -
+          pgamma(mis-0.5*dZ,shape=mnMIs/pGrBeta,scale=pGrBeta)
+  return(prGrs);
+}
+
+#' @title Convert parameters/constants values from [grwPwrLaw1()] to [grwPwrLaw2()]
+#' @description Function to convert parameters/constants values from [grwPwrLaw1()] to [grwPwrLaw2()]
+#' @param pGrA - grwPwrLaw1 parameter pGrA
+#' @param pGrB - grwPwrLaw1 parameter pGrB
+#' @param zGrA - grwPwrLaw1 constant zGrA
+#' @param zGrB - grwPwrLaw1 constant zGrB
+#' @param v - vector of grwPwrLaw1 parameters in above order
+#' @return vector of grwPwrLaw2 parameters pGrA and pGrB, plus zGrA and zGrB
+#' @details Converts parameters/constants for grwPwrLaw1 to those for grwPwrLaw2.
+#' @examples
+#' par0 = c(32.2, 166.0,  25.0, 125.0); #--pGrA, pGrB, zGrA, zGrB
+#' par1 = convertParams_PwrLaw1to2(v=par0);
+#' par2 = convertParams_PwrLaw2to1(v=par1);
+#' sum(abs(par2-par0));#--should be 0
+#'
+#' @export
+#'
+convertParams_PwrLaw1to2<-function(pGrA=NULL,pGrB=NULL,zGrA=NULL,zGrB=NULL,v=NULL){
+  if (!is.null(v)){
+    pGrA = v[1];
+    pGrB = v[2];
+    zGrA = v[3];
+    zGrB = v[4];
+  }
+  # f(z) = pGrA*exp(log(pGrB/pGrA)/log(zGrB/zGrA)*log(z/zGrA))
+  #      = exp(log(pGrAexp)-log(pGrB/pGrA)/log(zGrB/zGrA)*log(zGrA) +
+  #                        +log(pGrB/pGrA)/log(zGrB/zGrA)*log(z))
+  pGrAp = log(pGrA)-log(pGrB/pGrA)/log(zGrB/zGrA)*log(zGrA);
+  pGrBp = log(pGrB/pGrA)/log(zGrB/zGrA);
+  return(c(pGrAp,pGrBp,zGrA,zGrB));
+}
+
+#' @title Convert parameters/constants values from [grwPwrLaw2()] to [grwPwrLaw1()]
+#' @description Function to convert parameters/constants values from [grwPwrLaw2()] to [grwPwrLaw1()]
+#' @param pGrA - grwPwrLaw2 parameter pGrA
+#' @param pGrB - grwPwrLaw2 parameter pGrB
+#' @param zGrA - grwPwrLaw1 constant zGrA
+#' @param zGrB - grwPwrLaw1 constant zGrB
+#' @param v - vector of grwPwrLaw2 parameters + grwPwrLaw1 constants in above order
+#' @return vector of grwPwrLaw1 parameters pGrA and pGrB, and constants zGrA and zGrB
+#' @details Converts parameters/constants for grwPwrLaw2 to those for grwPwrLaw1.
+#' @examples
+#' par0 = c(0.1919238, 1.0190025, 25.0, 125.0); #--pGrA, pGrB, zGrA, zGrB
+#' par1 = convertParams_PwrLaw2to1(v=par0);
+#' par2 = convertParams_PwrLaw1to2(v=par1);
+#' sum(abs(par2-par0));#--should be 0
+#'
+#' @export
+#'
+convertParams_PwrLaw2to1<-function(pGrA=NULL,pGrB=NULL,zGrA=NULL,zGrB=NULL,v=NULL){
+  if (!is.null(v)){
+    pGrA = v[1];
+    pGrB = v[2];
+    zGrA = v[3];
+    zGrB = v[4];
+  }
+  # f(z) = exp(pGrA + pGrB*log(z))
+  # f(zGrA) = exp(pGrA + pGrB*log(zGrA)) = pGrAp
+  # f(zGrB) = exp(pGrA + pGrB*log(zGrB)) = pGrBp
+  pGrAp = exp(pGrA+pGrB*log(zGrA));
+  pGrBp = exp(pGrA+pGrB*log(zGrB));
+  return(c(pGrAp,pGrBp,zGrA,zGrB));
 }
 
 #'
@@ -61,7 +147,7 @@ grwPwrLaw2<-function(pGrA,pGrB,pGrBeta,zBs){
 #' @param params - RTMB parameters list with elements specific to the probability of undergoing a transition between size categories
 #' @param verbose - flag to print diagnostic info
 #'
-#' @return TODO: might want to return a list of a list of matrices
+#' @return a list of a list of matrices, indexed by year, then season
 #'
 #' @details TBD
 #'
@@ -72,6 +158,7 @@ grwPwrLaw2<-function(pGrA,pGrB,pGrBeta,zBs){
 #'
 calcGrowth_PrGr<-function(dims,info,params,verbose=FALSE){
   if (verbose) cat("Starting calcGrowth_PrGr.\n")
+  dZ = unname(dims$zc[2]-dims$zc[1]);#--size bin size
   diags = array(c(1:dims$nCs,1:dims$nCs),dim=c(dims$nCs,2));
   lstY = list();
   if (info$option=="data"){
@@ -133,13 +220,13 @@ calcGrowth_PrGr<-function(dims,info,params,verbose=FALSE){
         p = p + params$pPrGr_MPs[dfrUCr$mpr_idx[1]];
         # print(p);
       }
-      if (!is.null(dfrUCr$opr_idx))
+      if ("opr_idx" %in% names(dfrUCr))
         if (!is.na(dfrUCr$opr_idx[1])){
           if (dfrUCr$op_type=="additive") {
             p = p + params$pPrGr_OPs[dfrUCr$opr_idx[1]];
           } else {p = p * params$pPrGr_OPs[dfrUCr$opr_idx[1]];}
         }
-      if (!is.null(dfrUCr$dpr_idx))
+      if ("dpr_idx" %in% names(dfrUCr))
         if (!is.na(dfrUCr$dpr_idx[1])) {
           if (dfrUCr$dv_type=="additive") {
             p = p + params$pPrGr_DPs[dfrUCr$dpr_idx[1]];
@@ -181,8 +268,13 @@ calcGrowth_PrGr<-function(dims,info,params,verbose=FALSE){
                      dplyr::mutate(col_idx=col_idx-idx_base,
                                    row_idx=row_idx-idx_base);
 
-        dfrIdxsA = dfrDimsTF |> dplyr::left_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z_from, z_to));
-        dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)==tolower("grwPwrLaw1"),as.numeric(z_from)<=as.numeric(z_to));
+        dfrIdxsA = dfrDimsTF |>
+                     dplyr::left_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z_from, z_to)) |>
+                     dplyr::filter(as.numeric(z_from)<=as.numeric(z_to)) |>
+                     dplyr::mutate(z_from=as.numeric(z_from),
+                                   z_to  =as.numeric(z_to));
+        #--function = grwPwrLaw1
+        dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)==tolower("grwPwrLaw1"));
         if ((nRWs=nrow(dfrIdxs)) > 0){
           #--parameters are: pGrA,zGrA,pGrB,zGrB,pGrBeta
           col_idxs = dfrIdxs$col_idx;#--from
@@ -192,20 +284,21 @@ calcGrowth_PrGr<-function(dims,info,params,verbose=FALSE){
                                                                          vals[idxVals[dfrIdxs$pGrB]],
                                                                          vals[idxVals[dfrIdxs$zGrB]],
                                                                          vals[idxVals[dfrIdxs$pGrBeta]],
-                                                                         dfrIdxs$z_from,dfrIdxs$z_to);
+                                                                         dfrIdxs$z_from,dfrIdxs$z_to,dZ);
         }
+        #--function = grwPwrLaw2
         dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)=="grwPwrLaw2");
         if ((nRWs=nrow(dfrIdxs)) > 0){
-          #--parameters are: ????
+          #--parameters are: pGrA,pGrB,pGrBeta
           col_idxs = dfrIdxs$col_idx;#--from
           row_idxs = dfrIdxs$row_idx;#--to
           tmPrGr[array(c(row_idxs,col_idxs),dim=c(nRWs,2))] = grwPwrLaw2(vals[idxVals[dfrIdxs$pGrA]],
                                                                          vals[idxVals[dfrIdxs$pGrB]],
                                                                          vals[idxVals[dfrIdxs$pGrBeta]],
-                                                                         dfrIdxs$z);
+                                                                         dfrIdxs$z_from,dfrIdxs$z_to,dZ);
         }
-        tmPrGr[diags] = AD(0);                 #--remove defined self-transition probabilities
-        tmPrGr[diags] = AD(1)-colSums(tmPrGr);#--assign self-transition probabilities
+        #tmPrGr[diags] = AD(0);                 #--remove defined self-transition probabilities
+        #tmPrGr[diags] = AD(1)-colSums(tmPrGr);#--assign self-transition probabilities
         lstS[[names(s_)]] = tmPrGr;
       }#--is_ loop
       lstY[[names(y_)]] = lstS;
