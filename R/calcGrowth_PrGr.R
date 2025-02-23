@@ -317,14 +317,14 @@ calcGrowth_PrGr<-function(dims,info,params,verbose=FALSE){
         }
 
         #####--for molting categories, calculate transition prob to max post-molt bin
-        matAccs = matrix(c(dfrSUGTs$row_idx,dfrSUGTs$col_idx),ncol=2);#--indices of accumulator bins (can be defined in extractParamInfo)
-        tmPrGr[matAccs] = 0;
+        matAccs = array(c(dfrSUGTs$row_idx,dfrSUGTs$col_idx),dim=c(nrow(dfrSUGTs),2));#--indices of accumulator bins (can be defined in extractParamInfo)
+        tmPrGr[matAccs] = AD(0.0);
         csums = colSums(tmPrGr)[dfrSUGTs$col_idx];
-        tmPrGr[matAccs] = 1-csums;
+        tmPrGr[matAccs] = AD(1.0)-csums;
 
         ####--for non-molting categories, assign self-transition probabilities of 1
         st_idxs = which(!((1:dims$nCs) %in% dfrSUGTs$col_idx));
-        tmPrGr[matrix(c(st_idxs,st_idxs),ncol=2)] = 1;
+        tmPrGr[array(c(st_idxs,st_idxs),dim=c(length(st_idxs),2))] = AD(1.0);
         lstS[[names(s_)]] = tmPrGr;
       }#--is_ loop
       lstY[[names(y_)]] = lstS;
