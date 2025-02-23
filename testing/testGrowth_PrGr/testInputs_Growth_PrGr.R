@@ -58,7 +58,7 @@ inputs = list();
 inputs$dims  = dims;
 inputs$lstPrGr = lstPrGr;#--add lstPrGr to inputs
 
-#--test probability of maturing function----
+#--test probability of growth function----
 source(file.path(dirPrj,"R/calcGrowth_PrGr.R"));
 PrGr = calcGrowth_PrGr(inputs$dims,inputs$lstPrGr,params,TRUE);
 tmPrGr = PrGr[["2020"]][["1"]];

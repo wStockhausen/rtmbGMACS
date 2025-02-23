@@ -258,21 +258,39 @@ calcGrowth_PrGr<-function(dims,info,params,verbose=FALSE){
         s_ = dims$s[is_];
         if (verbose) cat("season: ",s_,"\n")
         tmPrGr = AD(array(0,c(dims$nCs,dims$nCs)));#--rows: `to` category; columns: `from` category
+        ####--model categories for y_, s_ (ic_ maps to population state vector index)
         dfrDims  = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |> dplyr::mutate(ic_=dplyr::row_number());
-        idx_base = dfrDims$sparse_idx[1]-1;
-        dfrDimsTF = (dfrDims |> dplyr::rename(z_from=z,col_idx=sparse_idx)) |>
-                      dplyr::left_join((dfrDims |> dplyr::rename(z_to=z,row_idx=sparse_idx)),
+        # idx_base = dfrDims$sparse_idx[1]-1;#--don't need this if using ic_'s as in next
+        #
+        ####--Determine mapping from pre-molt state to post-molt state
+        #####--for each state, z is pre-molt size (also column index).
+        #####--then expand to all post-molt sizes (also row indices)
+        #####--with same y,s,r,x,m,p (growth would not change any of these categories)
+        dfrDimsTF = (dfrDims |> dplyr::rename(z_from=z,col_idx=ic_)) |>
+                      dplyr::left_join((dfrDims |> dplyr::rename(z_to=z,row_idx=ic_)),
                                        by=dplyr::join_by(y, s, r, x, m, p),
                                        relationship="many-to-many") |>
-                     dplyr::select(y,s,r,x,m,p,z_from,z_to,col_idx,row_idx) |>
-                     dplyr::mutate(col_idx=col_idx-idx_base,
-                                   row_idx=row_idx-idx_base);
+                     dplyr::select(y,s,r,x,m,p,z_from,z_to,col_idx,row_idx);
 
+        ####--match functions, parameters info to states that will undergo a growth transition
+        #####--NOTE: no negative molt increments allowed, so keep only rows where z_from <= z_to
         dfrIdxsA = dfrDimsTF |>
-                     dplyr::left_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z_from, z_to)) |>
-                     dplyr::filter(as.numeric(z_from)<=as.numeric(z_to)) |>
+                     dplyr::inner_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z_from, z_to)) |>
                      dplyr::mutate(z_from=as.numeric(z_from),
-                                   z_to  =as.numeric(z_to));
+                                   z_to  =as.numeric(z_to)) |>
+                     dplyr::filter(z_from <= z_to);
+
+        ####--determine (column) indices for states that underwent a growth transition
+        #####--need the indices to:
+        #####--1. assign a self-transition probability of 1 to states that DID NOT undergo a growth transition
+        #####--2. correctly assign the probability of growth into the largest post-molt size bin (an accumulator bin)
+        ######--NOTE: this should be calculated in extractParamInfo (it doesn't change for a given y_, s_)
+        dfrSUGTs = dfrIdxsA |>
+                     dplyr::group_by(y,s,r,x,m,p,z_from,col_idx) |>
+                     dplyr::summarize(z_to   =max(z_to),
+                                      row_idx=max(row_idx));
+
+
         #--function = grwPwrLaw1
         dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)==tolower("grwPwrLaw1"));
         if ((nRWs=nrow(dfrIdxs)) > 0){
@@ -297,8 +315,16 @@ calcGrowth_PrGr<-function(dims,info,params,verbose=FALSE){
                                                                          vals[idxVals[dfrIdxs$pGrBeta]],
                                                                          dfrIdxs$z_from,dfrIdxs$z_to,dZ);
         }
-        #tmPrGr[diags] = AD(0);                 #--remove defined self-transition probabilities
-        #tmPrGr[diags] = AD(1)-colSums(tmPrGr);#--assign self-transition probabilities
+
+        #####--for molting categories, calculate transition prob to max post-molt bin
+        matAccs = matrix(c(dfrSUGTs$row_idx,dfrSUGTs$col_idx),ncol=2);#--indices of accumulator bins (can be defined in extractParamInfo)
+        tmPrGr[matAccs] = 0;
+        csums = colSums(tmPrGr)[dfrSUGTs$col_idx];
+        tmPrGr[matAccs] = 1-csums;
+
+        ####--for non-molting categories, assign self-transition probabilities of 1
+        st_idxs = which(!((1:dims$nCs) %in% dfrSUGTs$col_idx));
+        tmPrGr[matrix(c(st_idxs,st_idxs),ncol=2)] = 1;
         lstS[[names(s_)]] = tmPrGr;
       }#--is_ loop
       lstY[[names(y_)]] = lstS;
