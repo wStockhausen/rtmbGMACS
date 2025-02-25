@@ -1,6 +1,6 @@
 #'
-#' @title Calculate a gamma-distributed size distribution at recruitment
-#' @description Function to calculate a gamma-distributed size distribution at recruitment.
+#' @title Calculate a gamma-distrbuted size istribution at recruitment
+#' @description Function to calculate a gamma-distrbuted size istribution at recruitment.
 #' @param mnZ - mean size at recruitment
 #' @param wdZ - width (std. dev of gamma distribution)
 #' @param zMn - minimum size with non-zero probability of recruitment
@@ -103,17 +103,17 @@ prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
 
 
 #'
-#' @title Calculate the size distribution at recruitment for all model categories across time
+#' @title Calculate the category proportions at recruitment for all model categories across time
 #' @description
-#' Function to calculate the size distribution at recruitment for all model categories across time.
+#' Function to calculate the category proportions at recruitment for all model categories across time.
 #' @param dims - dimensions list
-#' @param info - info list (output list from [extractParamInfo_Recruitment_SizeDistribution()])
+#' @param info - info list (output list from [extractParamInfo_Recruitment_CategoryProportions()])
 #' @param params - RTMB parameters list with elements specific to the probability of undergoing a molt
 #' @param verbose - flag to print diagnostic info
 #'
 #' @return TODO: might want to return a list of a list of matrices
 #'
-#' @details Combination of the size distribution at recruitment vector, prZ, with other aspects of
+#' @details Combination of the category proportions at recruitment vector, prZ, with other aspects of
 #' recruitment yields recruitment by year, season, population category (excluding size) and size.
 #'
 #' @import dplyr
@@ -121,12 +121,12 @@ prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
 #' @md
 #' @export
 #'
-calcRecruitment_SizeDistribution<-function(dims,info,params,verbose=FALSE,loopIC_=FALSE){
-  if (verbose) cat("Starting calcRecruitment_SizeDistribution.\n")
+calcRecruitment_CategoryProportions<-function(dims,info,params,verbose=FALSE,loopIC_=FALSE){
+  if (verbose) cat("Starting calcRecruitment_CategoryProportions.\n")
   prZ = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
   if (info$option=="data"){
     ##--"data" option----
-    p = params$pRecZ_FPs;#--vector of recruitment size distribution values
+    p = params$pRecCPs_FPs;#--vector of recruitment category proportions values
     #--need to expand to p to all years, seasons, and population categories
     for (iy_ in 1:dims$nYs){
       #--iy_ = 1;
@@ -233,7 +233,7 @@ calcRecruitment_SizeDistribution<-function(dims,info,params,verbose=FALSE,loopIC
       }#--is_ loop
     }#--iy_ loop
   } else {
-    stop("unrecognized type option for calcRecruitment_SizeDistribution:",info$option);
+    stop("unrecognized type option for calcRecruitment_CategoryProportions:",info$option);
   }
   return(prZ);
 }#--end of function

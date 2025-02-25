@@ -1,6 +1,6 @@
 #'
-#' @title Calculate a gamma-distributed size distribution at recruitment
-#' @description Function to calculate a gamma-distributed size distribution at recruitment.
+#' @title Calculate a gamma-distrbuted size istribution at recruitment
+#' @description Function to calculate a gamma-distrbuted size istribution at recruitment.
 #' @param mnZ - mean size at recruitment
 #' @param wdZ - width (std. dev of gamma distribution)
 #' @param zMn - minimum size with non-zero probability of recruitment
@@ -13,25 +13,25 @@
 #'
 #' The formula used is
 #'
-#' $$prZ(zBs < zMn or zBs > zMx)   = 0.0$$
+#' $$recTS(zBs < zMn or zBs > zMx)   = 0.0$$
 #' otherwise, for mnZ <=zBs<=zMx,
-#' $$prZmn = pgamma(mnZ-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
-#' $$prZmx = pgamma(zMx+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
-#' $$prZ(zBs) = pgamma(zBs+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ) -
+#' $$recTSmn = pgamma(mnZ-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
+#' $$recTSmx = pgamma(zMx+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
+#' $$recTS(zBs) = pgamma(zBs+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ) -
 #'              pgamma(zBs-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
-#' $$prZ(zBs) = prZ(zBs \le zMx)/(prZMx-prZmn)$$
+#' $$recTS(zBs) = recTS(zBs \le zMx)/(recTSMx-recTSmn)$$
 #'
 #' @examples
 #' # example code
 #' zBs = seq(25,100,5);
 #' dZ  = z[2]-z[1];
-#' prZ = prRecZ1(35,20,55,25,80,zBs,dZ);
+#' recTS = prRecZ1(35,20,55,25,80,zBs,dZ);
 #'
 #' @md
 #' @export
 #'
 # prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
-#   prZ = AD(array(0,dim=length(zBs)));
+#   recTS = AD(array(0,dim=length(zBs)));
 #   zBs = as.numeric(zBs);
 #   print(zBs);
 #   print(mnZ);
@@ -49,19 +49,19 @@
 #   print(shp);
 #   scl = (wdZ[iZBs]^2)/mnZ[iZBs];
 #   print(scl);
-#   prZmn = pgamma(zMn[iZBs]-dZ/2,shape=shp,scale=scl);
-#   prZmx = pgamma(zMx[iZBs]+dZ/2,shape=shp,scale=scl);
-#   prZ[iZBs] = pgamma(zBs[iZBs]+dZ/2,shape=shp,scale=scl) -
+#   recTSmn = pgamma(zMn[iZBs]-dZ/2,shape=shp,scale=scl);
+#   recTSmx = pgamma(zMx[iZBs]+dZ/2,shape=shp,scale=scl);
+#   recTS[iZBs] = pgamma(zBs[iZBs]+dZ/2,shape=shp,scale=scl) -
 #               pgamma(zBs[iZBs]-dZ/2,shape=shp,scale=scl);
-#   print(prZ[iZBs]);
-#   prZ[iZBs] = prZ[iZBs]/(prZmx- prZmn);
-#   print(prZ[iZBs]);
-#   print(sum(prZ[iZBs]));
-#   # cat("\t",prZ,"\n");
-#   return(prZ);
+#   print(recTS[iZBs]);
+#   recTS[iZBs] = recTS[iZBs]/(recTSmx- recTSmn);
+#   print(recTS[iZBs]);
+#   print(sum(recTS[iZBs]));
+#   # cat("\t",recTS,"\n");
+#   return(recTS);
 # }
 prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
-  prZ = AD(array(0,dim=length(zBs)));
+  recTS = AD(array(0,dim=length(zBs)));
   zBs = as.numeric(zBs);
   # cat("dZ:",dZ,"\n");
   # cat("ZBs\n");
@@ -86,47 +86,48 @@ prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
   scl = (wdZ^2)/mnZ;
   # cat("scl\n");
   # print(scl);
-  prZmn = pgamma(zMn-dZ/2,shape=shp,scale=scl);
-  prZmx = pgamma(zMx+dZ/2,shape=shp,scale=scl);
-  prZ   = pgamma(zBs+dZ/2,shape=shp,scale=scl) -
+  recTSmn = pgamma(zMn-dZ/2,shape=shp,scale=scl);
+  recTSmx = pgamma(zMx+dZ/2,shape=shp,scale=scl);
+  recTS   = pgamma(zBs+dZ/2,shape=shp,scale=scl) -
             pgamma(zBs-dZ/2,shape=shp,scale=scl);
-  # cat("prZ before scaling\n")
-  # print(prZ);
-  # print(prZmx- prZmn);
+  # cat("recTS before scaling\n")
+  # print(recTS);
+  # print(recTSmx- recTSmn);
   #--normalize and apply squarewave window so sum  across zBs is 1 for each population category
-  prZ = sqw*prZ/(prZmx- prZmn);
-  # cat("prZ after scaling\n")
-  # print(prZ);
-  # cat("sum(prZ):",sum(prZ),"\n");
-  return(prZ);
+  recTS = sqw*recTS/(recTSmx- recTSmn);
+  # cat("recTS after scaling\n")
+  # print(recTS);
+  # cat("sum(recTS):",sum(recTS),"\n");
+  return(recTS);
 }
 
 
 #'
-#' @title Calculate the size distribution at recruitment for all model categories across time
+#' @title Calculate the bulk recruitment time series across time
 #' @description
-#' Function to calculate the size distribution at recruitment for all model categories across time.
+#' Function to calculate the bulk recruitment time series across time.
 #' @param dims - dimensions list
-#' @param info - info list (output list from [extractParamInfo_Recruitment_SizeDistribution()])
-#' @param params - RTMB parameters list with elements specific to the probability of undergoing a molt
+#' @param info - info list (output list from [extractParamInfo_Recruitment_TimeSeries()])
+#' @param params - RTMB parameters list with elements specific to the recruitment time series
 #' @param verbose - flag to print diagnostic info
 #'
 #' @return TODO: might want to return a list of a list of matrices
 #'
-#' @details Combination of the size distribution at recruitment vector, prZ, with other aspects of
-#' recruitment yields recruitment by year, season, population category (excluding size) and size.
+#' @details Combination of the recruitment time series, with other aspects of
+#' recruitment for population category proportions and sizes, yields
+#' recruitment by year, season, population category (excluding size) and size.
 #'
 #' @import dplyr
 #'
 #' @md
 #' @export
 #'
-calcRecruitment_SizeDistribution<-function(dims,info,params,verbose=FALSE,loopIC_=FALSE){
-  if (verbose) cat("Starting calcRecruitment_SizeDistribution.\n")
-  prZ = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+calcRecruitment_TimeSeries<-function(dims,info,params,verbose=FALSE,loopIC_=FALSE){
+  if (verbose) cat("Starting calcRecruitment_TimeSeries.\n")
+  recTS = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
   if (info$option=="data"){
     ##--"data" option----
-    p = params$pRecZ_FPs;#--vector of recruitment size distribution values
+    p = params$pRecTS_FPs;#--vector of recruitment time series values
     #--need to expand to p to all years, seasons, and population categories
     for (iy_ in 1:dims$nYs){
       #--iy_ = 1;
@@ -134,18 +135,11 @@ calcRecruitment_SizeDistribution<-function(dims,info,params,verbose=FALSE,loopIC
       for (is_ in 1:dims$nSs){
         #--is_= 1;
         s_ = dims$s[is_];
-        # for (ic_ in 1:dims$nCs){
-        #   #--ic_ = 1;
-        #   dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_))[ic_,];
-        #   dfrIdxs = dfrDims |> dplyr::left_join(info$dfrDims2Pars);
-        #   pidx = dfrIdxs$pidx[1];
-        #   M[iy_,is_,ic_] = p[pidx];
-        # }
         dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_));
         dfrIdxs = dfrDims |> dplyr::left_join(info$dfrDims2Pars,
                                               by = dplyr::join_by(y, s, r, x, m, p, z));
         pidx = dfrIdxs$pidx;
-        prZ[iy_,is_,] = p[pidx];
+        recTS[iy_,is_,] = p[pidx];
       }#--is_ loop
     }#--iy_ loop
   } else if (tolower(info$option)=="function"){
@@ -205,7 +199,7 @@ calcRecruitment_SizeDistribution<-function(dims,info,params,verbose=FALSE,loopIC
             dfrIdxs = dfrDims |> dplyr::inner_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z));
             if (nrow(dfrIdxs)>0){
               if (tolower(dfrIdxs$fcn)==tolower("prRecZ1")){
-                prZ[iy_,is_,ic_] = prRecZ1(vals[idxVals[dfrIdxs$pMnZ]],
+                recTS[iy_,is_,ic_] = prRecZ1(vals[idxVals[dfrIdxs$pMnZ]],
                                            vals[idxVals[dfrIdxs$pWdZ]],
                                            vals[idxVals[dfrIdxs$pZmn]],
                                            vals[idxVals[dfrIdxs$pZmx]],
@@ -221,7 +215,7 @@ calcRecruitment_SizeDistribution<-function(dims,info,params,verbose=FALSE,loopIC
           dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)==tolower("prRecZ1"));
           if (nrow(dfrIdxs) > 0){
             ic_ = dfrIdxs$ic_;
-            prZ[iy_,is_,ic_] = prRecZ1(vals[idxVals[dfrIdxs$pMnZ]],
+            recTS[iy_,is_,ic_] = prRecZ1(vals[idxVals[dfrIdxs$pMnZ]],
                                        vals[idxVals[dfrIdxs$pWdZ]],
                                        vals[idxVals[dfrIdxs$pZmn]],
                                        vals[idxVals[dfrIdxs$pZmx]],
@@ -233,7 +227,7 @@ calcRecruitment_SizeDistribution<-function(dims,info,params,verbose=FALSE,loopIC
       }#--is_ loop
     }#--iy_ loop
   } else {
-    stop("unrecognized type option for calcRecruitment_SizeDistribution:",info$option);
+    stop("unrecognized type option for calcRecruitment_TimeSeries:",info$option);
   }
-  return(prZ);
+  return(recTS);
 }#--end of function
