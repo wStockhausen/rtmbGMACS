@@ -1,0 +1,34 @@
+#--rtmbGMACS recruitment size distribution specifications----
+#----------------------EXAMPLE: vertical recruitment size distribution data---------------------------
+RECRUITMENT_SIZE_DISTRIBUTION
+data     #--input option ("function", "data")
+vertical #--orientation
+24       #--number of rows of data
+none  #--transform function (values are proprtions)
+y  r  x  m  p  z  value
+(2020)  EBS  male  immature  new_shell  27  0.05
+(2020)  EBS  male  immature  new_shell  32  0.2
+(2020)  EBS  male  immature  new_shell  37  0.3
+(2020)  EBS  male  immature  new_shell  42  0.3
+(2020)  EBS  male  immature  new_shell  47  0.1
+(2020)  EBS  male  immature  new_shell  52  0.05
+(2020)  EBS  female  immature  new_shell  27  0.05
+(2020)  EBS  female  immature  new_shell  32  0.1
+(2020)  EBS  female  immature  new_shell  37  0.45
+(2020)  EBS  female  immature  new_shell  42  0.25
+(2020)  EBS  female  immature  new_shell  47  0.05
+(2020)  EBS  female  immature  new_shell  52  0.1
+(2021:2024)  EBS  male  immature  new_shell  27  0.05
+(2021:2024)  EBS  male  immature  new_shell  32  0.1
+(2021:2024)  EBS  male  immature  new_shell  37  0.45
+(2021:2024)  EBS  male  immature  new_shell  42  0.25
+(2021:2024)  EBS  male  immature  new_shell  47  0.05
+(2021:2024)  EBS  male  immature  new_shell  52  0.1
+(2021:2024)  EBS  female  immature  new_shell  27  0.05
+(2021:2024)  EBS  female  immature  new_shell  32  0.2
+(2021:2024)  EBS  female  immature  new_shell  37  0.3
+(2021:2024)  EBS  female  immature  new_shell  42  0.3
+(2021:2024)  EBS  female  immature  new_shell  47  0.1
+(2021:2024)  EBS  female  immature  new_shell  52  0.05
+END
+

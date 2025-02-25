@@ -1,0 +1,65 @@
+#--rtmbGMACS recruitment size distribution specifications----
+#----------------------EXAMPLE: recruitment size distribution---------------------------
+RECRUITMENT_SIZE_DISTRIBUTION
+function #--input option ("function", "data")
+#--Function definitions----
+ 1 #--number of functions defined
+fcn_idx     fcn              y         # info
+   1       prRecZ1        2020:2024    # gamma distribution with parameters pMnZ, pWdZ, pZmn, pZmx
+###--reference levels
+ 0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
+# fcn_idx  param  y   r   x   m   a   z
+
+#--Parameters----
+##--Main parameters----
+ 4 #--number of main parameters defined
+fcn_idx   grp_idx  mp_idx param        m        p       tform      IV   LB   UB   phz   PriorType  Pr1  Pr2
+   1        1        1    pMnZ     immature new_shell    none      35   25   45   -1     none     35     5  #--mean size
+   1        1        2    pWdZ     immature new_shell    none      10    4   20   -1     none     10     2  #--distribution width
+   1        1        3    pZmn     immature new_shell    none      28   20   30   -1     none     55     1  #--min size for non-zero's (constant, must be a size bin value)
+   1        1        3    pZmx     immature new_shell    none      58   25   75   -1     none     55     1  #--max size for non-zero's (constant, must be a size bin value)
+
+##--Offset parameters----
+0 #--number of offset parameters defined
+#   mp_idx  param   op_idx    op_type      y       p     tform    IV       LB       UB     phz   PriorType  Pr1    Pr2
+
+##--"devs" (fixed effects) vectors----
+ 0 #--number of devs vectors defined
+#   mp_idx  param   dv_idx     dv_type   rw_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
+###--reference levels
+ 0 #--number of reference levels
+#   param  mp_idx  dv_idx     y      x     m         p       z
+
+##--"RE" vectors----
+ 0 #--number of RE vectors defined
+#  param   mp_idx  rv_idx   rv_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
+###--RE covariance definitions
+
+##--parameter-level environmental covariates----
+###--definitions
+ 0 #--number of environmental covariate relationships defined
+# mp_idx  param   cv_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z
+###--reference levels
+ 0 #--number of reference levels
+# pcov_idx  covar   y   r   x   m   a   z
+
+##--function-level environmental covariates----
+###--definitions
+ 0 #--number of environmental covariate relationships defined
+#fcn_idx  fcn       fcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z
+###--reference levels
+0 #--number of reference levels
+# fcov_idx  fcn   y   r   x   m   p   z
+
+#--functional priors----
+0 #--number of functional priors
+# fcn_idx  tform   PriorType  Pr1    Pr2  # y   r   x    m    p    z
+
+END
+
+
+
+
+
+
+
