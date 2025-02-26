@@ -21,8 +21,6 @@ if (FALSE){
   source(file.path(dirPrj,"R","calcRecruitment_TimeSeries.R"))
 }
 
-inputs = list();
-
 ##--set up model dimensions----
 #----"y","s","r","x","m","a","z"
 source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
@@ -61,7 +59,7 @@ inputs$lstRecTS = lstRecTS;#--add lstRecTS to inputs
 
 #--test arrRecTS function----
 source(file.path(dirPrj,"R/calcRecruitment_TimeSeries.R"));
-arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,FALSE,loopIC_=TRUE); #--slower
+arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,TRUE,loopIC_=TRUE); #--slower
 arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,FALSE,loopIC_=FALSE);#--faster
 dfrRecTS = tibble::as_tibble(arrRecTS[1,1,]) |>
          dplyr::mutate(row_id=dplyr::row_number()) |>

@@ -84,7 +84,7 @@
 readParamInfo_Recruitment_TimeSeries<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
-          extractLines(start="RECRUITMENT_CATEGORY_PROPORTIONS",end="END");
+          extractLines(start="RECRUITMENT_TIME_SERIES",end="END");
   out = readParamInfoSectionType1(lns,verbose);
   return(out);
 }
@@ -116,6 +116,10 @@ if (FALSE){
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
   conn=file.path(dirPrj,"testing/testRecruitment_TimeSeries/inputSpecs_Recruitment_TimeSeries.function.txt");
   resF = readParamInfo_Recruitment_TimeSeries(conn,TRUE);
-  View(resF$dfr);
+  View(resF$Fcns);
+  View(resF$MPs$dfr);
+  View(resF$OPs$dfr);
+  View(resF$DPs$dfr);
+  View(resF$REs$dfr);
 }
 
