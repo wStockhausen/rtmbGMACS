@@ -61,19 +61,12 @@ inputs$lstRecTS = lstRecTS;#--add lstRecTS to inputs
 source(file.path(dirPrj,"R/calcRecruitment_TimeSeries.R"));
 arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,TRUE,loopIC_=TRUE); #--slower
 arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,FALSE,loopIC_=FALSE);#--faster
-dfrRecTS = tibble::as_tibble(arrRecTS[1,1,]) |>
+dfrRecTS = tibble::as_tibble(arrRecTS[1:5,1,1]) |>
          dplyr::mutate(row_id=dplyr::row_number()) |>
-         dplyr::mutate(r=dims$dmsC$r[row_id],
-                       x=dims$dmsC$x[row_id],
-                       m=dims$dmsC$m[row_id],
-                       p=dims$dmsC$p[row_id],
-                       z=as.numeric(as.character(dims$dmsC$z[row_id])),
-                       mp=paste(m,p),
-                       rxmp_from=paste(r,x,m,p));
-ggplot(dfrRecTS, aes(x=z,y=value)) +
+         dplyr::mutate(y=as.numeric(dims$y[row_id]));
+ggplot(dfrRecTS, aes(x=y,y=value)) +
   geom_line() + geom_hline(yintercept=0,linetype=3,colour="white") +
-  facet_grid(x~mp) +
-  labs(x="size (mm CW)",y="recruitment time series") +
+  labs(x="year",y="recruitment time series") +
   wtsPlots::getStdTheme()
 
 #--test arrRecTS in RTMB objective function----

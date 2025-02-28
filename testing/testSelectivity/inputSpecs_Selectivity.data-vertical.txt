@@ -1,0 +1,54 @@
+#--rtmbGMACS selectivity specifications----
+#----------------------EXAMPLE: vertical selectivity data---------------------------
+SELECTIVITY
+data     #--input option ("function", "data")
+vertical #--orientation
+44       #--number of rows of data
+logit    #--transform function (values are proprtions that sum to 1 )
+y        r     x   z     value
+(2020)  EBS  male  28  0.222700139
+(2020)  EBS  male  33  0.268941421
+(2020)  EBS  male  38  0.320821301
+(2020)  EBS  male  43  0.377540669
+(2020)  EBS  male  48  0.437823499
+(2020)  EBS  male  53  0.5
+(2020)  EBS  male  58  0.562176501
+(2020)  EBS  male  63  0.622459331
+(2020)  EBS  male  68  0.679178699
+(2020)  EBS  male  73  0.731058579
+(2020)  EBS  male  78  0.777299861
+(2020)  EBS  female  28  0.437823499
+(2020)  EBS  female  33  0.5
+(2020)  EBS  female  38  0.562176501
+(2020)  EBS  female  43  0.622459331
+(2020)  EBS  female  48  0.679178699
+(2020)  EBS  female  53  0.731058579
+(2020)  EBS  female  58  0.777299861
+(2020)  EBS  female  63  0.817574476
+(2020)  EBS  female  68  0.851952802
+(2020)  EBS  female  73  0.880797078
+(2020)  EBS  female  78  0.904650535
+(2021:2024)  EBS  female  28  0.320821301
+(2021:2024)  EBS  female  33  0.377540669
+(2021:2024)  EBS  female  38  0.437823499
+(2021:2024)  EBS  female  43  0.5
+(2021:2024)  EBS  female  48  0.562176501
+(2021:2024)  EBS  female  53  0.622459331
+(2021:2024)  EBS  female  58  0.679178699
+(2021:2024)  EBS  female  63  0.731058579
+(2021:2024)  EBS  female  68  0.777299861
+(2021:2024)  EBS  female  73  0.817574476
+(2021:2024)  EBS  female  78  0.851952802
+(2021:2024)  EBS  male  28  0.182425524
+(2021:2024)  EBS  male  33  0.222700139
+(2021:2024)  EBS  male  38  0.268941421
+(2021:2024)  EBS  male  43  0.320821301
+(2021:2024)  EBS  male  48  0.377540669
+(2021:2024)  EBS  male  53  0.437823499
+(2021:2024)  EBS  male  58  0.5
+(2021:2024)  EBS  male  63  0.562176501
+(2021:2024)  EBS  male  68  0.622459331
+(2021:2024)  EBS  male  73  0.679178699
+(2021:2024)  EBS  male  78  0.731058579
+END
+
