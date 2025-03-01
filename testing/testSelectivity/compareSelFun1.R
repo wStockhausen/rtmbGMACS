@@ -52,6 +52,12 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
     selr = ascnormal1(z,...,dZ=dZ,verbose=verbose);#--ascending normal
   if (fcn=="ascnormal2")##--ascnormal2----
     selr = ascnormal2(z,...,dZ=dZ,verbose=verbose);#--ascending normal
+  if (fcn=="ascnormal2a")##--ascnormal2a----
+    selr = ascnormal2a(z,...,dZ=dZ,verbose=verbose);#--ascending normal
+  if (fcn=="ascnormal2b")##--ascnormal2b----
+    selr = ascnormal2b(z,...,dZ=dZ,verbose=verbose);#--ascending normal
+  if (fcn=="ascnormal3")##--ascnormal3----
+    selr = ascnormal3(z,...,dZ=dZ,verbose=verbose);#--ascending normal
 
   if (fcn=="dbllogistic")##--dbllogistic----
     selr = dbllogistic(z,...,verbose=verbose);#--double logistic
@@ -98,9 +104,15 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
       prd_sel = asclogistic50D95(z,pars$pZ50,pars$pZ9550,pars$pRefZ,verbose=verbose);#--alternative ascending logistic
 
     if (fcn=="ascnormal1")##--ascnormal1----
-      prd_sel = ascnormal1(z,pars$pAscWdZ,pars$pAscMnZ,dZ,verbose=verbose);#--ascending normal
+      prd_sel = ascnormal1(z,pars$pAscZ1,pars$pAscWdZ,dZ,verbose=verbose);#--ascending normal
     if (fcn=="ascnormal2")##--ascnormal2----
-      prd_sel = ascnormal2(z,pars$pAscSref,pars$pAscMnZ,pars$pRefZ,dZ,verbose=verbose);#--ascending normal
+      prd_sel = ascnormal2(z,pars$pAscZ1,pars$pAscRefS,pars$pRefZ,dZ,verbose=verbose);#--ascending normal
+    if (fcn=="ascnormal2a")##--ascnormal2a----
+      prd_sel = ascnormal2a(z,pars$pAscZ1,pars$pZatRefS,pars$pRefS,dZ,verbose=verbose);#--ascending normal
+    if (fcn=="ascnormal2b")##--ascnormal2b----
+      prd_sel = ascnormal2b(z,pars$pAscZ1,pars$pDZ2RefS,pars$pRefS,dZ,verbose=verbose);#--ascending normal
+    if (fcn=="ascnormal3")##--ascnormal3----
+      prd_sel = ascnormal3(z,pars$pDZ1,pars$pSatZ2,pars$pMxZ1,pars$pRefZ2,dZ,verbose=verbose);#--ascending normal
 
     if (fcn=="dbllogistic")##--dbllogistic----
       prd_sel = dbllogistic(z,pars$pAscZ50,pars$pAscSlp,pars$pDscZ50,pars$pDscSlp,pars$pRefZ,verbose=verbose);#--double logistic

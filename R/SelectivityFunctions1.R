@@ -262,24 +262,24 @@ dbllogistic5095<-function(z,
 #'@description Function to calculate an ascending normal selectivity curve.
 #'
 #'@param z      - vector of sizes at which to compute selectivity values
+#'@param pAscZ1 - AD size at which ascending limb hits 1 (mean of a normal distribution)}
 #'@param pAscWdZ - AD width of ascending limb (standard deviation of a normal distribution)}
-#'@param pAscMnZ - AD size at which ascending limb hits 1 (mean of a normal distribution)}
 #'@param dZ - bin size
 #'@param verbose - flag (T/F) to print debugging messages
 #'
-#'@return named vector with selectivity values at the elements of z
+#'@return vector with selectivity values at the elements of z
 #'
 #'@details The parameter pRefZ is a constant and must be identified as such in the
 #'`map` list when MakeADFun'ing an objective function that uses this function.
 #'This function uses a left square wave [squarewave_left()] that rises
-#'from 0 to 1 "at" pAscMnZ to create a differentiable function.
+#'from 0 to 1 "at" pAscZ1 to create a differentiable function.
 #'
 #'@export
 #'
-ascnormal1<-function(z,pAscWdZ,pAscMnZ,dZ,verbose=FALSE){
+ascnormal1<-function(z,pAscZ1,pAscWdZ,dZ,verbose=FALSE){
   if (verbose) message(paste("Starting ascnormal1(...)"));
-  ascN = exp(-0.5*((z-pAscMnZ)/pAscWdZ)^2);
-  sqwL = squarewave_left(pAscMnZ,z,dZ);
+  ascN = exp(-0.5*((z-pAscZ1)/pAscWdZ)^2);
+  sqwL = squarewave_left(pAscZ1,z,dZ);
   s    = sqwL*ascN+(1.0-sqwL);
   if (verbose) message(paste("Finished ascnormal1(...)"));
   return(s);
@@ -289,26 +289,25 @@ ascnormal1<-function(z,pAscWdZ,pAscMnZ,dZ,verbose=FALSE){
 #' @title Calculate ascending normal selectivity curve
 #' @description Function to calculate ascending normal selectivity curve.
 #' @param z      - vector of sizes at which to compute selectivity values
-#' @param pAscSref - selectivity at size = pRefZ
-#' @param pAscMnZ - size at which ascending limb reaches 1
-#' @param pRefZ   - reference size (a constant) at which function reaches pAscSref
+#' @param pAscZ1 - size at which ascending limb reaches 1
+#' @param pAscRefS - selectivity at size = pRefZ
+#' @param pRefZ   - reference size (a constant) at which function reaches pAscRefS
 #' @param dZ - bin size reference for join (square wave) function
 #' @param verbose - flag (T/F) to print debugging messages
 #'
-#' @return named vector with selectivity values at the elements of z
+#' @return vector with selectivity values at the elements of z
 #'
 #'@details The parameter pRefZ is a constant and must be identified as such in the
 #'`map` list when MakeADFun'ing an objective function that uses this function.
-#' @details  The parameter vector has values
-#' \itemize{
-#' }
+#'This function uses a left square wave [squarewave_left()] that rises
+#'from 0 to 1 "at" pAscZ1 to create a differentiable function.
 #'
 #' @export
 #'
-ascnormal2<-function(z, pAscSref,pAscMnZ, pRefZ,dZ,verbose=FALSE){
+ascnormal2<-function(z,pAscZ1,pAscRefS,pRefZ,dZ,verbose=FALSE){
   if (verbose) message("Starting SelFcns::ascnormal2(...)");
-  ascN = exp(log(pAscSref)*((z-ascMnZ)/(pRefZ-pAscMnZ))^2);
-  sqwL = squarewave_left(pAscMnZ,z,dZ);
+  ascN = exp(log(pAscRefS)*((z-pAscZ1)/(pRefZ-pAscZ1))^2);
+  sqwL = squarewave_left(pAscZ1,z,dZ);
   s = sqwL*ascN+(1.0-sqwL);
   if (verbose) message("Finished ascnormal2(...)");
   return(s);
@@ -319,103 +318,78 @@ ascnormal2<-function(z, pAscSref,pAscMnZ, pRefZ,dZ,verbose=FALSE){
 #' @title Calculate an ascending normal selectivity curve
 #' @description Function to calculate an ascending normal selectivity curve
 #' @param z      - vector of sizes at which to compute function values
-#' @param params - vector of function parameters
-#' @param refS    - reference selectivity value (default=0.5)
+#' @param pAscZ1  - size at which ascending limb reaches 1
+#' @param pZatRefS - size at which selectivity = pRefS
+#' @param pRefS    - reference selectivity value (constant)
+#' @param dZ - bin size reference for join (square wave) function
 #' @param verbose - flag (T/F) to print debugging messages
 #'
-#' @return named vector with selectivity values at the elements of z
+#' @return vector with selectivity values at the elements of z
 #'
-#'@details The parameter pRefZ is a constant and must be identified as such in the
+#'@details The parameter pRefS is a constant and must be identified as such in the
 #'`map` list when MakeADFun'ing an objective function that uses this function.
-#' @details  The parameter vector has values
-#' \itemize{
-#'  \item{params[1]: size at which selectivity = refS}
-#'  \item{params[2]: size at which ascending limb reaches 1}
-#' }
+#'This function uses a left square wave [squarewave_left()] that rises
+#'from 0 to 1 "at" pAscZ1 to create a differentiable function.
 #'
 #' @export
 #'
-ascnormal2a<-function(z, params, refS=0.5, verbose=FALSE){
-    if (verbose) message("Starting SelFcns::ascnormal2a(...)");
-    slp = 5.0;
-    ascSref  = refS;     #--selectivity at ascZref
-    ascZref  = params[1];#--size at which selectivity reaches ascSref
-    ascZ1    = params[2];#--size at which ascending limb hits 1
-    ascN = exp(log(ascSref)*((z-ascZ1)/(ascZref-ascZ1))^2);
-    ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
-    s = ascJ*ascN + (1.0-ascJ);
-    if (verbose) message("Finished SelFcns::ascnormal2a(...)");
-    names(s) = as.character(z);
-    return(s);
+ascnormal2a<-function(z,pAscZ1,pZatRefS,pRefS,dZ,verbose=FALSE){
+  if (verbose) message("Starting SelFcns::ascnormal2a(...)");
+  ascN = exp(log(pRefS)*((z-pAscZ1)/(pZatRefS-pAscZ1))^2);
+  sqwL = squarewave_left(pAscZ1,z,dZ);
+  s = sqwL*ascN + (1.0-sqwL);
+  if (verbose) message("Finished SelFcns::ascnormal2a(...)");
+  return(s);
 }
 
 #-----------------------------------------------------------------------------------
 #' @title Calculate an ascending normal selectivity curve
 #' @description Function to calculate an ascending normal selectivity curve.
-#'@details The parameter pRefZ is a constant and must be identified as such in the
-#'`map` list when MakeADFun'ing an objective function that uses this function.
-#' @details Function is parameterized by
-#' \itemize{
-#'      \item params[1]: size at which ascending limb reaches 1
-#'      \item params[2]: delta from size at 1 to size at which selectivity=refS
-#' }
-#' @param z      - dvector of sizes at which to compute function values
-#' @param params - dvar_vector of function parameters
-#' @param refS    - selectivity at params[1]-params[2]
+#' @param pAscZ1 - size at which ascending limb reaches 1
+#' @param pDZ2RefS - delta from size at 1 to size at which selectivity=pRefS
+#' @param pRefS    - selectivity at pMnZ-pDZ2RefS
 #'
-#' @return - named vector of selectivity values
+#'@details The parameter pRefS is a constant and must be identified as such in the
+#'`map` list when MakeADFun'ing an objective function that uses this function.
+#'This function uses a left square wave [squarewave_left()] that rises
+#'from 0 to 1 "at" pAscZ1 to create a differentiable function.
+#'
+#' @return - vector of selectivity values
 #' @export
 #'
-ascnormal2b<-function(z,params,refS=0,verbose=FALSE){
-    if (verbose) message("Starting SelFcns::ascnormal2b(...)");
-    slp = 5.0;
-    ascZ1    = params[1];#--size at which ascending limb hits 1
-    ascSref  = refS;     #--selectivity at ascZref
-    ascZref  = params[1]-params[2];#--size at which selectivity reaches ascSref
-    ascN = exp(log(ascSref)*square((z-ascZ1)/(ascZref-ascZ1)));
-    ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
-    s = elem_prod(ascJ,ascN)+(1.0-ascJ);
-    names(s) = as.character(z);
-    if (verbose) message("Finished SelFcns::ascnormal2b(...)");
-    return(s);
+ascnormal2b<-function(z,pAscZ1,pDZ2RefS,pRefS,dZ,verbose=FALSE){
+  if (verbose) message("Starting SelFcns::ascnormal2b(...)");
+  ascN = exp(log(pRefS)*square((z-pAscZ1)/pDZ2RefS));
+  sqwL = squarewave_left(pAscZ1,z,dZ);
+  s = sqwL*ascN + (1.0-sqwL);
+  if (verbose) message("Finished SelFcns::ascnormal2b(...)");
+  return(s);
 }
 
 #-----------------------------------------------------------------------------------
 #' @title Calculates a 2-parameter ascending normal selectivity curve
 #' @description Function to calculate a 2-parameter ascending normal selectivity curve.
-#'@details The parameter pRefZ is a constant and must be identified as such in the
-#'`map` list when MakeADFun'ing an objective function that uses this function.
-#' @details Calculates 2-parameter normal function parameterized by
-#' \itemize{
-#'      \item params[1]: delta from max possible size (pRefZ[1]) at which ascending limb could reach 1
-#'      \item params[2]: selectivity at size=pRefZ[2]
-#' }:
-#' `pRefZ` is a 2-element vector with elements
-#' \itemize{
-#'   \item pRefZ[1] - max possible size at which the curve could reach 1
-#'   \item pRefZ[2] - reference size at which curve reaches the value of param[2]
-#' }
-#' @param z      - dvector of sizes at which to compute function values
-#' @param params - dvar_vector of function parameters
-#' @param pRefZ   - 2-element vector of reference sizes (see details)
+#' @param pDZ1 - max possible size at which the curve could reach 1
+#' @param pSatZ2 - selectivity at size=pRefZ2
+#' @param pMxZ1 - max possible size at which the curve could reach 1 (constant)
+#' @param pRefZ2 - reference size at which curve reaches the value of pSatZ2 (constant)
 #'
-#' @return - named vector of selectivity values
+#'@details The parameters `pMxZ1` and `pRefZ2` are constanta and must be identified as such in the
+#'`map` list when MakeADFun'ing an objective function that uses this function.
+#'This function uses a left square wave [squarewave_left()] that rises
+#'from 0 to 1 "at" `pMxZ1-pDZ1` to create a differentiable function.
+#'
+#' @return - vector of selectivity values
 #' @export
 #'
-ascnormal3<-function(z,params,pRefZ=0,verbose=FALSE){
-    if (verbose) message("Starting SelFcns::ascnormal3(...)");
-    slp = 5.0;
-    ascZ1   = pRefZ[1]-params[1];#--size at which ascending limb hits 1
-    ascSref = params[2];        #--selectivity at ascZref
-    ascZref = pRefZ[2];          #--size at which selectivity reaches ascSref
-    ascN = exp(log(ascSref)*square((z-ascZ1)/(ascZref-ascZ1)));
-    ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
-    # ggplot(tibble::tibble(z=z,ascN=ascN,ascJ=ascJ,mlt=elem_prod(ascJ,ascN)),aes(x=z)) +
-    #   geom_line(aes(y=ascN)) + geom_line(aes(y=ascJ)) + geom_point(aes(y=mlt))
-    s = elem_prod(ascJ,ascN)+(1.0-ascJ);
-    names(s) = as.character(z);
-    if (verbose) message("Finished SelFcns::ascnormal3(...)");
-    return(s);
+ascnormal3<-function(z,pDZ1,pSatZ2,pMxZ1,pRefZ2,dZ,verbose=FALSE){
+  if (verbose) message("Starting SelFcns::ascnormal3(...)");
+  ascZ1   = pMxZ1-pDZ1;#--size at which ascending limb hits 1
+  ascN = exp(log(pSatZ2)*square((z-ascZ1)/(pRefZ2-ascZ1)));
+  sqwL = squarewave_left(ascZ1,z,dZ);
+  s = sqwL*ascN + (1.0-sqwL);
+  if (verbose) message("Finished SelFcns::ascnormal3(...)");
+  return(s);
 }
 
 #-----------------------------------------------------------------------------------

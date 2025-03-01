@@ -64,55 +64,60 @@ res = compareSelFun1("asclogistic50D95",z,
                      title="asclogistic50D95(z,p,pRefZ)",
                      verbose=TRUE);
 
-#--sel function: ascnormal1(z,p,pRefZ)----
-ascWdZ =  25;  #--width of ascending limb
+#--sel function: ascnormal1(z,p)----
 ascMnZ = 100;  #--size at which ascending limb reaches 1
-pRefZ  = 50;       #--reference *size*
+ascWdZ =  25;  #--width of ascending limb
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal1",z,
-                     pAscWdZ=ascWdZ,pAscMnZ=ascMnZ,
+                     pAscZ1=ascMnZ,pAscWdZ=ascWdZ,
                      title="ascnormal(z,p,pRefZ)",
                      verbose=TRUE);
 
 #--sel function: ascnormal2(z,p,pRefZ)----
-ascSref = 0.5;   #--selectivity at size = pRefZ
 ascMnZ  = 100;   #--size at which ascending limb reaches 1
+ascRefS = 0.5;   #--selectivity at size = pRefZ
 pRefZ   = 50;    #--reference *size*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal2",z,
-                     pAscSref=ascSref,pAscMnZ=ascMnZ,pRefZ=pRefZ,
+                     pAscZ1=ascMnZ,pAscRefS=ascRefS,pRefZ=pRefZ,
                      map_=list(pRefZ=factor(NA)),
                      title="ascnormal2(z,p,pRefZ)",
                      verbose=TRUE);
 
 #--sel function: ascnormal2a(z,p,refS)----
-params = c(50,   #--size at sel = refS
-           100); #--size at which ascending limb reaches 1
-refS  = 0.5;      #--reference *selectivity*
+pAscZ1  = 100; #--size at which ascending limb reaches 1
+pZatRefS = 50;  #--size at sel = refS
+pRefS    = 0.5; #--reference *selectivity*
 #--set `f` to function in global environment to be tested
-res = compareSelFun1(ascnormal2a,z,
-                     params,refS,
-                     title="ascnormal2a(z,p,refS)");
+res = compareSelFun1("ascnormal2a",z,
+                     pAscZ1=pAscZ1,pZatRefS=pZatRefS,pRefS=pRefS,
+                     map_=list(pRefS=factor(NA)),
+                     title="ascnormal2a(z,p,refS)",
+                     verbose=TRUE);
 
 #--sel function: ascnormal2b(z,p,refS)----
-params = c(150,  #--size at which ascending limb reaches 1
-            75); #--delta from size at 1 to size at which selectivity=refS
-refS  = 0.5;     #--reference *selectivity*
+pAscZ1   = 150;  #--size at which ascending limb reaches 1
+pDZ2RefS =  75;  #--delta from size at 1 to size at which selectivity=refS
+pRefS    = 0.5;  #--reference *selectivity*
 #--set `f` to function in global environment to be tested
-res = compareSelFun1(ascnormal2b,z,
-                     params,refS,
-                     title="ascnormal2b(z,p,refS)");
+res = compareSelFun1("ascnormal2b",z,
+                     pAscZ1=pAscZ1,pDZ2RefS=pDZ2RefS,pRefS=pRefS,
+                     map_=list(pRefS=factor(NA)),
+                     title="ascnormal2b(z,p,refS)",
+                     verbose=TRUE);
 
 #--sel function: ascnormal3(z,p,refS)----
-params = c(50,   #--delta from max possible size (pRefZ[1]) at which ascending limb could reach 1
-           0.5); #--selectivity at size=pRefZ[2]
-pRefZ  = c(185,   #--max possible size at which the curve could reach 1 (e.g., max(z))
-           75);  #--reference *size* at which curve reaches params[2]
+pDZ1   = 50;   #--delta from max possible size (pRefZ[1]) at which ascending limb could reach 1
+pSatZ2 =  0.5; #--selectivity at size = pRefZ2
+pMxZ1  = 185;  #--max possible size at which the curve could reach 1 (e.g., max(z))
+pRefZ2 =  75;   #--reference *size* at which curve reaches pSatZ2
 #--set `f` to function in global environment to be tested
-ggplot(tibble::tibble(z=z,s=ascnormal3(z,params,pRefZ)),aes(x=z,y=s)) + geom_line();
-res = compareSelFun1(ascnormal3,z,
-                     params,pRefZ,
-                     title="ascnormal3(z,p,pRefZ)");
+res = compareSelFun1("ascnormal3",z,
+                     pDZ1=pDZ1,pSatZ2=pSatZ2,pMxZ1=pMxZ1,pRefZ2=pRefZ2,
+                     map_=list(pMxZ1=factor(NA),
+                               pRefZ2=factor(NA)),
+                     title="ascnormal3(z,p)",
+                     verbose=TRUE);
 
 #--sel function: dbllogistic5095(z,p,pRefZ)----
 params = c( 50,  #--ascending limb size at 50% selected
