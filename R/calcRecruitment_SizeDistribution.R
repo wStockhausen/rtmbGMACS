@@ -1,15 +1,89 @@
+#' #'
+#' #' @title Calculate a gamma-distributed size distribution at recruitment
+#' #' @description Function to calculate a gamma-distributed size distribution at recruitment.
+#' #' @param mnZ - mean size at recruitment
+#' #' @param wdZ - width (std. dev of gamma distribution)
+#' #' @param zMn - minimum size with non-zero probability of recruitment
+#' #' @param zMx - maximum size with non-zero probability of recruitment
+#' #' @param zBs - sizes at which to calculate vector
+#' #' @param dZ - size bin width to use to set
+#' #' @return object with same dimensions as `zBs`.
+#' #'
+#' #' @details
+#' #'
+#' #' The formula used is
+#' #'
+#' #' $$prZ(zBs < zMn or zBs > zMx)   = 0.0$$
+#' #' otherwise, for mnZ <=zBs<=zMx,
+#' #' $$prZmn = pgamma(mnZ-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
+#' #' $$prZmx = pgamma(zMx+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
+#' #' $$prZ(zBs) = pgamma(zBs+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ) -
+#' #'              pgamma(zBs-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
+#' #' $$prZ(zBs) = prZ(zBs \le zMx)/(prZMx-prZmn)$$
+#' #'
+#' #' @examples
+#' #' # example code
+#' #' zBs = seq(25,100,5);
+#' #' dZ  = z[2]-z[1];
+#' #' prZ = prRecZ1(35,20,55,25,80,zBs,dZ);
+#' #'
+#' #' @md
+#' #' @export
+#' #'
+#' prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
+#'   prZ = AD(array(0,dim=length(zBs)));
+#'   zBs = as.numeric(zBs);
+#'   # cat("dZ:",dZ,"\n");
+#'   # cat("ZBs\n");
+#'   # print(zBs);
+#'   # cat("mnZ\n");
+#'   # print(mnZ);
+#'   # cat("wdZ\n");
+#'   # print(wdZ);
+#'   # cat("zMn\n");
+#'   # print(zMn);
+#'   # cat("zMx\n");
+#'   # print(zMx);
+#'   #--calculate squarewave to "box" size range
+#'   sqw = squarewave(zMn,zMx,zBs,dZ)
+#'   # cat("sqw\n");
+#'   # print(sqw);
+#'   # cat("1-sqw\n");
+#'   # print(1-sqw);
+#'   shp = (mnZ^2)/(wdZ^2);
+#'   # cat("shp\n");
+#'   # print(shp);
+#'   scl = (wdZ^2)/mnZ;
+#'   # cat("scl\n");
+#'   # print(scl);
+#'   prZmn = pgamma(zMn-dZ/2,shape=shp,scale=scl);
+#'   prZmx = pgamma(zMx+dZ/2,shape=shp,scale=scl);
+#'   prZ   = pgamma(zBs+dZ/2,shape=shp,scale=scl) -
+#'             pgamma(zBs-dZ/2,shape=shp,scale=scl);
+#'   # cat("prZ before scaling\n")
+#'   # print(prZ);
+#'   # print(prZmx- prZmn);
+#'   #--normalize and apply squarewave window so sum  across zBs is 1 for each population category
+#'   prZ = sqw*prZ/(prZmx- prZmn);
+#'   # cat("prZ after scaling\n")
+#'   # print(prZ);
+#'   # cat("sum(prZ):",sum(prZ),"\n");
+#'   return(prZ);
+#' }
+
 #'
 #' @title Calculate a gamma-distributed size distribution at recruitment
 #' @description Function to calculate a gamma-distributed size distribution at recruitment.
 #' @param mnZ - mean size at recruitment
 #' @param wdZ - width (std. dev of gamma distribution)
-#' @param zMn - minimum size with non-zero probability of recruitment
-#' @param zMx - maximum size with non-zero probability of recruitment
+#' @param zMn - minimum size with non-zero probability of recruitment (see Details)
+#' @param zMx - maximum size with non-zero probability of recruitment (see Details)
 #' @param zBs - sizes at which to calculate vector
 #' @param dZ - size bin width to use to set
 #' @return object with same dimensions as `zBs`.
 #'
-#' @details
+#' @details In an (RTMB) AD context, zMn and zMx must be fixed parameters identified in
+#' the `map` list when ADMakeFun'ing an objective function that uses this function.
 #'
 #' The formula used is
 #'
@@ -19,10 +93,10 @@
 #' $$prZmx = pgamma(zMx+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
 #' $$prZ(zBs) = pgamma(zBs+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ) -
 #'              pgamma(zBs-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
-#' $$prZ(zBs) = prZ(zBs \le zMx)/(prZMx-prZmn)$$
+#' $$prZ(zBs) = prZ(zBs)/(prZMx-prZmn)$$
 #'
 #' @examples
-#' # example code
+#' # example R code
 #' zBs = seq(25,100,5);
 #' dZ  = z[2]-z[1];
 #' prZ = prRecZ1(35,20,55,25,80,zBs,dZ);
@@ -30,77 +104,32 @@
 #' @md
 #' @export
 #'
-# prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
-#   prZ = AD(array(0,dim=length(zBs)));
-#   zBs = as.numeric(zBs);
-#   print(zBs);
-#   print(mnZ);
-#   print(wdZ);
-#   print(zMn);
-#   print(zMx);
-#   dzMn = as.double(zMn);#--need to convert to double for comparison (doesn't seem to work)
-#   print(dzMn);
-#   dzMx = as.double(zMx);#--need to convert to double for comparison (doesn't seem to work)
-#   print(dzMx);
-#   iZBs = which((dzMn<=zBs)&(zBs <= dzMx));
-#   print(iZBs);
-#   print(zBs[iZBs])
-#   shp = (mnZ[iZBs]^2)/(wdZ[iZBs]^2);
-#   print(shp);
-#   scl = (wdZ[iZBs]^2)/mnZ[iZBs];
-#   print(scl);
-#   prZmn = pgamma(zMn[iZBs]-dZ/2,shape=shp,scale=scl);
-#   prZmx = pgamma(zMx[iZBs]+dZ/2,shape=shp,scale=scl);
-#   prZ[iZBs] = pgamma(zBs[iZBs]+dZ/2,shape=shp,scale=scl) -
-#               pgamma(zBs[iZBs]-dZ/2,shape=shp,scale=scl);
-#   print(prZ[iZBs]);
-#   prZ[iZBs] = prZ[iZBs]/(prZmx- prZmn);
-#   print(prZ[iZBs]);
-#   print(sum(prZ[iZBs]));
-#   # cat("\t",prZ,"\n");
-#   return(prZ);
-# }
 prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
   prZ = AD(array(0,dim=length(zBs)));
-  zBs = as.numeric(zBs);
-  # cat("dZ:",dZ,"\n");
-  # cat("ZBs\n");
-  # print(zBs);
-  # cat("mnZ\n");
-  # print(mnZ);
-  # cat("wdZ\n");
-  # print(wdZ);
-  # cat("zMn\n");
-  # print(zMn);
-  # cat("zMx\n");
-  # print(zMx);
-  #--calculate squarewave to "box" size range
-  sqw = squarewave(zMn,zMx,zBs,dZ)
-  # cat("sqw\n");
-  # print(sqw);
-  # cat("1-sqw\n");
-  # print(1-sqw);
+  if (RTMB:::ad_context()){
+    nzMn = RTMB:::getValues(zMn);#--zMn is fixed, so this should not be a problem
+    nzMx = RTMB:::getValues(zMx);#--zMx is fixed, so this should not be a problem
+  } else {
+    nzMn = zMn;
+    nzMx = zMx;
+  }
+  idx = which((nzMn<=zBs)&(zBs<=nzMx));
   shp = (mnZ^2)/(wdZ^2);
-  # cat("shp\n");
-  # print(shp);
   scl = (wdZ^2)/mnZ;
-  # cat("scl\n");
-  # print(scl);
   prZmn = pgamma(zMn-dZ/2,shape=shp,scale=scl);
   prZmx = pgamma(zMx+dZ/2,shape=shp,scale=scl);
-  prZ   = pgamma(zBs+dZ/2,shape=shp,scale=scl) -
-            pgamma(zBs-dZ/2,shape=shp,scale=scl);
+  prZ[idx] = pgamma(zBs[idx]+dZ/2,shape=shp,scale=scl) -
+                 pgamma(zBs[idx]-dZ/2,shape=shp,scale=scl);
   # cat("prZ before scaling\n")
   # print(prZ);
   # print(prZmx- prZmn);
-  #--normalize and apply squarewave window so sum  across zBs is 1 for each population category
-  prZ = sqw*prZ/(prZmx- prZmn);
+  #--normalize so sum  across zBs is 1 for each population category
+  prZ[idx] = prZ[idx]/(prZmx- prZmn);
   # cat("prZ after scaling\n")
   # print(prZ);
   # cat("sum(prZ):",sum(prZ),"\n");
   return(prZ);
 }
-
 
 #'
 #' @title Calculate the size distribution at recruitment for all model categories across time

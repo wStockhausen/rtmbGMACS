@@ -74,7 +74,7 @@ elem_div<-function(x,y){
 #' @param z0 - smallest size at which function is non-zero
 #' @param - zs - object with sizes at which to calculate the function
 #' @param dz - width to adjust zs by (typically, binwidth; default=1)
-#' @param shftfac - factor to scale dz by when adjusting location by so w(z==z0) = 1 (default=2)
+#' @param shftfac - factor to scale dz by when adjusting location by so w(z==z0) = 1 (default=20)
 #' @param sclfac - factor to scale dz by to obtain `plogis` scale
 #' @return object same size as zs
 #' @details Provides a differentiable function such that `w(z>=z0) = 1` and
@@ -104,7 +104,7 @@ squarewave_right<-function(z0,zs,dz=1,shftfac=2,sclfac=20){
 #' @param z0 - largest size at which function is non-zero
 #' @param - zs - object with sizes at which to calculate the function
 #' @param dz - width to adjust zs by (typically, binwidth; default=1)
-#' @param shftfac - factor to scale dz by when adjusting location by so w(z==z0) = 1 (default=2)
+#' @param shftfac - factor to scale dz by when adjusting location by so w(z==z0) = 1 (default=20)
 #' @param sclfac - factor to scale dz by to obtain `plogis` scale
 #' @return object same size as zs
 #' @details Provides a differentiable function such that `w(z<=z0) = 1` and
@@ -135,7 +135,7 @@ squarewave_left<-function(z0,zs,dz=1,shftfac=2,sclfac=20){
 #' @param zR - largest size at which function is non-zero
 #' @param -zs - object with sizes at which to calculate the function
 #' @param dz - width to adjust zs by (typically, binwidth; default=1)
-#' @param shftfac - factor to scale dz by when adjusting location by so w(z==z0) = 1 (default=2)
+#' @param shftfac - factor to scale dz by when adjusting location by so w(z==z0) = 1 (default=20)
 #' @param sclfac - factor to scale dz by to obtain `plogis` scale
 #' @return object same size as zs
 #' @details Provides a differentiable function such that `w(zL<=z<=zR) = 1` and

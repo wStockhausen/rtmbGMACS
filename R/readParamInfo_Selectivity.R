@@ -1,5 +1,5 @@
-#--read Recruitment_CategoryProportions info
-#' @title Read Recruitment_CategoryProportions info
+#--read Selectivity info
+#' @title Read Selectivity info
 #' @description Function to read recruitment category proportions info.
 #' @param conn - connection (or filename) to read from
 #' @param verbose - flag to print extra info
@@ -81,10 +81,10 @@
 #' @md
 #' @export
 #'
-readParamInfo_Recruitment_CategoryProportions<-function(conn,verbose=FALSE){
+readParamInfo_Selectivity<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
-          extractLines(start="RECRUITMENT_CATEGORY_PROPORTIONS",end="END");
+          extractLines(start="SELECTIVITY",end="END");
   out = readParamInfoSectionType1(lns,verbose);
   return(out);
 }
@@ -94,8 +94,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testRecruitment_CategoryProportions/inputSpecs_Recruitment_CategoryProportions.data-vertical.txt");
-  resV = readParamInfo_Recruitment_CategoryProportions(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-vertical.txt");
+  resV = readParamInfo_Selectivity(conn,TRUE);
   View(resV$dfr);
 }
 
@@ -104,8 +104,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testRecruitment_CategoryProportions/inputSpecs_Recruitment_CategoryProportions.data-horizontal.txt");
-  resH = readParamInfo_Recruitment_CategoryProportions(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-horizontal.txt");
+  resH = readParamInfo_Selectivity(conn,TRUE);
   View(resH$dfr);
 }
 
@@ -114,8 +114,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testRecruitment_CategoryProportions/inputSpecs_Recruitment_CategoryProportions.function.txt");
-  resF = readParamInfo_Recruitment_CategoryProportions(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.function.txt");
+  resF = readParamInfo_Selectivity(conn,TRUE);
   View(resF$dfr);
 }
 
