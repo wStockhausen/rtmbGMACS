@@ -119,17 +119,6 @@ res = compareSelFun1("ascnormal3",z,
                      title="ascnormal3(z,p)",
                      verbose=TRUE);
 
-#--sel function: dbllogistic5095(z,p,pRefZ)----
-params = c( 50,  #--ascending limb size at 50% selected
-           100,  #--ascending limb size at 95% selected
-           125,  #--descending limb size at 95% selected
-           150); #--descending limb size at 50% selected
-pRefZ  = 0;       #--reference *size*
-#--set `f` to function in global environment to be tested
-res = compareSelFun1(dbllogistic5095,z,
-                     params,pRefZ,
-                     title="dbllogistic5095(z,p,pRefZ)");
-
 #--sel function: dbllogistic(z,p,pRefZ)----
 params = c( 50,  #--ascending limb size at which selectivity = 0.5 (logit-scale mean)
            0.5,  #--ascending limb slope at 50% selected
@@ -137,21 +126,46 @@ params = c( 50,  #--ascending limb size at which selectivity = 0.5 (logit-scale 
            0.5); #--descending limb size at 50% selected
 pRefZ  = 0;       #--reference *size*
 #--set `f` to function in global environment to be tested
-res = compareSelFun1(dbllogistic,z,
-                     params,pRefZ,
-                     title="dbllogistic(z,p,pRefZ)");
+res = compareSelFun1("dbllogistic",z,
+                     pAscZ50=params[1],
+                     pAscSlp=params[2],
+                     pDscZ50=params[3],
+                     pDscSlp=params[4],
+                     pRefZ=pRefZ,
+                     map_=list(pRefZ=factor(NA)),
+                     title="dbllogistic(z,p,pRefZ)",
+                     verbose=TRUE);
+
+#--sel function: dbllogistic5095(z,p,pRefZ)----
+params = c( 50,  #--ascending limb size at 50% selected
+           100,  #--ascending limb size at 95% selected
+           125,  #--descending limb size at 95% selected
+           150); #--descending limb size at 50% selected
+pRefZ  = 0;       #--reference *size*
+#--set `f` to function in global environment to be tested
+res = compareSelFun1("dbllogistic5095",z,
+                     pAscZ50=params[1],
+                     pAscZ95=params[2],
+                     pDscZ95=params[3],
+                     pDscZ50=params[4],
+                     pRefZ=pRefZ,
+                     map_=list(pRefZ=factor(NA)),
+                     title="dbllogistic5095(z,p,pRefZ)",
+                     verbose=TRUE);
 
 #--sel function: dblnormal4(z,p,pRefZ)----
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
             40,   #--offset to size at which descending limb departs from 1
             35); #--width of descending limb
-pRefZ  = 0;       #--reference *size*
 #--set `f` to function in global environment to be tested
-ggplot(tibble::tibble(z=z,s=dblnormal4(z,params,pRefZ)),aes(x=z,y=s)) + geom_line();
-res = compareSelFun1(dblnormal4,z,
-                     params,pRefZ,
-                     title="dblnormal4(z,p,pRefZ)");
+res = compareSelFun1("dblnormal4",z,
+                     pAscZ1=params[1],
+                     pAscWd=params[2],
+                     pDscDZ=params[3],
+                     pDscWd=params[4],
+                     title="dblnormal4(z,p)",
+                     verbose=TRUE);
 
 #--sel function: dblnormal4a(z,p,pRefZ)----
 params = c(100,  #--size at which ascending limb reaches 1
@@ -160,46 +174,60 @@ params = c(100,  #--size at which ascending limb reaches 1
             35); #--width of descending limb
 pRefZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
 #--set `f` to function in global environment to be tested
-ggplot(tibble::tibble(z=z,s=dblnormal4a(z,params,pRefZ)),aes(x=z,y=s)) + geom_line();
-res = compareSelFun1(dblnormal4a,z,
-                     params,pRefZ,
+res = compareSelFun1("dblnormal4a",z,
+                     pAscZ1=params[1],
+                     pAscWd=params[2],
+                     pDscSclDZ=params[3],
+                     pDscWd=params[4],
+                     pRefZ=pRefZ,
+                     map_=list(pRefZ=factor(NA)),
                      title="dblnormal4a(z,p,pRefZ)");
 
 #--sel function: dblnormal6(z,p,pRefZ)----
 params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
            125,  #--size at which descending limb departs from 1
-            35,  #--width of descending limb
+            10,  #--width of descending limb
            0.1,  #--floor of ascending limb
            0.1); #--floor of descending limb
 pRefZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
 #--set `f` to function in global environment to be tested
-ggplot(tibble::tibble(z=z,s=dblnormal6(z,params,pRefZ)),aes(x=z,y=s)) + geom_line();
-res = compareSelFun1(dblnormal6,z,
-                     params,pRefZ,
-                     title="dblnormal6(z,p,pRefZ)");
+res = compareSelFun1("dblnormal6",z,
+                     pAscZ1=params[1],
+                     pAscWd=params[2],
+                     pDscZ1=params[3],
+                     pDscWd=params[4],
+                     pAscFlr=params[5],
+                     pDscFlr=params[6],
+                     title="dblnormal6(z,p,pRefZ)",
+                     verbose=TRUE);
 
 #--sel function: stackedLogistic1(z,p,pRefZ)----
-params = c(0.2,  #--omega: -weighting factor on the first curve
-            75,  #--mnZ1: size at inflection point for 1st logistic curve
+params = c(75,   #--mnZ1: size at inflection point for 1st logistic curve
             10,  #--sdZ1: sd for 1st logistic curve
            145,  #--mnZ2: size at inflection point for 2nd logistic curve
-            10); #--sdZ2: sd for 2nd logistic curve
-pRefZ  = 185;     #--not used
+            10,  #--sdZ2: sd for 2nd logistic curve
+           0.2   #--omega: -weighting factor on the first curve
+              );
 #--set `f` to function in global environment to be tested
-ggplot(tibble::tibble(z=z,s=stackedLogistic1(z,params,pRefZ)),aes(x=z,y=s)) + geom_line();
-res = compareSelFun1(stackedLogistic1,z,
-                     params,pRefZ,
-                     title="stackedLogistic1(z,p,pRefZ)");
+#ggplot(tibble::tibble(z=z,s=stackedLogistic1(z,params,pRefZ)),aes(x=z,y=s)) + geom_line();
+res = compareSelFun1("stackedLogistic1",z,
+                     pMnZ1=params[1],
+                     pSdZ1=params[2],
+                     pMnZ2=params[3],
+                     pSdZ2=params[4],
+                     pOmga=params[5],
+                     title="stackedLogistic1(z,p,pRefZ)",
+                     verbose=TRUE);
 
 #--sel function: selSpline(z,p,knots)----
 #--set up a spline curve
-params = c(100,  #--size at which ascending limb reaches 1
-            50,  #--width of ascending limb
-            0.5, #--scaled increment to params[1] at which descending limb departs from 1
-            35); #--width of descending limb
+ps = c(100,  #--size at which ascending limb reaches 1
+        50,  #--width of ascending limb
+        0.5, #--scaled increment to params[1] at which descending limb departs from 1
+        35); #--width of descending limb
 pRefZ  = 185;       #--reference *size*: max possible size (e.g., max(z))
-yz = dblnormal4(z,params,pRefZ);
+yz = dblnormal4a(z,ps[1],ps[2],ps[3],ps[4],pRefZ=pRefZ,dZ=z[2]-z[1]);
 yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
 nz = length(z);
 nk = 6; ik = seq(from=1,to=nz,length.out=nk);
@@ -216,9 +244,13 @@ dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
 ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr2,colour="blue") +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
-res = compareSelFun1(selSpline,z,
-                     params,knots,
-                     title="selSpline(z,params,knots)");
+fkts = factor(vector("numeric",length(knots))+NA);
+res = compareSelFun1("selSpline",z,
+                     params=lgtyk,
+                     knots=xk,
+                     map_=list(knots=fkts),
+                     title="selSpline(z,params,knots)",
+                     verbose=TRUE);
 
 #--sel function: selSplineClmpd(z,p,knots)----
 #--set up a spline curve "clamped" on both ends
@@ -226,7 +258,7 @@ params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
             0.5, #--scaled increment to params[1] at which descending limb departs from 1
             35); #--width of descending limb
-yz = dblnormal4(z,params,pRefZ);
+yz = dblnormal4a(z,ps[1],ps[2],ps[3],ps[4],pRefZ=pRefZ,dZ=z[2]-z[1]);
 yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
 nz = length(z);
 nk = 6; ik = seq(from=3,to=nz-3,length.out=nk);
@@ -243,9 +275,13 @@ dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
 ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr2,colour="blue") +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
-res = compareSelFun1(selSplineClmpd,z,
-                     params,knots,
-                     title="selSplineClmpd(z,params,knots)");
+fkts = factor(vector("numeric",length(knots))+NA);
+res = compareSelFun1("selSplineClmpd",z,
+                     params=lgtyk,
+                     knots=xk,
+                     map_=list(knots=fkts),
+                     title="selSplineClmpd(z,params,knots)",
+                     verbose=TRUE);
 
 #--sel function: selSplineClmpdLeft(z,p,knots)----
 #--set up a spline curve "clamped" on the left end
@@ -253,7 +289,7 @@ params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
             0.5, #--scaled increment to params[1] at which descending limb departs from 1
             35); #--width of descending limb
-yz = dblnormal4(z,params,pRefZ);
+yz = dblnormal4a(z,ps[1],ps[2],ps[3],ps[4],pRefZ=pRefZ,dZ=z[2]-z[1]);
 yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
 nz = length(z);
 nk = 6; ik = seq(from=3,to=nz-3,length.out=nk);
@@ -270,9 +306,13 @@ dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
 ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr2,colour="blue") +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
-res = compareSelFun1(selSplineClmpdLeft,z,
-                     params,knots,
-                     title="selSplineClmpdLeft(z,params,knots)");
+fkts = factor(vector("numeric",length(knots))+NA);
+res = compareSelFun1("selSplineClmpdLeft",z,
+                     params=lgtyk,
+                     knots=xk,
+                     map_=list(knots=fkts),
+                     title="selSplineClmpdLeft(z,params,knots)",
+                     verbose=TRUE);
 
 #--sel function: selSplineClmpdRight(z,p,knots)----
 #--set up a spline curve "clamped" on the right end
@@ -280,7 +320,7 @@ params = c(100,  #--size at which ascending limb reaches 1
             50,  #--width of ascending limb
             0.5, #--scaled increment to params[1] at which descending limb departs from 1
             35); #--width of descending limb
-yz = dblnormal4(z,params,pRefZ);
+yz = dblnormal4a(z,ps[1],ps[2],ps[3],ps[4],pRefZ=pRefZ,dZ=z[2]-z[1]);
 yz = ifelse(yz<0.0001,0.0001,ifelse(yz>0.9999,0.999,yz));
 nz = length(z);
 nk = 6; ik = seq(from=3,to=nz-3,length.out=nk);
@@ -297,9 +337,13 @@ dfr3 = tibble::tibble(z=xk,s=exp(lgtyk)/(1+exp(lgtyk)));
 ggplot(dfr1,aes(x=z,y=s)) + geom_line() + geom_point() +
   geom_point(data=dfr2,colour="blue") +
   geom_point(data=dfr3,colour="red",fill=NA,shape=23,size=6)
-res = compareSelFun1(selSplineClmpdRight,z,
-                     params,knots,
-                     title="selSplineClmpdRight(z,params,knots)");
+fkts = factor(vector("numeric",length(knots))+NA);
+res = compareSelFun1("selSplineClmpdRight",z,
+                     params=lgtyk,
+                     knots=xk,
+                     map_=list(knots=fkts),
+                     title="selSplineClmpdRight(z,params,knots)",
+                     verbose=TRUE);
 
 
 

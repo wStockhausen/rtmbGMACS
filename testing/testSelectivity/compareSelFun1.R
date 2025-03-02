@@ -61,8 +61,28 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
 
   if (fcn=="dbllogistic")##--dbllogistic----
     selr = dbllogistic(z,...,verbose=verbose);#--double logistic
-  if (fcn=="dbllogistic5095")
+  if (fcn=="dbllogistic5095")##--dbllogistic5095----
     selr = dbllogistic5095(z,...,verbose=verbose);#--alternative double logistic
+
+    if (fcn=="dblnormal4")##--dblnormal4----
+      selr = dblnormal4(z,...,dZ=dZ,verbose=verbose);#--4-parameter double normal
+    if (fcn=="dblnormal4a")##--dblnormal4a----
+      selr = dblnormal4a(z,...,dZ=dZ,verbose=verbose);#--4-parameter double normal
+    if (fcn=="dblnormal6")##--dblnormal6----
+      selr = dblnormal6(z,...,dZ=dZ,verbose=verbose);#--6-parameter double normal
+
+  if (fcn=="stackedLogistic1")##--stackedLogistic1----
+    selr = stackedLogistic1(z,...,verbose=verbose);
+
+  if (fcn=="selSpline")##--selSpline----
+    selr = selSpline(z,...,verbose=verbose);
+  if (fcn=="selSplineClmpd")##--selSplineClmpd----
+    selr = selSplineClmpd(z,...,verbose=verbose);
+  if (fcn=="selSplineClmpdRight")##--selSplineClmpdRight----
+    selr = selSplineClmpdRight(z,...,verbose=verbose);
+  if (fcn=="selSplineClmpdLeft")##--selSplineClmpdLeft----
+    selr = selSplineClmpdLeft(z,...,verbose=verbose);
+
   print(z);
   print(selr);
   p = ggplot(tibble::tibble(z=z,s=selr),aes(x=z,y=s)) +
@@ -116,8 +136,28 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
 
     if (fcn=="dbllogistic")##--dbllogistic----
       prd_sel = dbllogistic(z,pars$pAscZ50,pars$pAscSlp,pars$pDscZ50,pars$pDscSlp,pars$pRefZ,verbose=verbose);#--double logistic
-    if (fcn=="dbllogistic5095")
+    if (fcn=="dbllogistic5095")##--dbllogistic5095----
       prd_sel = dbllogistic5095(z,pars$pAscZ50,pars$pAscZ95,pars$pDscZ95,pars$pDscZ50,pars$pRefZ,verbose=verbose);#--alternative double logistic
+
+    if (fcn=="dblnormal4")##--dblnormal4----
+      prd_sel = dblnormal4(z,pars$pAscZ1,pars$pAscWd,pars$pDscDZ,pars$pDscWd,dZ,verbose=verbose);#--4-parameter double normal
+    if (fcn=="dblnormal4a")##--dblnormal4a----
+      prd_sel = dblnormal4a(z,pars$pAscZ1,pars$pAscWd,pars$pDscSclDZ,pars$pDscWd,pars$pRefZ,dZ,verbose=verbose);#--4-parameter double normal
+    if (fcn=="dblnormal6")##--dblnormal6----
+      prd_sel = dblnormal6(z,pars$pAscZ1,pars$pAscWd,pars$pDscZ1,pars$pDscWd,pars$pAscFlr,pars$pDscFlr,dZ,verbose=verbose);#--6-parameter double normal
+
+    if (fcn=="stackedLogistic1")##--stackedLogistic1----
+      prd_sel = stackedLogistic1(z,pars$pMnZ1,pars$pSdZ1,pars$pMnZ2,pars$pSdZ2,pars$pOmga,verbose=verbose);
+
+    if (fcn=="selSpline")##--selSpline----
+      prd_sel = selSpline(z,pars$params,pars$knots,verbose=verbose);
+    if (fcn=="selSplineClmpd")##--selSplineClmpd----
+      prd_sel = selSplineClmpd(z,pars$params,pars$knots,verbose=verbose);
+    if (fcn=="selSplineClmpdRight")##--selSplineClmpdRight----
+      prd_sel = selSplineClmpdRight(z,pars$params,pars$knots,verbose=verbose);
+    if (fcn=="selSplineClmpdLeft")##--selSplineClmpdLeft----
+      prd_sel = selSplineClmpdLeft(z,pars$params,pars$knots,verbose=verbose);
+
     REPORT(prd_sel);
 
     obs %~% dnorm(prd_sel,1); #--adds -log-likelihood to hidden variable `.nll`
@@ -125,6 +165,7 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
 
   #--create RTMB model----
   if (verbose) cat("MakeADFun'ing\n");
+  if (verbose) print(params);
   mdl = MakeADFun(objfn,parameters=params,map=map_);
   if (verbose) {
     print(mdl$par);
