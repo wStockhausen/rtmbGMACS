@@ -1,4 +1,4 @@
-#--script to test selectivity functions meant for RTMB
+#--script to test selectivity functions (SelectivityFunction1.R) meant for rtmbGMACS
 require(ggplot2);
 require(RTMB);
 dirPrj = rstudioapi::getActiveProject();
@@ -16,7 +16,8 @@ pCnst = c(1); #--constant value
 pRefZ = 100;  #--reference *size* (not used!)
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("const_sel",z,
-                     pCnst=pCnst,pRefZ=pRefZ,
+                     pCnst=pCnst,
+                     pRefZ=pRefZ,
                      map_=list(pRefZ=factor(NA)),
                      title="const_sel(z,pCnst,pRefZ)",
                      verbose=TRUE);
@@ -27,7 +28,9 @@ slp =   0.05; #--slope at z50
 pRefZ  = 125;  #--reference *size*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("asclogistic",z,
-                     pZ50=z50,pSlp=slp,pRefZ=pRefZ,
+                     pZ50=z50,
+                     pSlp=slp,
+                     pRefZ=pRefZ,
                      map_=list(pRefZ=factor(NA)),
                      title="asclogistic(z,z50,slp,pRefZ)",verbose=TRUE);
 
@@ -37,7 +40,9 @@ wdZ = 20; #--width (1/slope) at z50
 pRefZ  = 125;       #--reference *size*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("asclogistic1",z,
-                     pZ50=z50,pWdZ=wdZ,pRefZ=pRefZ,
+                     pZ50=z50,
+                     pWdZ=wdZ,
+                     pRefZ=pRefZ,
                      map_=list(pRefZ=factor(NA)),
                      title="asclogistic1(z,p,pRefZ)",
                      verbose=TRUE);
@@ -48,7 +53,9 @@ z95 = 125;  #--size at which selectivity = 0.95
 pRefZ  = 0; #--reference *size*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("asclogistic5095",z,
-                     pZ50=z50,pZ95=z95,pRefZ=pRefZ,
+                     pZ50=z50,
+                     pZ95=z95,
+                     pRefZ=pRefZ,
                      map_=list(pRefZ=factor(NA)),
                      title="asclogistic5095(z,p,pRefZ)",
                      verbose=TRUE);
@@ -59,7 +66,9 @@ z9550 = 75;  #--difference between sizes at 95\% and 50\%-selected
 pRefZ  = 0;       #--reference *size*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("asclogistic50D95",z,
-                     pZ50=z50,pZ9550=z9550,pRefZ=pRefZ,
+                     pZ50=z50,
+                     pZ9550=z9550,
+                     pRefZ=pRefZ,
                      map_=list(pRefZ=factor(NA)),
                      title="asclogistic50D95(z,p,pRefZ)",
                      verbose=TRUE);
@@ -69,7 +78,8 @@ ascMnZ = 100;  #--size at which ascending limb reaches 1
 ascWdZ =  25;  #--width of ascending limb
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal1",z,
-                     pAscZ1=ascMnZ,pAscWdZ=ascWdZ,
+                     pAscZ1=ascMnZ,
+                     pAscWdZ=ascWdZ,
                      title="ascnormal(z,p,pRefZ)",
                      verbose=TRUE);
 
@@ -79,7 +89,9 @@ ascRefS = 0.5;   #--selectivity at size = pRefZ
 pRefZ   = 50;    #--reference *size*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal2",z,
-                     pAscZ1=ascMnZ,pAscRefS=ascRefS,pRefZ=pRefZ,
+                     pAscZ1=ascMnZ,
+                     pAscRefS=ascRefS,
+                     pRefZ=pRefZ,
                      map_=list(pRefZ=factor(NA)),
                      title="ascnormal2(z,p,pRefZ)",
                      verbose=TRUE);
@@ -90,7 +102,9 @@ pZatRefS = 50;  #--size at sel = refS
 pRefS    = 0.5; #--reference *selectivity*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal2a",z,
-                     pAscZ1=pAscZ1,pZatRefS=pZatRefS,pRefS=pRefS,
+                     pAscZ1=pAscZ1,
+                     pZatRefS=pZatRefS,
+                     pRefS=pRefS,
                      map_=list(pRefS=factor(NA)),
                      title="ascnormal2a(z,p,refS)",
                      verbose=TRUE);
@@ -101,7 +115,9 @@ pDZ2RefS =  75;  #--delta from size at 1 to size at which selectivity=refS
 pRefS    = 0.5;  #--reference *selectivity*
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal2b",z,
-                     pAscZ1=pAscZ1,pDZ2RefS=pDZ2RefS,pRefS=pRefS,
+                     pAscZ1=pAscZ1,
+                     pDZ2RefS=pDZ2RefS,
+                     pRefS=pRefS,
                      map_=list(pRefS=factor(NA)),
                      title="ascnormal2b(z,p,refS)",
                      verbose=TRUE);
@@ -113,7 +129,10 @@ pMxZ1  = 185;  #--max possible size at which the curve could reach 1 (e.g., max(
 pRefZ2 =  75;   #--reference *size* at which curve reaches pSatZ2
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal3",z,
-                     pDZ1=pDZ1,pSatZ2=pSatZ2,pMxZ1=pMxZ1,pRefZ2=pRefZ2,
+                     pDZ1=pDZ1,
+                     pSatZ2=pSatZ2,
+                     pMxZ1=pMxZ1,
+                     pRefZ2=pRefZ2,
                      map_=list(pMxZ1=factor(NA),
                                pRefZ2=factor(NA)),
                      title="ascnormal3(z,p)",
