@@ -19,7 +19,7 @@ if (FALSE){
   source(file.path(dirPrj,"R","extractParamInfoFunctionType1.R"))
   source(file.path(dirPrj,"R","extractParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"R","SelectivityFunctions1.R"))
-  #source(file.path(dirPrj,"R","calcSelectivity.R"))
+  source(file.path(dirPrj,"R","calcSelectivity.R"))
 }
 
 ##--set up model dimensions----
@@ -28,7 +28,7 @@ source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
 
 type = "data-vertical";
 if (type=="data-vertical"){
-  ###--recruitment time series with data-vertical----
+  ###--selectivity functions with data-vertical type input----
   dims = setupModelDims(zcs=seq(25.5,80.5,5));
   conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-vertical.txt");
   res    = readParamInfo_Selectivity(conn,TRUE);
@@ -37,7 +37,7 @@ if (type=="data-vertical"){
   map = lstSel$map;
 } else
 if (type=="data-horizontal"){
-  ###--recruitment time series with data-horizontal----
+  ###--selectivity functions with data-horizontal type input----
   dims   = setupModelDims(zcs=seq(24.5,184.5,5));
   conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-horizontal.txt");
   res    = readParamInfo_Selectivity(conn,TRUE);
@@ -46,7 +46,7 @@ if (type=="data-horizontal"){
   map = lstSel$map;
 } else
 if (type=="function"){
-  ###--recruitment time series with function----
+  ###--selectivity functions with function type input----
   dims = setupModelDims(zcs=seq(25.5,84.5,5));
   conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.function.txt");
   res    = readParamInfo_Selectivity(conn,FALSE);
@@ -57,29 +57,36 @@ if (type=="function"){
   if (!is.null(lstSel$DPs$params)) params[["pSel_DPs"]]=lstSel$DPs$params;
   if (!is.null(lstSel$REs$params)) params[["pSel_REs"]]=lstSel$REs$params;
 }
-inputs          = list();
-inputs$dims     = dims;
+inputs        = list();
+inputs$dims   = dims;
 inputs$lstSel = lstSel;#--add lstSel to inputs
 
 #--test calcSelectivity function----
 source(file.path(dirPrj,"R/calcSelectivity.R"));
-lstSelVals = calcSelectivity(inputs$dims,inputs$lstSel,params,TRUE);
-dfrSel = tibble::as_tibble(arrSel[1:5,1,1]) |>
-         dplyr::mutate(row_id=dplyr::row_number()) |>
-         dplyr::mutate(y=as.numeric(dims$y[row_id]));
-ggplot(dfrSel, aes(x=y,y=value)) +
-  geom_line() + geom_hline(yintercept=0,linetype=3,colour="white") +
-  labs(x="year",y="selectivity functions") +
-  wtsPlots::getStdTheme()
+lstSelVals = calcSelectivity(inputs$dims,inputs$lstSel,params,FALSE);
+plotSelVals<-function(if_=1,iy_=1,is_=1){
+  dfrSel = dims$dmsC |>
+            dplyr::mutate(value=(lstSelVals[[if_]])[iy_,is_,],
+                          z=as.numeric(as.character(z)));
+  ggplot(dfrSel, aes(x=as.numeric(z),y=value)) +
+    geom_line() + geom_hline(yintercept=0,linetype=3,colour="white") +
+    facet_grid(m+p~x) +
+    labs(x="size",y="selectivity functions") +
+    wtsPlots::getStdTheme();
+}
+plotSelVals(1,1,1)
+plotSelVals(2,1,1)
+plotSelVals(1,4,1)
+plotSelVals(2,4,1)
 
-#--test arrSel in RTMB objective function----
+#--test selectivity functions in RTMB objective function----
 obj_fun<-function(params){
   #--get dimensions----
   dims = inputs$dims;
-  #--calculate recruitment time seriess----
+  #--calculate selectivity functions----
   info = inputs$lstSel;
   lstSel = calcSelectivity(dims,info,params,verbose);
-  REPORT(arrSel);
+  REPORT(lstSel);
 
   nll = -dnorm(1,params$dummy,1,log=TRUE);
   return(nll);
@@ -89,18 +96,9 @@ verbose=FALSE;
 params$dummy = 0;
 obj = MakeADFun(obj_fun,params,random=NULL,map=map,silent=FALSE);
 rep = obj$report();
-sum(rep$arrSel[1,1,]);#--should be = 1
-dfrSel = tibble::as_tibble(rep$arrSel[1,1,]) |>
-         dplyr::mutate(row_id=dplyr::row_number()) |>
-         dplyr::mutate(r=dims$dmsC$r[row_id],
-                       x=dims$dmsC$x[row_id],
-                       m=dims$dmsC$m[row_id],
-                       p=dims$dmsC$p[row_id],
-                       z=as.numeric(as.character(dims$dmsC$z[row_id])),
-                       mp=paste(m,p),
-                       rxmp_from=paste(r,x,m,p));
-ggplot(dfrSel, aes(x=z,y=value)) +
-  geom_line() + geom_hline(yintercept=0,linetype=3,colour="white") +
-  facet_grid(x~mp) +
-  labs(x="size (mm CW)",y="selectivity functions") +
-  wtsPlots::getStdTheme()
+lstSelVals = rep$lstSel;
+plotSelVals(1,1,1)
+plotSelVals(2,1,1)
+plotSelVals(1,4,1)
+plotSelVals(2,4,1)
+
