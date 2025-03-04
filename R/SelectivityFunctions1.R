@@ -17,7 +17,10 @@
 #'
 #' @export
 #'
-const_sel<-function(z, pCnst,pRefZ=0,verbose=FALSE){
+const_sel<-function(z,
+                    pCnst,
+                    pRefZ=0,
+                    verbose=FALSE){
     if (verbose) message("Starting const_sel(...)");
     s = pCnst + 0*z;
     if (verbose) message("Finished const_sel(...)");
@@ -46,7 +49,11 @@ const_sel<-function(z, pCnst,pRefZ=0,verbose=FALSE){
 #'
 #'@export
 #'
-asclogistic<-function(z,pZ50,pSlp,pRefZ,verbose=FALSE){
+asclogistic<-function(z,
+                      pZ50,
+                      pSlp,
+                      pRefZ,
+                      verbose=FALSE){
   if (verbose) {
     cat("Starting asclogistic\n");
     cat(pZ50,pSlp,pRefZ,"\n")
@@ -92,7 +99,11 @@ asclogistic<-function(z,pZ50,pSlp,pRefZ,verbose=FALSE){
 #'
 #'@export
 #'
-asclogistic1<-function(z,pZ50,pWdZ,pRefZ=0,verbose=FALSE){
+asclogistic1<-function(z,
+                       pZ50,
+                       pWdZ,
+                       pRefZ=0,
+                       verbose=FALSE){
   if (verbose) {
     cat("Starting asclogistic1\n");
     cat(pZ50,pWdZ,pRefZ,"\n")
@@ -107,7 +118,7 @@ asclogistic1<-function(z,pZ50,pWdZ,pRefZ=0,verbose=FALSE){
   }
   if (verbose) print(nrefZ);
   if (nrefZ>0){
-      scl<-(AD(1.0)+exp(-slp*(pRefZ-pZ50)/pWdZ));
+      scl<-(AD(1.0)+exp(-(pRefZ-pZ50)/pWdZ));
   } else if (nrefZ<0){
       scl<-AD(1.0)/res[length(res)];#--scale to max (last element)
   }
@@ -138,7 +149,11 @@ asclogistic1<-function(z,pZ50,pWdZ,pRefZ=0,verbose=FALSE){
 #'
 #'@export
 #'
-asclogistic5095<-function(z,pZ50,pZ95,pRefZ=0,verbose=FALSE){
+asclogistic5095<-function(z,
+                          pZ50,
+                          pZ95,
+                          pRefZ=0,
+                          verbose=FALSE){
   slope <- log(19.0)/(pZ95-pZ50);
   return(asclogistic(z,pZ50,slope,pRefZ,verbose));
 }
@@ -165,7 +180,10 @@ asclogistic5095<-function(z,pZ50,pZ95,pRefZ=0,verbose=FALSE){
 #'
 #'@export
 #'
-asclogistic50D95<-function(z,pZ50,pZ9550,pRefZ=0,verbose=FALSE){
+asclogistic50D95<-function(z,
+                           pZ50,
+                           pZ9550,
+                           pRefZ=0,verbose=FALSE){
     slope <- log(19.0)/pZ9550;
     return(asclogistic(z,pZ50,slope,pRefZ,verbose));
 }
@@ -199,7 +217,7 @@ dbllogistic<-function(z,
                       pDscSlp,
                       pRefZ=0,
                       verbose=FALSE){
-  if (verbose) cat('Starting dbllogistic(z,parmas)\n')
+  if (verbose) cat('Starting dbllogistic(z,params)\n')
 
   res <- (1.0/(1.0+exp(-pAscSlp*(z-pAscZ50))))*(1.0/(1.0+exp(pDscSlp*(z-pDscZ50))));
   scl <- AD(1);
@@ -275,7 +293,11 @@ dbllogistic5095<-function(z,
 #'
 #'@export
 #'
-ascnormal1<-function(z,pAscZ1,pAscWdZ,dZ,verbose=FALSE){
+ascnormal1<-function(z,
+                     pAscZ1,
+                     pAscWdZ,
+                     dZ,
+                     verbose=FALSE){
   if (verbose) message(paste("Starting ascnormal1(...)"));
   ascN = exp(-0.5*((z-pAscZ1)/pAscWdZ)^2);
   sqwL = squarewave_left(pAscZ1,z,dZ);
@@ -303,7 +325,12 @@ ascnormal1<-function(z,pAscZ1,pAscWdZ,dZ,verbose=FALSE){
 #'
 #' @export
 #'
-ascnormal2<-function(z,pAscZ1,pAscRefS,pRefZ,dZ,verbose=FALSE){
+ascnormal2<-function(z,
+                     pAscZ1,
+                     pAscRefS,
+                     pRefZ,
+                     dZ,
+                     verbose=FALSE){
   if (verbose) message("Starting SelFcns::ascnormal2(...)");
   ascN = exp(log(pAscRefS)*((z-pAscZ1)/(pRefZ-pAscZ1))^2);
   sqwL = squarewave_left(pAscZ1,z,dZ);
@@ -332,7 +359,11 @@ ascnormal2<-function(z,pAscZ1,pAscRefS,pRefZ,dZ,verbose=FALSE){
 #'
 #' @export
 #'
-ascnormal2a<-function(z,pAscZ1,pZatRefS,pRefS,dZ,verbose=FALSE){
+ascnormal2a<-function(z,
+                      pAscZ1,
+                      pZatRefS,
+                      pRefS,
+                      dZ,verbose=FALSE){
   if (verbose) message("Starting SelFcns::ascnormal2a(...)");
   ascN = exp(log(pRefS)*((z-pAscZ1)/(pZatRefS-pAscZ1))^2);
   sqwL = squarewave_left(pAscZ1,z,dZ);
@@ -356,7 +387,12 @@ ascnormal2a<-function(z,pAscZ1,pZatRefS,pRefS,dZ,verbose=FALSE){
 #' @return - vector of selectivity values
 #' @export
 #'
-ascnormal2b<-function(z,pAscZ1,pDZ2RefS,pRefS,dZ,verbose=FALSE){
+ascnormal2b<-function(z,
+                      pAscZ1,
+                      pDZ2RefS,
+                      pRefS,
+                      dZ,
+                      verbose=FALSE){
   if (verbose) message("Starting SelFcns::ascnormal2b(...)");
   ascN = exp(log(pRefS)*square((z-pAscZ1)/pDZ2RefS));
   sqwL = squarewave_left(pAscZ1,z,dZ);
@@ -381,7 +417,12 @@ ascnormal2b<-function(z,pAscZ1,pDZ2RefS,pRefS,dZ,verbose=FALSE){
 #' @return - vector of selectivity values
 #' @export
 #'
-ascnormal3<-function(z,pDZ1,pSatZ2,pMxZ1,pRefZ2,dZ,verbose=FALSE){
+ascnormal3<-function(z,
+                     pDZ1,
+                     pSatZ2,
+                     pMxZ1,
+                     pRefZ2,
+                     dZ,verbose=FALSE){
   if (verbose) message("Starting SelFcns::ascnormal3(...)");
   ascZ1   = pMxZ1-pDZ1;#--size at which ascending limb hits 1
   ascN = exp(log(pSatZ2)*square((z-ascZ1)/(pRefZ2-ascZ1)));
@@ -408,7 +449,13 @@ ascnormal3<-function(z,pDZ1,pSatZ2,pMxZ1,pRefZ2,dZ,verbose=FALSE){
 #' @return - vector of selectivity values
 #' @export
 #'
-dblnormal4<-function(z,pAscZ1,pAscWd,pDscDZ,pDscWd,dZ,verbose=FALSE){
+dblnormal4<-function(z,
+                     pAscZ1,
+                     pAscWd,
+                     pDscDZ,
+                     pDscWd,
+                     dZ,
+                     verbose=FALSE){
     if (verbose) message("Starting SelFcns::dblnormal4(...)");
     dscZ1 = pAscZ1+pDscDZ;
     ascN = exp(-0.5*square((z-pAscZ1)/pAscWd));
@@ -437,7 +484,13 @@ dblnormal4<-function(z,pAscZ1,pAscWd,pDscDZ,pDscWd,dZ,verbose=FALSE){
 #' @return - named vector of selectivity values
 #' @export
 #'
-dblnormal4a<-function(z,pAscZ1,pAscWd,pDscSclDZ,pDscWd,pRefZ,dZ,verbose=FALSE){
+dblnormal4a<-function(z,
+                      pAscZ1,
+                      pAscWd,
+                      pDscSclDZ,
+                      pDscWd,
+                      pRefZ,
+                      dZ,verbose=FALSE){
     if (verbose) message("Starting SelFcns::dblnormal4a(...)");
     dscZ1 = (pRefZ-pAscZ1)*pDscSclDZ + pAscZ1;
     ascN = exp(-0.5*square((z-pAscZ1)/pAscWd));
@@ -469,7 +522,15 @@ dblnormal4a<-function(z,pAscZ1,pAscWd,pDscSclDZ,pDscWd,pRefZ,dZ,verbose=FALSE){
 #' @return - vector of selectivity values
 #' @export
 #'
-dblnormal6<-function(z,pAscZ1,pAscWd,pDscZ1,pDscWd,pAscFlr,pDscFlr,dZ,verbose=FALSE){
+dblnormal6<-function(z,
+                     pAscZ1,
+                     pAscWd,
+                     pDscZ1,
+                     pDscWd,
+                     pAscFlr,
+                     pDscFlr,
+                     dZ,
+                     verbose=FALSE){
     if (verbose) message("Starting SelFcns::dblnormal6(...)");
     ascN = pAscFlr+(1.0-pAscFlr)*exp(-0.5*square((z-pAscZ1)/pAscWd));
     dscN = pDscFlr+(1.0-pDscFlr)*exp(-0.5*square((z-pDscZ1)/pDscWd));
@@ -491,13 +552,19 @@ dblnormal6<-function(z,pAscZ1,pAscWd,pDscZ1,pDscWd,pAscFlr,pDscFlr,dZ,verbose=FA
 #' @param pSdZ1 - sd for 1st logistic curve
 #' @param pMnZ2 -  size at inflection point for 2nd logistic curve
 #' @param pSdZ2 -sd for the 2nd logistic curve
-#' @param pOmg  - weighting factor on the first curve
+#' @param pOmga  - weighting factor on the first curve
 #' @param verbose   - flag to print debugging info
 #'
 #' @return - vector of selectivity values
 #' @export
 #'
-stackedLogistic1<-function(z,pMnZ1,pSdZ1,pMnZ2,pSdZ2,pOmga,verbose=FALSE){
+stackedLogistic1<-function(z,
+                           pMnZ1,
+                           pSdZ1,
+                           pMnZ2,
+                           pSdZ2,
+                           pOmga,
+                           verbose=FALSE){
     if (verbose) message("Starting SelFcns::stackedLogistic(...)");
     s1<-asclogistic1(z,pMnZ1,pSdZ1,pRefZ=AD(0),FALSE);
     s2<-asclogistic1(z,pMnZ2,pSdZ2,pRefZ=AD(0),FALSE);
@@ -506,7 +573,7 @@ stackedLogistic1<-function(z,pMnZ1,pSdZ1,pMnZ2,pSdZ2,pOmga,verbose=FALSE){
     return(s);
 }
 
-#--stackedLogistic2-----
+#--stackedLogistic2 (not yet implemented in calcSelectivity)-----
 #' @title Calculates a 6-parameter "stacked" logistic selectivity curve
 #' @description Function to calculate a 6-parameter "stacked" logistic selectivity curve.
 #'@details The parameter pRefZ is a constant and must be identified as such in the
@@ -542,7 +609,7 @@ stackedLogistic2<-function(z,params,pRefZ=0,verbose=FALSE){
     return(s);
 }
 
-#--selSpline-----
+#--selSpline (not yet implemented in calcSelectivity)-----
 #' @title Calculates a selectivity curve using a spline function
 #' @description Function to calculate a selectivity curve using a spline function.
 #' @details Calculates a selectivity curve using a spline function based on
@@ -576,7 +643,7 @@ selSpline<-function(z,params,knots,verbose=FALSE){
   return(s);
 }
 
-#--selSplineClmpd-----
+#--selSplineClmpd (not yet implemented in calcSelectivity)-----
 #' @title Calculates a selectivity curve using a clamped spline function
 #' @description Function to calculate a selectivity curve using a clamped spline function.
 #'@details The parameter pRefZ is a constant and must be identified as such in the
@@ -621,7 +688,7 @@ selSplineClmpd<-function(z,params,knots,verbose=FALSE){
   return(s);
 }
 
-#--selSplineClmpdRight-----
+#--selSplineClmpdRight (not yet implemented in calcSelectivity)-----
 #' @title Calculates a selectivity curve using a right-clamped spline function
 #' @description Function to calculate a selectivity curve using a right-clamped spline function.
 #'@details The parameter pRefZ is a constant and must be identified as such in the
@@ -666,7 +733,7 @@ selSplineClmpdRight<-function(z,params,knots,verbose=FALSE){
   return(s);
 }
 
-#--selSplineClmpdLeft-----
+#--selSplineClmpdLeft (not yet implemented in calcSelectivity)-----
 #' @title Calculates a selectivity curve using a left-clamped spline function
 #' @description Function to calculate a selectivity curve using a left-clamped spline function.
 #'@details The parameter pRefZ is a constant and must be identified as such in the

@@ -1,8 +1,8 @@
-#--extract Recruitment_CategoryProportions parameters
+#--extract selectivity functions parameters
 #'
-#' @title Extract Recruitment_CategoryProportions parameters from parameter info list
-#' @description Function to extract Recruitment_CategoryProportions parameters from parameter info list.
-#' @param lst - parameter info list from [readParamInfo_Recruitment_CategoryProportions()]
+#' @title Extract selectivity functions parameters from parameter info list
+#' @description Function to extract selectivity functions parameters from parameter info list.
+#' @param lst - parameter info list from [readParamInfo_Selectivity()]
 #' @param dims - `dims` list from `setupModelDims`
 #' @return a list (see details)
 #' @details The format of the returned list depends on the `option` specified in `lst`.
@@ -28,22 +28,22 @@
 #'
 #' @export
 #'
-extractParamInfo_Recruitment_CategoryProportions<-function(lst,
-                                            dims=NULL,
-                                            verbose=TRUE){
-  if (verbose) message("starting extractParameters_Recruitment_CategoryProportions.")
+extractParamInfo_Selectivity<-function(lst,
+                                       dims=NULL,
+                                       verbose=TRUE){
+  if (verbose) message("starting extractParameters_Selectivity.")
   if (FALSE){
     #--NOTE: run this section if you are just stepping through the code for development purposes
     ##--assumes you've created `dims` via `dims = setupModelDims();`
     verbose = TRUE;
-    lst = res;#--assumed output from `res  = readParamInfo_Recruitment_CategoryProportions(conn,verbose=FALSE);`
+    lst = res;#--assumed output from `res  = readParamInfo_Selectivity(conn,verbose=FALSE);`
   }
 
-  #--expand Recruitment_CategoryProportions parameter information----
+  #--expand Selectivity parameter information----
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Recruitment_CategoryProportions",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Selectivity",verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----
@@ -55,11 +55,11 @@ extractParamInfo_Recruitment_CategoryProportions<-function(lst,
       ###--values are character strings----
       ###--need to evaluate and transform `value`s to get (fixed) parameter values
       if (verbose){
-        message("in extractParamInfo_Recruitment_CategoryProportions: lst$dfr:")
+        message("in extractParamInfo_Selectivity: lst$dfr:")
         print(lst$dfr);
       }
       dfrp = lst$dfr |> dplyr::select(!c(z,value));
-      dfrv = lst$dfr |> dplyr::select(vaue);
+      dfrv = lst$dfr |> dplyr::select(value);
       lst1 = list();
       for (r in 1:nrow(lst$dfr)){
         lst1[[r]] =  dfrp[r,] |>
@@ -91,15 +91,15 @@ extractParamInfo_Recruitment_CategoryProportions<-function(lst,
     for (dmnm in dmnms){
       if (!(dmnm %in% names(dfr))) dfr[[dmnm]] = "all";
     }
-    dfr = dfr |> dplyr::select(pidx,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2);
+    dfr = dfr |> dplyr::select(pidx,fcn_idx,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2);#--note "fcn_idx" (= sel fcn id)
     ###--extract parameter values----
     if (verbose) {
-      message("in extractParameters_Recruitment_CategoryProportions: resolved 'data' option values");
+      message("in extractParameters_Selectivity: resolved 'data' option values");
       print(dfr);
     }
-    pPrM = dfr$IV;#--probability of undergoing a molt
-    map = list(pPrM=factor(NA+pPrM));#--NAs indicate fixed values
-    if (verbose) message("in extractParameters_Recruitment_CategoryProportions: expanding dataframe.")
+    pPrSel = dfr$IV;#--probability of undergoing a molt
+    map = list(pPrSel=factor(NA+pPrSel));#--NAs indicate fixed values
+    if (verbose) message("in extractParameters_Selectivity: expanding dataframe.")
     ###--create list of all dimension levels in `dims$dmsYSC` to convert "all"'s to pop levels----
     ####--listAlls is a list with all individual dimension levels, by individual dimension y, s, r, x, m, a, p, z
     lstAlls = NULL;
@@ -108,7 +108,7 @@ extractParamInfo_Recruitment_CategoryProportions<-function(lst,
               dplyr::select(!c(IV,LB,UB,phz,PriorType,Pr1,Pr2)) |>
               expandDataframe(lstAlls=lstAlls,verbose=verbose);#--expanded for "alls"
     out = list(option="data",
-               params=pPrM,
+               params=pPrSel,
                map=map,
                dfrIdx2Pars=dfr,
                dfrDims2Pars=dfrp);
@@ -126,14 +126,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Recruitment_CategoryProportions.R"))
+  source(file.path(dirPrj,"R/readParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Recruitment_CategoryProportions.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testRecruitment_CategoryProportions/inputSpecs_Recruitment_CategoryProportions.data-vertical.txt");
-  res1v  = readParamInfo_Recruitment_CategoryProportions(conn,verbose=FALSE);
-  res2v = extractParamInfo_Recruitment_CategoryProportions(res1v,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-vertical.txt");
+  res1v  = readParamInfo_Selectivity(conn,verbose=FALSE);
+  res2v = extractParamInfo_Selectivity(res1v,dims,verbose=FALSE);
 }
 
 if (FALSE){
@@ -143,14 +143,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Recruitment_CategoryProportions.R"))
+  source(file.path(dirPrj,"R/readParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Recruitment_CategoryProportions.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testRecruitment_CategoryProportions/inputSpecs_Recruitment_CategoryProportions.data-horizontal.txt");
-  res1h  = readParamInfo_Recruitment_CategoryProportions(conn,verbose=FALSE);
-  res2h = extractParamInfo_Recruitment_CategoryProportions(res1h,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-horizontal.txt");
+  res1h  = readParamInfo_Selectivity(conn,verbose=FALSE);
+  res2h = extractParamInfo_Selectivity(res1h,dims,verbose=FALSE);
 }
 
 if (FALSE){
@@ -160,12 +160,12 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Recruitment_CategoryProportions.R"))
+  source(file.path(dirPrj,"R/readParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Recruitment_CategoryProportions.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testRecruitment_CategoryProportions/inputSpecs_Recruitment_CategoryProportions.function.txt");
-  res1f  = readParamInfo_Recruitment_CategoryProportions(conn,verbose=FALSE);
-  res2f = extractParamInfo_Recruitment_CategoryProportions(res1f,dims,verbose=TRUE);
+  conn = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.function.txt");
+  res1f  = readParamInfo_Selectivity(conn,verbose=FALSE);
+  res2f = extractParamInfo_Selectivity(res1f,dims,verbose=TRUE);
 }

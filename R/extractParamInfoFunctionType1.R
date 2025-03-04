@@ -72,6 +72,9 @@ extractParamInfoFunctionType1<-function(lst,
     # dfrMP3s = dfrMP2s |> dplyr::arrange(param,pv_idx);
     ####--assign initial values to parameters vector (indexed by `pv_idx`)
     mpParams = dfrMP2s$IV;
+    mpFacs = factor(1:length(mpParams));#--create factor object for RTMB "map" object
+    mpFacs[dfrMP2s$phz<1] = NA;         #--set values for parameters w/ non-positive phases to NA to treat as constants
+    ##--TODO: add logic to mpFacs for "grouped" parameters----
     ####--expand by all dimensions and drop values info
     dfrMPs = dfrMP2s |> expandDataframe(lstAlls,verbose=verbose) |>
                dplyr::select(y,s,r,x,m,p,z,fcn_idx,grp_idx,param,mp_idx,mpr_idx);
@@ -100,6 +103,9 @@ extractParamInfoFunctionType1<-function(lst,
       # dfrOP3s = dfrOP2s |> dplyr::arrange(param,pv_idx);
       ####--assign initial values to parameters vector (indexed by `pv_idx`)
       opParams = dfrOP2s$IV;
+      opFacs = factor(1:length(opParams));#--create factor object for RTMB "map" object
+      opFacs[dfrOP2s$phz<1] = NA;         #--set values for parameters w/ non-positive phases to NA to treat as constants
+      ##--TODO: add logic to opFacs for "grouped" parameters----
       ####--expand by all dimensions and drop values info
       dfrOPs  = dfrOP2s |> expandDataframe(lstAlls,verbose=verbose) |>
                   dplyr::select(y,s,r,x,m,p,z,param,mp_idx,op_idx,opr_idx,op_type);
@@ -145,6 +151,9 @@ extractParamInfoFunctionType1<-function(lst,
       dfrDP4s = dfrDP4s |> dplyr::mutate(dpr_idx=dplyr::row_number(),.after=in_dv_idx);
       ####--assign initial values to parameters across vectors (dfrDP4s$dev_par_idx identifies index into vector)
       dpParams = dfrDP4s$IV;
+      dpFacs   = factor(1:length(dpParams));#--create factor object for RTMB "map" object
+      dpFacs[dfrDP2s$phz<1] = NA;           #--set values for parameters w/ non-positive phases to NA to treat as constants
+      ##--TODO: add logic to dpFacs for "grouped" parameters----
       dfrDPs  = dfrDP4s |> expandDataframe(lstAlls,verbose=verbose) |>
                   dplyr::select(y,s,r,x,m,p,z,param,mp_idx,dv_idx,in_dv_idx,dpr_idx,dv_type);
       ####--get reference levels information
@@ -192,6 +201,9 @@ extractParamInfoFunctionType1<-function(lst,
       dfrRE4s = dfrRE4s |> dplyr::mutate(rpr_idx=dplyr::row_number(),.after=in_rv_idx);
       ####--assign initial values to parameters across vectors
       reParams = dfrRE4s$IV;
+      reFacs   = factor(1:length(reParams));#--create factor object for RTMB "map" object
+      reFacs[dfrDP2s$phz<1] = NA;           #--set values for parameters w/ non-positive phases to NA to treat as constants
+      ##--TODO: add logic to reFacs for "grouped" parameters----
       dfrREs  = dfrRE4s |> expandDataframe(lstAlls,verbose=verbose) |>
                   dplyr::select(y,s,r,x,m,p,z,param,mp_idx,rv_idx,in_rv_idx,rpr_idx,rv_type);
       ####--get reference levels information
@@ -249,10 +261,12 @@ extractParamInfoFunctionType1<-function(lst,
                     dplyr::select(!c(y, s, r, x, m, p, z)) |>
                     dplyr::distinct();
 
+    ###--pivot to "horizontal" combinations (i.e., HCs)
     dfrHCs = dfrCmbs  |>
                dplyr::select(y,s,r,x,m,p,z,fcn,fcn_idx,grp_idx,param,idx) |>
                tidyr::pivot_wider(names_from=param,values_from=idx);
 
+    ###--determine "unique" horizontal combinations
     dfrUHCs = dfrHCs |>
                 dplyr::select(!c(y,s,r,x,m,p,z)) |>
                 dplyr::distinct();
@@ -273,21 +287,25 @@ extractParamInfoFunctionType1<-function(lst,
                MPs=list(dfrMP1s=get0("dfrMP1s",ifnotfound=NULL),
                         dfrMP2s=get0("dfrMP2s",ifnotfound=NULL),
                         dfrMPs =get0("dfrMPs", ifnotfound=NULL),
-                        params=get0("mpParams",ifnotfound=NULL)),
+                        params=get0("mpParams",ifnotfound=NULL),
+                        mpFacs=get0("mpFacs",  ifnotfound=NULL)),
                OPs=list(dfrOP1s=get0("dfrOP1s",ifnotfound=NULL),
                         dfrOP2s=get0("dfrOP2s",ifnotfound=NULL),
                         dfrOPs =get0("dfrOPs", ifnotfound=NULL),
-                        params=get0("opParams",ifnotfound=NULL)),
+                        params=get0("opParams",ifnotfound=NULL),
+                        opFacs=get0("opFacs",  ifnotfound=NULL)),
                DPs=list(dfrDP1s=get0("dfrDP1s",ifnotfound=NULL),
                         dfrDP2s=get0("dfrDP2s",ifnotfound=NULL),
                         dfrDP4s=get0("dfrDP4s",ifnotfound=NULL),
                         dfrDPs =get0("dfrDPs", ifnotfound=NULL),
-                        params=get0("dpParams",ifnotfound=NULL)),
+                        params=get0("dpParams",ifnotfound=NULL),
+                        dpFacs=get0("dpFacs",  ifnotfound=NULL)),
                REs=list(dfrRE1s=get0("dfrRE1s",ifnotfound=NULL),
                         dfrRE2s=get0("dfrRE2s",ifnotfound=NULL),
                         dfrRE4s=get0("dfrRE4s",ifnotfound=NULL),
                         dfrREs =get0("dfrREs", ifnotfound=NULL),
-                        params=get0("reParams",ifnotfound=NULL)),
+                        params=get0("reParams",ifnotfound=NULL),
+                        reFacs=get0("reFacs",  ifnotfound=NULL)),
                PECs=list(dfrIdxs=lst$PECs$dfr,
                          dfrRefLvls=dfrRefLvlsPECs,
                          dfrDims2Idxs=dfrPECs,

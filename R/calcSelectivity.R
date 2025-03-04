@@ -1,153 +1,60 @@
 #'
-#' @title Calculate a gamma-distrbuted size istribution at recruitment
-#' @description Function to calculate a gamma-distrbuted size istribution at recruitment.
-#' @param mnZ - mean size at recruitment
-#' @param wdZ - width (std. dev of gamma distribution)
-#' @param zMn - minimum size with non-zero probability of recruitment
-#' @param zMx - maximum size with non-zero probability of recruitment
-#' @param zBs - sizes at which to calculate vector
-#' @param dZ - size bin width to use to set
-#' @return object with same dimensions as `zBs`.
-#'
-#' @details
-#'
-#' The formula used is
-#'
-#' $$prZ(zBs < zMn or zBs > zMx)   = 0.0$$
-#' otherwise, for mnZ <=zBs<=zMx,
-#' $$prZmn = pgamma(mnZ-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
-#' $$prZmx = pgamma(zMx+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
-#' $$prZ(zBs) = pgamma(zBs+dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ) -
-#'              pgamma(zBs-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
-#' $$prZ(zBs) = prZ(zBs \le zMx)/(prZMx-prZmn)$$
-#'
-#' @examples
-#' # example code
-#' zBs = seq(25,100,5);
-#' dZ  = z[2]-z[1];
-#' prZ = prRecZ1(35,20,55,25,80,zBs,dZ);
-#'
-#' @md
-#' @export
-#'
-# prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
-#   prZ = AD(array(0,dim=length(zBs)));
-#   zBs = as.numeric(zBs);
-#   print(zBs);
-#   print(mnZ);
-#   print(wdZ);
-#   print(zMn);
-#   print(zMx);
-#   dzMn = as.double(zMn);#--need to convert to double for comparison (doesn't seem to work)
-#   print(dzMn);
-#   dzMx = as.double(zMx);#--need to convert to double for comparison (doesn't seem to work)
-#   print(dzMx);
-#   iZBs = which((dzMn<=zBs)&(zBs <= dzMx));
-#   print(iZBs);
-#   print(zBs[iZBs])
-#   shp = (mnZ[iZBs]^2)/(wdZ[iZBs]^2);
-#   print(shp);
-#   scl = (wdZ[iZBs]^2)/mnZ[iZBs];
-#   print(scl);
-#   prZmn = pgamma(zMn[iZBs]-dZ/2,shape=shp,scale=scl);
-#   prZmx = pgamma(zMx[iZBs]+dZ/2,shape=shp,scale=scl);
-#   prZ[iZBs] = pgamma(zBs[iZBs]+dZ/2,shape=shp,scale=scl) -
-#               pgamma(zBs[iZBs]-dZ/2,shape=shp,scale=scl);
-#   print(prZ[iZBs]);
-#   prZ[iZBs] = prZ[iZBs]/(prZmx- prZmn);
-#   print(prZ[iZBs]);
-#   print(sum(prZ[iZBs]));
-#   # cat("\t",prZ,"\n");
-#   return(prZ);
-# }
-prRecZ1<-function(mnZ,wdZ,zMn,zMx,zBs,dZ){
-  prZ = AD(array(0,dim=length(zBs)));
-  zBs = as.numeric(zBs);
-  # cat("dZ:",dZ,"\n");
-  # cat("ZBs\n");
-  # print(zBs);
-  # cat("mnZ\n");
-  # print(mnZ);
-  # cat("wdZ\n");
-  # print(wdZ);
-  # cat("zMn\n");
-  # print(zMn);
-  # cat("zMx\n");
-  # print(zMx);
-  #--calculate squarewave to "box" size range
-  sqw = squarewave(zMn,zMx,zBs,dZ)
-  # cat("sqw\n");
-  # print(sqw);
-  # cat("1-sqw\n");
-  # print(1-sqw);
-  shp = (mnZ^2)/(wdZ^2);
-  # cat("shp\n");
-  # print(shp);
-  scl = (wdZ^2)/mnZ;
-  # cat("scl\n");
-  # print(scl);
-  prZmn = pgamma(zMn-dZ/2,shape=shp,scale=scl);
-  prZmx = pgamma(zMx+dZ/2,shape=shp,scale=scl);
-  prZ   = pgamma(zBs+dZ/2,shape=shp,scale=scl) -
-            pgamma(zBs-dZ/2,shape=shp,scale=scl);
-  # cat("prZ before scaling\n")
-  # print(prZ);
-  # print(prZmx- prZmn);
-  #--normalize and apply squarewave window so sum  across zBs is 1 for each population category
-  prZ = sqw*prZ/(prZmx- prZmn);
-  # cat("prZ after scaling\n")
-  # print(prZ);
-  # cat("sum(prZ):",sum(prZ),"\n");
-  return(prZ);
-}
-
-
-#'
-#' @title Calculate the category proportions at recruitment for all model categories across time
+#' @title Calculate selectivity functions for all model categories across time
 #' @description
-#' Function to calculate the category proportions at recruitment for all model categories across time.
+#' Function to calculate the selectivity functions for all model categories across time.
 #' @param dims - dimensions list
-#' @param info - info list (output list from [extractParamInfo_Recruitment_CategoryProportions()])
-#' @param params - RTMB parameters list with elements specific to the probability of undergoing a molt
+#' @param info - info list (output list from [extractParamInfo_Selectivity()])
+#' @param params - RTMB parameters list with elements specific to selectivity
 #' @param verbose - flag to print diagnostic info
 #'
-#' @return TODO: might want to return a list of a list of matrices
+#' @return A nested list of selectivity function values
 #'
-#' @details Combination of the category proportions at recruitment vector, prZ, with other aspects of
-#' recruitment yields recruitment by year, season, population category (excluding size) and size.
+#' @details If `f_`, `y_`, and `s_` are the selectivity function, year, and season of interest,
+#' then the indices into the population vector and associated selectivity values are
+#' given by `ic_` and `selVals`
+#' ic_ = lst[[f_]][[y_]][[s_]]$ic_;
+#' selVals = lst[[f_]][[y_]][[s_]]$selVals;
 #'
 #' @import dplyr
 #'
 #' @md
 #' @export
 #'
-calcRecruitment_CategoryProportions<-function(dims,info,params,verbose=FALSE,loopIC_=FALSE){
-  if (verbose) cat("Starting calcRecruitment_CategoryProportions.\n")
-  prZ = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+calcSelectivity<-function(dims,info,params,verbose=FALSE){
+  if (verbose) cat("Starting calcSelectivity.\n")
+  lstSelVals<-list();
   if (info$option=="data"){
     ##--"data" option----
-    p = params$pRecCPs_FPs;#--vector of recruitment category proportions values
-    #--need to expand to p to all years, seasons, and population categories
-    for (iy_ in 1:dims$nYs){
-      #--iy_ = 1;
-      y_ = dims$y[iy_];
-      for (is_ in 1:dims$nSs){
-        #--is_= 1;
-        s_ = dims$s[is_];
-        # for (ic_ in 1:dims$nCs){
-        #   #--ic_ = 1;
-        #   dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_))[ic_,];
-        #   dfrIdxs = dfrDims |> dplyr::left_join(info$dfrDims2Pars);
-        #   pidx = dfrIdxs$pidx[1];
-        #   M[iy_,is_,ic_] = p[pidx];
-        # }
-        dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_));
-        dfrIdxs = dfrDims |> dplyr::left_join(info$dfrDims2Pars,
-                                              by = dplyr::join_by(y, s, r, x, m, p, z));
-        pidx = dfrIdxs$pidx;
-        prZ[iy_,is_,] = p[pidx];
-      }#--is_ loop
-    }#--iy_ loop
+    p = params$pSel_FPs;#--vector of selectivity values
+    #--need to expand to p to all sel functions, years, and seasons
+    dfrUniqSels = info$dfrIdx2Pars |> dplyr::distinct(fcn_idx);
+    for (if_ in dfrUniqSels$fcn_idx){
+      #--if_ = dfrUniqSels$fcn_idx[1];
+      dfrDims2Pars = info$dfrDims2Pars |> dplyr::filter(fcn_idx==if_);
+      lstYs = list();
+      for (iy_ in 1:dims$nYs){
+        #--iy_ = 1;
+        y_ = dims$y[iy_];
+        lstSs = list();
+        for (is_ in 1:dims$nSs){
+          #--is_= 1;
+          s_ = dims$s[is_];
+          dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |>
+                       dplyr::mutate(ic_=dplyr::row_number());
+          dfrIdxs = dfrDims |> dplyr::left_join(dfrDims2Pars,
+                                                by = dplyr::join_by(y, s, r, x, m, p, z));
+          if (nrow(dfrIdxs)>0){
+            lstSs[[names(s_)]] = list(ic_ = dfrIdxs$ic_,
+                                      sparse_idx=dfrIdxs$sparse_idx,
+                                      selVals = p[dfrIdxs$pidx]);
+          }
+        }#--is_ loop
+        lstYs[[names(y_)]] = lstSs;
+        rm(lstSs);
+      }#--iy_ loop
+      lstSelVals[[as.character(if_)]] = lstYs;
+      rm(lstYs);
+    }#--if_ loop
   } else if (tolower(info$option)=="function"){
     ##--"function" option----
     ###--calculate inputs to functions----
@@ -161,19 +68,19 @@ calcRecruitment_CategoryProportions<-function(dims,info,params,verbose=FALSE,loo
       dfrUCr = dfrUCs[rw,];
       p = AD(0);
       if (!is.na(dfrUCr$mpr_idx[1])) {
-        p = p + params$pRecZ_MPs[dfrUCr$mpr_idx[1]];
+        p = p + params$pSel_MPs[dfrUCr$mpr_idx[1]];
       }
       if (any(names(dfrUCr)=="opr_idx"))
         if(!is.na(dfrUCr$opr_idx[1])) {
           if (dfrUCr$op_type=="additive") {
-            p = p + params$pRecZ_OPs[dfrUCr$opr_idx[1]];
-          } else {p = p * params$pRecZ_OPs[dfrUCr$opr_idx[1]];}
+            p = p + params$pSel_OPs[dfrUCr$opr_idx[1]];
+          } else {p = p * params$pSel_OPs[dfrUCr$opr_idx[1]];}
         }
       if (any(names(dfrUCr)=="dpr_idx"))
         if (!is.na(dfrUCr$dpr_idx[1])) {
           if (dfrUCr$dv_type=="additive") {
-            p = p + params$pRecZ_DPs[dfrUCr$dpr_idx[1]];
-          } else {p = p * params$pRecZ_DPs[dfrUCr$dpr_idx[1]];}
+            p = p + params$pSel_DPs[dfrUCr$dpr_idx[1]];
+          } else {p = p * params$pSel_DPs[dfrUCr$dpr_idx[1]];}
         }
       vals[rw] = p;
     }
@@ -185,55 +92,189 @@ calcRecruitment_CategoryProportions<-function(dims,info,params,verbose=FALSE,loo
     idxVals = 1:length(vals);
     names(idxVals) = dfrUCs$idx;
 
-    ###--calculate probability of molting vector----
-    ####--TODO: reorganize to speed up?? (see TMB email list discussions on assignment)
-    ####--I think ic_ loop can be vectorized
+    ###--create individual selectivity functions----
     dZ = unname(dims$zb[2]-dims$zb[1]);#--bin size
-    for (iy_ in 1:dims$nYs){
-      #--iy_ = 1;
-      y_ = dims$y[iy_];
-      for (is_ in 1:dims$nSs){
-        #--is_= 1;
-        s_ = dims$s[is_];
-        ####--two possible approaches to calculating M across pop categories
-        ####--is one faster?
-        if (loopIC_){
-          dmsC = dims$dmsYSC |> dplyr::filter(y==y_,s==s_);
-          for (ic_ in 1:dims$nCs){
-            #--ic_ = 1;
-            dfrDims = dmsC[ic_,];
-            dfrIdxs = dfrDims |> dplyr::inner_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z));
-            if (nrow(dfrIdxs)>0){
-              if (tolower(dfrIdxs$fcn)==tolower("prRecZ1")){
-                prZ[iy_,is_,ic_] = prRecZ1(vals[idxVals[dfrIdxs$pMnZ]],
-                                           vals[idxVals[dfrIdxs$pWdZ]],
-                                           vals[idxVals[dfrIdxs$pZmn]],
-                                           vals[idxVals[dfrIdxs$pZmx]],
-                                           dfrIdxs$z,
-                                           dZ);
-              }
-            }
-          }#--ic_ loop
-        }
-        if (!loopIC_){
-          dfrDims  = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |> dplyr::mutate(ic_=dplyr::row_number());
-          dfrIdxsA = dfrDims |> dplyr::inner_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z));
-          dfrIdxs  = dfrIdxsA |> dplyr::filter(tolower(fcn)==tolower("prRecZ1"));
-          if (nrow(dfrIdxs) > 0){
-            ic_ = dfrIdxs$ic_;
-            prZ[iy_,is_,ic_] = prRecZ1(vals[idxVals[dfrIdxs$pMnZ]],
-                                       vals[idxVals[dfrIdxs$pWdZ]],
-                                       vals[idxVals[dfrIdxs$pZmn]],
-                                       vals[idxVals[dfrIdxs$pZmx]],
-                                       dfrIdxs$z,
-                                       dZ);
+    lstFcns = list();
+    for (rw in 1:nrow(info$dfrUHCs)){
+      #--for testing: rw = 1;
+      rwUHCs = info$dfrUHCs[rw,];
+      rwsUCs = rwUHCs |> dplyr::inner_join(dfrUCs);
+      if (rwUHCs$fcn=="const_sel"){####--const_sel----
+        fcn<-function(z){const_sel(z,
+                                  vals[idxVals[rwUHCs$pCnst]],
+                                  vals[idxVals[rwUHCs$pRefZ]],
+                                  verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="asclogistic"){####--asclogistic----
+        fcn<-function(z){asclogistic( z,
+                                      vals[idxVals[rwUHCs$pZ50]],
+                                      vals[idxVals[rwUHCs$pSlp]],
+                                      vals[idxVals[rwUHCs$pRefZ]],
+                                      verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="asclogistic1"){####--asclogistic1----
+        fcn<-function(z){asclogistic1(z,
+                                      vals[idxVals[rwUHCs$pZ50]],
+                                      vals[idxVals[rwUHCs$pWdZ]],
+                                      vals[idxVals[rwUHCs$pRefZ]],
+                                      verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="asclogistic5095"){####--asclogistic5095----
+        fcn<-function(z){ asclogistic5095(z,
+                                          vals[idxVals[rwUHCs$pZ50]],
+                                          vals[idxVals[rwUHCs$pZ95]],
+                                          vals[idxVals[rwUHCs$pRefZ]],
+                                          verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="asclogistic50D95"){####--asclogistic50D95----
+        fcn<-function(z){asclogistic50D95(z,
+                                          vals[idxVals[rwUHCs$pZ50]],
+                                          vals[idxVals[rwUHCs$pZ9550]],
+                                          vals[idxVals[rwUHCs$pRefZ]],
+                                          verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="dbllogistic"){####--dbllogistic----
+        fcn<-function(z){dbllogistic(z,
+                                      vals[idxVals[rwUHCs$pAscZ50]],
+                                      vals[idxVals[rwUHCs$pAscSlp]],
+                                      vals[idxVals[rwUHCs$pDscZ50]],
+                                      vals[idxVals[rwUHCs$pDscSlp]],
+                                      vals[idxVals[rwUHCs$pRefZ]],
+                                      verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="dbllogistic5095"){####--dbllogistic5095----
+        fcn<-function(z){ dbllogistic5095(z,
+                                          vals[idxVals[rwUHCs$pAscZ50]],
+                                          vals[idxVals[rwUHCs$pAscZ95]],
+                                          vals[idxVals[rwUHCs$pDscZ95]],
+                                          vals[idxVals[rwUHCs$pDscZ50]],
+                                          vals[idxVals[rwUHCs$pRefZ]],
+                                          verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="ascnormal1"){####--ascnormal1----
+        fcn<-function(z){ ascnormal1(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pAscWdZ]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="ascnormal2"){####--ascnormal2----
+        fcn<-function(z){ ascnormal2(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pAscRefS]],
+                                    vals[idxVals[rwUHCs$pRefZ]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="ascnormal2a"){####--ascnormal2a----
+        fcn<-function(z){ ascnormal2a(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pZatRefS]],
+                                    vals[idxVals[rwUHCs$pRefs]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="ascnormal2b"){####--ascnormal2b----
+        fcn<-function(z){ ascnormal2b(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pDZ2RefS]],
+                                    vals[idxVals[rwUHCs$pRefS]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="ascnormal3"){####--ascnormal3----
+        fcn<-function(z){ ascnormal3(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pSatZ2]],
+                                    vals[idxVals[rwUHCs$pMxZ1]],
+                                    vals[idxVals[rwUHCs$pRefZ2]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="dblnormal4"){####--dblnormal4----
+        fcn<-function(z){ dblnormal4(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pAscWd]],
+                                    vals[idxVals[rwUHCs$pDscZ1]],
+                                    vals[idxVals[rwUHCs$pDscWd]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="dblnormal4"){####--dblnormal4----
+        fcn<-function(z){ dblnormal4(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pAscWd]],
+                                    vals[idxVals[rwUHCs$pDscZ1]],
+                                    vals[idxVals[rwUHCs$pDscWd]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="dblnormal4a"){####--dblnormal4a----
+        fcn<-function(z){ dblnormal4a(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pAscWd]],
+                                    vals[idxVals[rwUHCs$pDscSclDZ]],
+                                    vals[idxVals[rwUHCs$pDscWd]],
+                                    vals[idxVals[rwUHCs$pRefZ]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="dblnormal6"){####--dblnormal6----
+        fcn<-function(z){ dblnormal6(z,
+                                    vals[idxVals[rwUHCs$pAscZ1]],
+                                    vals[idxVals[rwUHCs$pAscWd]],
+                                    vals[idxVals[rwUHCs$pDscZ1]],
+                                    vals[idxVals[rwUHCs$pDscWd]],
+                                    vals[idxVals[rwUHCs$pAscFlr]],
+                                    vals[idxVals[rwUHCs$pDscFlr]],
+                                    dZ=dZ,
+                                    verbose=verbose)};
+      } else
+      if (rwUHCs$fcn=="stackedLogistic1"){####--stackedLogistic1----
+        fcn<-function(z){stackedLogistic1(z,
+                                          vals[idxVals[rwUHCs$pMnZ1]],
+                                          vals[idxVals[rwUHCs$pSdZ1]],
+                                          vals[idxVals[rwUHCs$pMnZ2]],
+                                          vals[idxVals[rwUHCs$pSdZ2]],
+                                          vals[idxVals[rwUHCs$pOmga]],
+                                          verbose=verbose)};
+      } else {
+        stop("unrecognized selectivity function option for calcSelectivity:",rwUHCs$fcn);
+      }
+      lstFcns[[paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx)]] = fcn;#--save it
+      rm(fcn);
+    }#--rw loop
+
+    #--loop over sel functions, years, seasons, evaluate selectivity functions----
+    for (rw in 1:nrow(info$dfrUHCs)){
+      rwUHCs = info$dfrUHCs[rw,];
+      fcn_idx = paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx);
+      fcn = lstFcns[[fcn_idx]];
+      lstYs = list();
+      for (iy_ in 1:dims$nYs){
+        #--iy_ = 1;
+        y_ = dims$y[iy_];
+        lstSs = list();
+        for (is_ in 1:dims$nSs){
+          #--is_= 1;
+          s_ = dims$s[is_];
+          dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |> dplyr::mutate(ic_=dplyr::row_number());
+          dfrIdxs = dfrDims |> dplyr::inner_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z)) |>
+                       dplyr::filter(fcn_idx==rwUHCs$fcn_idx,grp_idx==rwUHCs$grp_idx);
+          if (nrow(dfrIdxs)>0){
+            lstSs[[names(s_)]] = list(ic_ = dfrIdxs$ic_,
+                                      sparse_idx=dfrIdxs$sparse_idx,
+                                      selVals = fcn(as.numeric(dfrIdxs$z)));
           }
-          #--other functions?
-        }
-      }#--is_ loop
-    }#--iy_ loop
+        }#--is_ loop
+        lstYs[[names(y_)]] = lstSs;
+        rm(lstSs);
+      }#--iy_ loop
+      lstSelVals[[fcn_idx]] = lstYs;
+      rm(lstYs);
+    }#--rw loop
   } else {
-    stop("unrecognized type option for calcRecruitment_CategoryProportions:",info$option);
+    stop("unrecognized type option for calcSelectivity:",info$option);
   }
-  return(prZ);
+  return(lstSelVals);
 }#--end of function

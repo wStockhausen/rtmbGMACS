@@ -18,8 +18,8 @@ if (FALSE){
   source(file.path(dirPrj,"R","readParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"R","extractParamInfoFunctionType1.R"))
   source(file.path(dirPrj,"R","extractParamInfo_Selectivity.R"))
-  source(file.path(dirPrj,"R","SelectivityFunctions.R"))
-  source(file.path(dirPrj,"R","calcSelectivity.R"))
+  source(file.path(dirPrj,"R","SelectivityFunctions1.R"))
+  #source(file.path(dirPrj,"R","calcSelectivity.R"))
 }
 
 ##--set up model dimensions----
@@ -29,42 +29,41 @@ source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
 type = "data-vertical";
 if (type=="data-vertical"){
   ###--recruitment time series with data-vertical----
-  dims = setupModelDims(zcs=seq(24.5,184.5,5));
-  conn     = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-vertical.txt");
-  res      = readParamInfo_Selectivity(conn,TRUE);
+  dims = setupModelDims(zcs=seq(25.5,80.5,5));
+  conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-vertical.txt");
+  res    = readParamInfo_Selectivity(conn,TRUE);
   lstSel = extractParamInfo_Selectivity(res,dims,FALSE);
-  params = list(pRecTS_FPs=lstSel$params);#--"FP" for "fixed" parameters
+  params = list(pSel_FPs=lstSel$params);#--"FP" for "fixed" parameters
   map = lstSel$map;
 } else
 if (type=="data-horizontal"){
   ###--recruitment time series with data-horizontal----
-  dims = setupModelDims(zcs=seq(24.5,184.5,5));
-  conn     = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-horizontal.txt");
-  res      = readParamInfo_Selectivity(conn,TRUE);
+  dims   = setupModelDims(zcs=seq(24.5,184.5,5));
+  conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-horizontal.txt");
+  res    = readParamInfo_Selectivity(conn,TRUE);
   lstSel = extractParamInfo_Selectivity(res,dims);
-  params = list(pRecTS_FPs=lstSel$params);#--"FP" for "fixed" parameters
+  params = list(pSel_FPs=lstSel$params);#--"FP" for "fixed" parameters
   map = lstSel$map;
 } else
 if (type=="function"){
   ###--recruitment time series with function----
   dims = setupModelDims(zcs=seq(25.5,84.5,5));
-  conn     = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.function.txt");
-  res      = readParamInfo_Selectivity(conn,FALSE);
+  conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.function.txt");
+  res    = readParamInfo_Selectivity(conn,FALSE);
   lstSel = extractParamInfo_Selectivity(res,dims,FALSE);
-  params = list(pRecTS_MPs=lstSel$MPs$params);
+  params = list(pSel_MPs=lstSel$MPs$params);
   map = lstSel$map;
-  if (!is.null(lstSel$OPs$params)) params[["pRecTS_OPs"]]=lstSel$OPs$params;
-  if (!is.null(lstSel$DPs$params)) params[["pRecTS_DPs"]]=lstSel$DPs$params;
-  if (!is.null(lstSel$REs$params)) params[["pRecTS_REs"]]=lstSel$REs$params;
+  if (!is.null(lstSel$OPs$params)) params[["pSel_OPs"]]=lstSel$OPs$params;
+  if (!is.null(lstSel$DPs$params)) params[["pSel_DPs"]]=lstSel$DPs$params;
+  if (!is.null(lstSel$REs$params)) params[["pSel_REs"]]=lstSel$REs$params;
 }
 inputs          = list();
 inputs$dims     = dims;
 inputs$lstSel = lstSel;#--add lstSel to inputs
 
-#--test arrSel function----
+#--test calcSelectivity function----
 source(file.path(dirPrj,"R/calcSelectivity.R"));
-arrSel = calcSelectivity(inputs$dims,inputs$lstSel,params,TRUE,loopIC_=TRUE); #--slower
-arrSel = calcSelectivity(inputs$dims,inputs$lstSel,params,FALSE,loopIC_=FALSE);#--faster
+lstSelVals = calcSelectivity(inputs$dims,inputs$lstSel,params,TRUE);
 dfrSel = tibble::as_tibble(arrSel[1:5,1,1]) |>
          dplyr::mutate(row_id=dplyr::row_number()) |>
          dplyr::mutate(y=as.numeric(dims$y[row_id]));
@@ -79,7 +78,7 @@ obj_fun<-function(params){
   dims = inputs$dims;
   #--calculate recruitment time seriess----
   info = inputs$lstSel;
-  arrSel = calcSelectivity(dims,info,params,verbose,loopIC_=FALSE);
+  lstSel = calcSelectivity(dims,info,params,verbose);
   REPORT(arrSel);
 
   nll = -dnorm(1,params$dummy,1,log=TRUE);

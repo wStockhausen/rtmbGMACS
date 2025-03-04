@@ -81,10 +81,10 @@
 #' @md
 #' @export
 #'
-readParamInfoSectionType1<-function(lns,verbose=FALSE){
+readParamInfoSectionType2<-function(lns,verbose=FALSE){
   iln = 1;
   #--parse input format option----
-  if (verbose) cat("Starting readParamInfoSectionType1\n");
+  if (verbose) cat("Starting readParamInfoSectionType2\n");
   lst     = extractTextSection(lns,1,1);
   option  = (stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--input format option
   #--parse text----
@@ -253,6 +253,7 @@ readParamInfoSectionType1<-function(lns,verbose=FALSE){
       tblDM = tibble::as_tibble_col(dmvals,column_name=dim);
       tblLst = list();
       for (rw in 1:nRws){
+        #--testing: rw = 1;
         vals = as.vector(t(dfr[rw,idx:ncols]));
         tblLst[[rw]]  = dfr[rw,1:(idx-1)] |>
                           dplyr::cross_join(tblDM |> tibble::add_column(tibble::as_tibble_col(vals,column_name="value")));
@@ -266,7 +267,7 @@ readParamInfoSectionType1<-function(lns,verbose=FALSE){
   } else {
     stop(paste0("Option '",option,"' not recognized."));
   } #--option
-  if (verbose) cat("Finished readParamInfoSectionType1\n");
+  if (verbose) cat("Finished readParamInfoSectionType2\n");
   return(out);
 }
 

@@ -158,15 +158,20 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
     if (fcn=="selSplineClmpdLeft")##--selSplineClmpdLeft----
       prd_sel = selSplineClmpdLeft(z,pars$params,pars$knots,verbose=verbose);
 
+    ad_pred_sel = AD(1)*prd_sel;#--just to get a different object for ADREPORTING
     REPORT(prd_sel);
 
     obs %~% dnorm(prd_sel,1); #--adds -log-likelihood to hidden variable `.nll`
+
+    ADREPORT(ad_pred_sel);
+
+    return(.nll);
   }
 
   #--create RTMB model----
   if (verbose) cat("MakeADFun'ing\n");
   if (verbose) print(params);
-  mdl = MakeADFun(objfn,parameters=params,map=map_);
+  mdl = MakeADFun(objfn,parameters=params,map=map_,silent=verbose);
   if (verbose) {
     print(mdl$par);
     print(mdl$fn());

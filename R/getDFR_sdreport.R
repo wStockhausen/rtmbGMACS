@@ -1,23 +1,30 @@
 #'
-#' @title Convert an sdreport object to a dataframe
-#' @description Function to convert an sdreport object to a dataframe.
-#' @param obj - RTMB sdreport object
-#' @param report - flag (T/F) to ??
-#' @param model - name of model
-#' @return dataframe
+#' @title Extract sdreported infomation from an RTMB model as a dataframe
+#' @description Function to extract sdreported infomation from an RTMB model as a dataframe.
+#' @param obj - optimised RTMB model object
+#' @param adreport - flag (TRUE/FALSE) to get ADREPORT'ed quantities
+#' @param model - name of model (optional: default is "")
+#' @return a dataframe
 #'
-#' @details TBD
+#' @details If `adreport=FALSE`, the parameter estimates and se's are output. If
+#' `adreport=TRUE`, ADREPORT'ed quantities (estimates and se's) are output. Note that
+#' setting `adreport=TRUE` for a model object with no ADREPORT'ed quantities results in an error.
+#'
+#' In addition to the model name, parameter/quantity names, estimates and SEs, columns in the
+#' output dataframe report the number of dimensions (`nDims`) and dimension indices (`i1`,`i2`, etc)
+#' for extracted quantities.
 #'
 #' @import dplyr
 #' @import tibble
 #' @import tidyr
 #' @export
 #'
-getDFR_sdreport <- function(obj,report=TRUE,model=""){
-  sdr    = sdreport(obj);
+getDFR_sdreport <- function(obj,adreport=FALSE,model=""){
+  sdr    = RTMB::sdreport(obj);
   #--determine max number of dimensions
   nDims = 0;
-  if (report) {
+  if (adreport) {
+    if (is.null(names(sdr$env$ADreportDims))) stop("Model object does not have any ADREPORT'ed quantities.")
     for (nm in names(sdr$env$ADreportDims)){
       nD = length(sdr$env$ADreportDims[[nm]]);
       if (nD>nDims) nDims = nD;
@@ -33,7 +40,7 @@ getDFR_sdreport <- function(obj,report=TRUE,model=""){
   types = c("Est","Std")
   for (type in types){
     #--type=types[1];
-    lst = as.list(sdr,type,report=report);
+    lst = as.list(sdr,type,report=adreport);
     for (nm in names(lst)){
       #--nm = names(lst)[1];
       nmp = paste0(nm,"_",type);

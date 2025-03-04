@@ -116,6 +116,13 @@ if (FALSE){
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
   conn=file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.function.txt");
   resF = readParamInfo_Selectivity(conn,TRUE);
-  View(resF$dfr);
-}
+  View(resF$Fcns);
+  View(resF$MPs);
+  View(resF$OPs);
+  View(resF$DPs);
+  View(resF$REs);
+  View(resF$PECs);
+  View(resF$FECs);
+  View(resF$FPs);
+ }
 
