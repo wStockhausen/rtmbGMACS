@@ -18,7 +18,7 @@ if (FALSE){
   source(file.path(dirPrj,"R","readParamInfo_Selectivity.R"))
   source(file.path(dirPrj,"R","extractParamInfoFunctionType1.R"))
   source(file.path(dirPrj,"R","extractParamInfo_Selectivity.R"))
-  source(file.path(dirPrj,"R","SelectivityFunctions1.R"))
+  source(file.path(dirPrj,"R","Functions_Selectivity.R"))
   source(file.path(dirPrj,"R","calcSelectivity.R"))
 }
 
@@ -26,20 +26,20 @@ if (FALSE){
 #----"y","s","r","x","m","a","z"
 source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
 
-type = "data-vertical";
-if (type=="data-vertical"){
+type = "pre-specified-vertical";
+if (type=="pre-specified-vertical"){
   ###--selectivity functions with data-vertical type input----
   dims = setupModelDims(zcs=seq(25.5,80.5,5));
-  conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-vertical.txt");
+  conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.pre-specified-vertical.txt");
   res    = readParamInfo_Selectivity(conn,TRUE);
   lstSel = extractParamInfo_Selectivity(res,dims,FALSE);
   params = list(pSel_FPs=lstSel$params);#--"FP" for "fixed" parameters
   map = lstSel$map;
 } else
-if (type=="data-horizontal"){
+if (type=="pre-specified-horizontal"){
   ###--selectivity functions with data-horizontal type input----
   dims   = setupModelDims(zcs=seq(24.5,184.5,5));
-  conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.data-horizontal.txt");
+  conn   = file.path(dirPrj,"testing/testSelectivity/inputSpecs_Selectivity.pre-specified-horizontal.txt");
   res    = readParamInfo_Selectivity(conn,TRUE);
   lstSel = extractParamInfo_Selectivity(res,dims);
   params = list(pSel_FPs=lstSel$params);#--"FP" for "fixed" parameters

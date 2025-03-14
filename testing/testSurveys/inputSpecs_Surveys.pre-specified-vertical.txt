@@ -1,0 +1,98 @@
+#--rtmbGMACS surveys specifications----
+#----------------------EXAMPLE: vertical pre-specified surveys values---------------------------
+SURVEYS
+pre-specified #--input option ("function", "pre-specified")
+vertical      #--orientation
+88            #--number of input rows
+none          #--transform function (values are catchability-at-size: DON'T NEED sel_idx, avl_idx!!)
+flt      y     s   r    x    z    value
+NMFS  c(2020)  1  EBS  male  28  0.222700139
+NMFS  c(2020)  1  EBS  male  33  0.268941421
+NMFS  c(2020)  1  EBS  male  38  0.320821301
+NMFS  c(2020)  1  EBS  male  43  0.377540669
+NMFS  c(2020)  1  EBS  male  48  0.437823499
+NMFS  c(2020)  1  EBS  male  53  0.5
+NMFS  c(2020)  1  EBS  male  58  0.562176501
+NMFS  c(2020)  1  EBS  male  63  0.622459331
+NMFS  c(2020)  1  EBS  male  68  0.679178699
+NMFS  c(2020)  1  EBS  male  73  0.731058579
+NMFS  c(2020)  1  EBS  male  78  0.777299861
+NMFS  c(2020)  1  EBS  female  28  0.437823499
+NMFS  c(2020)  1  EBS  female  33  0.5
+NMFS  c(2020)  1  EBS  female  38  0.562176501
+NMFS  c(2020)  1  EBS  female  43  0.622459331
+NMFS  c(2020)  1  EBS  female  48  0.679178699
+NMFS  c(2020)  1  EBS  female  53  0.731058579
+NMFS  c(2020)  1  EBS  female  58  0.777299861
+NMFS  c(2020)  1  EBS  female  63  0.817574476
+NMFS  c(2020)  1  EBS  female  68  0.851952802
+NMFS  c(2020)  1  EBS  female  73  0.880797078
+NMFS  c(2020)  1  EBS  female  78  0.904650535
+NMFS  (2021:2024)  1  EBS  female  28  0.320821301
+NMFS  (2021:2024)  1  EBS  female  33  0.377540669
+NMFS  (2021:2024)  1  EBS  female  38  0.437823499
+NMFS  (2021:2024)  1  EBS  female  43  0.5
+NMFS  (2021:2024)  1  EBS  female  48  0.562176501
+NMFS  (2021:2024)  1  EBS  female  53  0.622459331
+NMFS  (2021:2024)  1  EBS  female  58  0.679178699
+NMFS  (2021:2024)  1  EBS  female  63  0.731058579
+NMFS  (2021:2024)  1  EBS  female  68  0.777299861
+NMFS  (2021:2024)  1  EBS  female  73  0.817574476
+NMFS  (2021:2024)  1  EBS  female  78  0.851952802
+NMFS  (2021:2024)  1  EBS  male  28  0.182425524
+NMFS  (2021:2024)  1  EBS  male  33  0.222700139
+NMFS  (2021:2024)  1  EBS  male  38  0.268941421
+NMFS  (2021:2024)  1  EBS  male  43  0.320821301
+NMFS  (2021:2024)  1  EBS  male  48  0.377540669
+NMFS  (2021:2024)  1  EBS  male  53  0.437823499
+NMFS  (2021:2024)  1  EBS  male  58  0.5
+NMFS  (2021:2024)  1  EBS  male  63  0.562176501
+NMFS  (2021:2024)  1  EBS  male  68  0.622459331
+NMFS  (2021:2024)  1  EBS  male  73  0.679178699
+NMFS  (2021:2024)  1  EBS  male  78  0.731058579
+BSFRF  c(2020)  1  EBS  male  28  1
+BSFRF  c(2020)  1  EBS  male  33  1
+BSFRF  c(2020)  1  EBS  male  38  1
+BSFRF  c(2020)  1  EBS  male  43  1
+BSFRF  c(2020)  1  EBS  male  48  1
+BSFRF  c(2020)  1  EBS  male  53  1
+BSFRF  c(2020)  1  EBS  male  58  1
+BSFRF  c(2020)  1  EBS  male  63  1
+BSFRF  c(2020)  1  EBS  male  68  1
+BSFRF  c(2020)  1  EBS  male  73  1
+BSFRF  c(2020)  1  EBS  male  78  1
+BSFRF  c(2020)  1  EBS  female  28  1
+BSFRF  c(2020)  1  EBS  female  33  1
+BSFRF  c(2020)  1  EBS  female  38  1
+BSFRF  c(2020)  1  EBS  female  43  1
+BSFRF  c(2020)  1  EBS  female  48  1
+BSFRF  c(2020)  1  EBS  female  53  1
+BSFRF  c(2020)  1  EBS  female  58  1
+BSFRF  c(2020)  1  EBS  female  63  1
+BSFRF  c(2020)  1  EBS  female  68  1
+BSFRF  c(2020)  1  EBS  female  73  1
+BSFRF  c(2020)  1  EBS  female  78  1
+BSFRF  (2021:2024)  1  EBS  female  28  1
+BSFRF  (2021:2024)  1  EBS  female  33  1
+BSFRF  (2021:2024)  1  EBS  female  38  1
+BSFRF  (2021:2024)  1  EBS  female  43  1
+BSFRF  (2021:2024)  1  EBS  female  48  1
+BSFRF  (2021:2024)  1  EBS  female  53  1
+BSFRF  (2021:2024)  1  EBS  female  58  1
+BSFRF  (2021:2024)  1  EBS  female  63  1
+BSFRF  (2021:2024)  1  EBS  female  68  1
+BSFRF  (2021:2024)  1  EBS  female  73  1
+BSFRF  (2021:2024)  1  EBS  female  78  1
+BSFRF  (2021:2024)  1  EBS  male  28  1
+BSFRF  (2021:2024)  1  EBS  male  33  1
+BSFRF  (2021:2024)  1  EBS  male  38  1
+BSFRF  (2021:2024)  1  EBS  male  43  1
+BSFRF  (2021:2024)  1  EBS  male  48  1
+BSFRF  (2021:2024)  1  EBS  male  53  1
+BSFRF  (2021:2024)  1  EBS  male  58  1
+BSFRF  (2021:2024)  1  EBS  male  63  1
+BSFRF  (2021:2024)  1  EBS  male  68  1
+BSFRF  (2021:2024)  1  EBS  male  73  1
+BSFRF  (2021:2024)  1  EBS  male  78  1
+END
+

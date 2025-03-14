@@ -7,13 +7,12 @@
 #' @param params - RTMB parameters list with elements specific to selectivity
 #' @param verbose - flag to print diagnostic info
 #'
-#' @return A nested list of selectivity function values
+#' @return A list of size-specific selectivity arrays by selectivity function
 #'
 #' @details If `f_`, `y_`, and `s_` are the selectivity function, year, and season of interest,
 #' then the indices into the population vector and associated selectivity values are
 #' given by `ic_` and `selVals`
-#' ic_ = lst[[f_]][[y_]][[s_]]$ic_;
-#' selVals = lst[[f_]][[y_]][[s_]]$selVals;
+#' selVals = lst[[f_]][y_,s_,ic_];
 #'
 #' @import dplyr
 #'
@@ -31,6 +30,7 @@ calcSelectivity<-function(dims,info,params,verbose=FALSE){
     for (if_ in dfrUniqSels$fcn_idx){
       #--if_ = dfrUniqSels$fcn_idx[1];
       dfrDims2Pars = info$dfrDims2Pars |> dplyr::filter(fcn_idx==if_);
+      arrSelVals = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
       lstYs = list();
       for (iy_ in 1:dims$nYs){
         #--iy_ = 1;
@@ -44,16 +44,18 @@ calcSelectivity<-function(dims,info,params,verbose=FALSE){
           dfrIdxs = dfrDims |> dplyr::left_join(dfrDims2Pars,
                                                 by = dplyr::join_by(y, s, r, x, m, p, z));
           if (nrow(dfrIdxs)>0){
-            lstSs[[names(s_)]] = list(ic_ = dfrIdxs$ic_,
-                                      sparse_idx=dfrIdxs$sparse_idx,
-                                      selVals = p[dfrIdxs$pidx]);
+            ic_ = dfrIdxs$ic_;
+            arrSelVals[iy_,is_,ic_] = p[dfrIdxs$pidx];
+            # lstSs[[names(s_)]] = list(ic_ = dfrIdxs$ic_,
+            #                           sparse_idx=dfrIdxs$sparse_idx,
+            #                           selVals = p[dfrIdxs$pidx]);
           }
         }#--is_ loop
-        lstYs[[names(y_)]] = lstSs;
-        rm(lstSs);
+        # lstYs[[names(y_)]] = lstSs;
+        # rm(lstSs);
       }#--iy_ loop
-      lstSelVals[[as.character(if_)]] = lstYs;
-      rm(lstYs);
+      lstSelVals[[as.character(if_)]] = arrSelVals;
+      # rm(lstYs);
     }#--if_ loop
   } else if (tolower(info$option)=="function"){
     ##--"function" option----

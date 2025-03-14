@@ -26,17 +26,17 @@ if (FALSE){
 #----"y","s","r","x","m","a","z"
 source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
 
-type = "data-vertical";
-if (type=="data-vertical"){
-  ###--growth with data-vertical----
+type = "pre-specified-vertical";
+if (type=="pre-specified-vertical"){
+  ###--growth with pre-specified-vertical input format----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth_PrGr/inputSpecs_Growth_PrGr.data-vertical.txt");
   res   = readParamInfo_Growth_PrGr(conn,TRUE);
   lstPrGr = extractParamInfo_Growth_PrGr(res,dims,FALSE);
   params = list(pPrGr_FPs=lstPrGr$params);#--"FP" for "fixed" parameters
 } else
-if (type=="data-horizontal"){
-  ###--growth with data-horizontal----
+if (type=="pre-specified-horizontal"){
+  ###--growth with pre-specified-horizontal input format----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth_PrGr/inputSpecs_Growth_PrGr.data-horizontal.txt");
   res   = readParamInfo_Growth_PrGr(conn,TRUE);
@@ -44,7 +44,7 @@ if (type=="data-horizontal"){
   params = list(pPrGr_FPs=lstPrGr$params);#--"FP" for "fixed" parameters
 } else
 if (type=="function"){
-  ###--growth with function----
+  ###--growth with function input format----
   dims = setupModelDims(zcs=seq(55.5,104.5,5));
   conn  = file.path(dirPrj,"testing/testGrowth_PrGr/inputSpecs_Growth_PrGr.function.txt");
   res   = readParamInfo_Growth_PrGr(conn,FALSE);

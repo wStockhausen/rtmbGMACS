@@ -4,24 +4,26 @@
 #' @description Function to extract function-type parameter info from a list.
 #' @param lst - function-type parameter info list from a `readParamInfo_`
 #' @param dms - appropriate `dms...` DimsMap from `setupModelDims`
+#' @param process_type - string describing process (for verbose output)
+#' @param xtra_cols - character vector of "extra" columns in the "function" section
 #' @return a list (see details)
 #' @details The output list has elements
 #'
 #' \itemize{
 #' \item{option - format option}
-#' \item{params - vector of weight-at-size values}
-#' \item{map - vector for the RTMB `map` list indicating the parameters are fixed; i.e. not to be estimated}
-#' \item{dfrIdx2Pars - dataframe with columns "pidx", dimension names (y,s,r,x,m,p,z), and parameter specs IV,LB,UB,phz,PriorType,Pr1,Pr2
-#' indicating the un-expanded mapping from `pidx` to the parameter input values ("IV"). `pidx` is the index into the parameter vector.
-#' The dimension columns are incidental and reflect the specification from the input text file.}
-#' \item{dfrDims2Pars - dataframe with columns "pidx" and the dimension names (y,s,r,x,m,p,z).
-#' The dimension levels are fully expanded such that each row corresponds to a single "multidimensional" level.
-#' The value of `pidx` for each row indicates the index of the associated weight-at-size value in the parameter vector.}
-#' }
+#' \item{Fcns - list with function-level info}
+#' \item{MPs - list with main parameters-level info}
+#' \item{OPs - list with offset parameters-level info}
+#' \item{DPs - list with devs (fixed) parameter vectors-level info}
+#' \item{REs - list with random effects-level info}
+#' \item{PECs - list with main parameter-level info}
+#' \item{FECs - list with main parameter-level info}
+#' \item{dfrFPs - dataframe with functional priors info}
+#' \item{dfrCmbs - dataframe with all parameter combinations in vertical format}
+#' \item{dfrUniqCmbs - dataframe with unique parameter combinations in vertical format}
+#' \item{dfrHCs - dataframe with all parameter combinations in "horizontal" format}
+#' \item{dfrUHCs - dataframe with unique parameter combinations in "horizontal" format}
 #'
-#' If `lst$option` is "function", the output list has elements
-#' \itemize{
-#' }
 #'
 #' @import dplyr
 #'
@@ -30,6 +32,7 @@
 extractParamInfoFunctionType1<-function(lst,
                                         dms=NULL,
                                         process_type="",
+                                        xtra_cols=character(0),
                                         verbose=TRUE){
   if (verbose) message("starting extractParamInfoFunctionType1 for ",process_type);
   #--create list of all dimension levels in `dms` to convert "all"'s to pop levels----
@@ -45,8 +48,11 @@ extractParamInfoFunctionType1<-function(lst,
 
     ####--functions----
     if (verbose) message("in extractParamInfoFunctionType1 for ",process_type,": processing functions.")
+    fcn_cols = c("y","s","r","x","m","p","z","fcn","fcn_idx");
+    if (length(xtra_cols)) fcn_cols = c(fcn_cols,xtra_cols);
     dfrFcns = lst$Fcns$dfr |> expandDataframe(lstAlls,verbose=verbose) |>
-                dplyr::select(y,s,r,x,m,p,z,fcn,fcn_idx);
+                dplyr::select(tidyselect::all_of(fcn_cols));
+    #browser();
     dfrFcns_RefLvls = NULL;
     if (!is.null(lst$Fcns$reflvls$dfr))
       dfrFcns_RefLvls = lst$Fcns$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
@@ -262,8 +268,10 @@ extractParamInfoFunctionType1<-function(lst,
                     dplyr::distinct();
 
     ###--pivot to "horizontal" combinations (i.e., HCs)
+    std_cols = c("y","s","r","x","m","p","z","fcn","fcn_idx","grp_idx","param","idx");
+    if (length(xtra_cols)>0) std_cols = c(std_cols,xtra_cols)
     dfrHCs = dfrCmbs  |>
-               dplyr::select(y,s,r,x,m,p,z,fcn,fcn_idx,grp_idx,param,idx) |>
+               dplyr::select(tidyselect::all_of(std_cols)) |>
                tidyr::pivot_wider(names_from=param,values_from=idx);
 
     ###--determine "unique" horizontal combinations

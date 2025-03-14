@@ -48,7 +48,7 @@
 #'   }
 #' }
 #'
-#' If `option` = "data", a list with the following elements is returned:
+#' If `option` = "pre-specified", a list with the following elements is returned:
 #' \itemize{
 #'   \item{option}
 #'   \item{transform - name of function to transform input values to kg}
@@ -56,13 +56,13 @@
 #' }
 #'
 #' @examples
-#' # example code reading "vertical" data format
+#' # example code reading "vertical" pre-specified format
 #' if (FALSE){
 #'   conn="inputSpecs_Allometry.data_vertical.txt";
 #'   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
 #' }
 #'
-#' # example code reading "horizontal" data format
+#' # example code reading "horizontal" pre-specified format
 #' if (FALSE){
 #'   conn="inputSpecs_Allometry.data_horizontal.txt";
 #'   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
@@ -225,9 +225,9 @@ readParamInfoSectionType1<-function(lns,verbose=FALSE){
                         reflvls=list(n=nLvls_FECs,dfr=dfrRefLvls_FECs)), #--function-level env. covars
                FPs=list(n=nFPs,dfr=dfrFPs)                               #--functional priors
                );
-  } else if (tolower(option)=="data") {
-    ##--parse "data" input option info----
-    if (verbose) cat("reading 'data' option info\n");
+  } else if (tolower(option)=="pre-specified") {
+    ##--parse "pre-specified" input option info----
+    if (verbose) cat("reading 'pre-specified' option info\n");
     lst  = extractTextSection(lns,1,lst$end+1);
     fmtHV = (stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--horizontal or vertical format?
     lst  = extractTextSection(lns,1,lst$end+1);
