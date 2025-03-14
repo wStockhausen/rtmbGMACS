@@ -8,8 +8,8 @@ fcn_idx   flt         fcn      sel_idx      avl_idx      y          x       #{ot
    1      NMFS        lnQ         1           0       (2020)        male
    2      NMFS        lnQ         2           0       (2020)        female
    3      NMFS        lnQ         3           0       (2021:2024)   male
-   4      NMFS        lnQ         4           0       (2021:2024)   female
-   5      BSFRF       lnQ         5           0       (2021:2022)   all
+   4      NMFS        lnQ         1           0       (2021:2024)   female
+   5      BSFRF       lnQ         3           0       (2021:2022)   all
 ###--reference levels
  0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
 # fcn_idx      {categories}

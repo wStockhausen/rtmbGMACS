@@ -280,6 +280,7 @@ extractParamInfoFunctionType1<-function(lst,
                 dplyr::distinct();
 
     ###--create output list----
+    ####--TODO: create `map` element reflecting parameter estimation status and sharing info----
     dfrRefLvlsFcns=NULL;
     if (!is.null(lst$Fcns$reflvls)) dfrRefLvlsFcns=lst$Fcns$reflvls$dfr;
     dfrRefLvlsDPs=NULL;

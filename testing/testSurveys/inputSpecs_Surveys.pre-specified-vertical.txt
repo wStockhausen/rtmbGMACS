@@ -3,7 +3,7 @@
 SURVEYS
 pre-specified #--input option ("function", "pre-specified")
 vertical      #--orientation
-88            #--number of input rows
+66            #--number of input rows (don't include header row)
 none          #--transform function (values are catchability-at-size: DON'T NEED sel_idx, avl_idx!!)
 flt      y     s   r    x    z    value
 NMFS  c(2020)  1  EBS  male  28  0.222700139
@@ -50,28 +50,6 @@ NMFS  (2021:2024)  1  EBS  male  63  0.562176501
 NMFS  (2021:2024)  1  EBS  male  68  0.622459331
 NMFS  (2021:2024)  1  EBS  male  73  0.679178699
 NMFS  (2021:2024)  1  EBS  male  78  0.731058579
-BSFRF  c(2020)  1  EBS  male  28  1
-BSFRF  c(2020)  1  EBS  male  33  1
-BSFRF  c(2020)  1  EBS  male  38  1
-BSFRF  c(2020)  1  EBS  male  43  1
-BSFRF  c(2020)  1  EBS  male  48  1
-BSFRF  c(2020)  1  EBS  male  53  1
-BSFRF  c(2020)  1  EBS  male  58  1
-BSFRF  c(2020)  1  EBS  male  63  1
-BSFRF  c(2020)  1  EBS  male  68  1
-BSFRF  c(2020)  1  EBS  male  73  1
-BSFRF  c(2020)  1  EBS  male  78  1
-BSFRF  c(2020)  1  EBS  female  28  1
-BSFRF  c(2020)  1  EBS  female  33  1
-BSFRF  c(2020)  1  EBS  female  38  1
-BSFRF  c(2020)  1  EBS  female  43  1
-BSFRF  c(2020)  1  EBS  female  48  1
-BSFRF  c(2020)  1  EBS  female  53  1
-BSFRF  c(2020)  1  EBS  female  58  1
-BSFRF  c(2020)  1  EBS  female  63  1
-BSFRF  c(2020)  1  EBS  female  68  1
-BSFRF  c(2020)  1  EBS  female  73  1
-BSFRF  c(2020)  1  EBS  female  78  1
 BSFRF  (2021:2024)  1  EBS  female  28  1
 BSFRF  (2021:2024)  1  EBS  female  33  1
 BSFRF  (2021:2024)  1  EBS  female  38  1

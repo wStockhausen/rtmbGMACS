@@ -3,22 +3,19 @@ require(ggplot2);
 require(RTMB);
 dirPrj = rstudioapi::getActiveProject();
 source(file.path(dirPrj,"R/MiscFunctions.R"),local=TRUE);
-source(file.path(dirPrj,"R/SelectivityFunctions1.R"),local=TRUE);
+source(file.path(dirPrj,"R/Functions_Selectivity.R"),local=TRUE);
 source(file.path(dirPrj,"R/getDFR_sdreport.R"),local=TRUE);
 source(file.path(dirPrj,"testing/testSelectivity/compareSelFun1.R"),local=TRUE);
 
 #--define size bins
 z = seq(25,180,by=5);
 
-#--sel function: const_sel(z,p,pRefZ)----
+#--sel function: const_sel(z,p)----
 #----function should not really be differentiable(?)
 pCnst = c(1); #--constant value
-pRefZ = 100;  #--reference *size* (not used!)
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("const_sel",z,
                      pCnst=pCnst,
-                     pRefZ=pRefZ,
-                     map_=list(pRefZ=factor(NA)),
                      title="const_sel(z,pCnst,pRefZ)",
                      verbose=TRUE);
 
@@ -80,7 +77,7 @@ ascWdZ =  25;  #--width of ascending limb
 res = compareSelFun1("ascnormal1",z,
                      pAscZ1=ascMnZ,
                      pAscWdZ=ascWdZ,
-                     title="ascnormal(z,p,pRefZ)",
+                     title="ascnormal(z,p)",
                      verbose=TRUE);
 
 #--sel function: ascnormal2(z,p,pRefZ)----

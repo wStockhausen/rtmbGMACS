@@ -112,7 +112,7 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
     dZ = z[2]-z[1];
 
     if (data$fcn=="const_sel")##--const_sel----
-      prd_sel = const_sel(z,pars$pCnst,pars$pRefZ,verbose=verbose);
+      prd_sel = const_sel(z,pars$pCnst,verbose=verbose);
 
     if (data$fcn=="asclogistic")##--asclogistic----
       prd_sel = asclogistic(z,pars$pZ50,pars$pSlp,pars$pRefZ,verbose=verbose);

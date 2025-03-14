@@ -1,11 +1,10 @@
-#--ALternative parameterizations for selectivity functions
+#--Alternative parameterizations for selectivity functions
 #-----------------------------------------------------------------------------------
 #'
 #' @title Calculate a constant-valued selectivity curve
 #' @description Function to calculate a constant-valued selectivity curve
 #' @param z      - sizes at which to compute selectivity values
-#' @param params - 1-element parameter vector
-#' @param pRefZ   - reference size (dummy input)
+#' @param pCnst - the constant value for the selectivity
 #' @param verbose - flag (T/F) to print debugging messages
 #'
 #' @return named vector with selectivity values at the elements of z
@@ -19,10 +18,9 @@
 #'
 const_sel<-function(z,
                     pCnst,
-                    pRefZ=0,
                     verbose=FALSE){
     if (verbose) message("Starting const_sel(...)");
-    s = pCnst + 0*z;
+    s = RTMB::AD(pCnst) + 0*z;
     if (verbose) message("Finished const_sel(...)");
     return(s);
 }

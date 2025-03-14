@@ -104,7 +104,6 @@ calcSelectivity<-function(dims,info,params,verbose=FALSE){
       if (rwUHCs$fcn=="const_sel"){####--const_sel----
         fcn<-function(z){const_sel(z,
                                   vals[idxVals[rwUHCs$pCnst]],
-                                  vals[idxVals[rwUHCs$pRefZ]],
                                   verbose=verbose)};
       } else
       if (rwUHCs$fcn=="asclogistic"){####--asclogistic----

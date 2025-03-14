@@ -3,24 +3,26 @@
 SELECTIVITY
 function #--input option ("function", "data")
 #--Function definitions----
- 2 #--number of functions defined
+ 3 #--number of functions defined
 fcn_idx      fcn             y         # info
    1     asclogistic1   2020:2024     # logistic selectivity with params pZ50, pWdZ; consts pRefZ
    2     asclogistic1   2020:2024     # logistic selectivity with params pZ50, pWdZ; consts pRefZ
+   3     const_sel      2021:2022     # constant selectivity
 ###--reference levels
  0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
 # fcn_idx      {categories}
     
 #--Parameters----
 ##--Main parameters----
- 6 #--number of main parameters defined
+ 7 #--number of main parameters defined
 fcn_idx   grp_idx  mp_idx  param     x     tform      IV   LB   UB   phz   PriorType  Pr1  Pr2
     1         1       1    pZ50     male   none       75  50    100   4      none      0   999
     1         1       2    pWdZ     male   none       75  50    100   4      none      0   999
-    1         1       3    pRefZ     male   none      150 149    151  -1      none      0   999
-    2         2       4    pZ50   female   none       55  50    100   4      none      0   999
-    2         2       5    pWdZ   female   none       30  25     75   4      none      0   999
-    2         2       6    pRefZ   female   none      100  99    101  -1      none      0   999
+    1         1       3    pRefZ    male   none      150 149    151  -1      none      0   999
+    2         1       4    pZ50   female   none       55  50    100   4      none      0   999
+    2         1       5    pWdZ   female   none       30  25     75   4      none      0   999
+    2         1       6    pRefZ  female   none      100  99    101  -1      none      0   999
+    3         1       7    pCnst    all    none        1   1      1  -1      none      0   999
 ##--Offset parameters----
 0 #--number of offset parameters defined
 #   mp_idx  param   op_idx    op_type      x     tform    IV       LB       UB     phz   PriorType  Pr1    Pr2

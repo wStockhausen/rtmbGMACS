@@ -86,6 +86,12 @@ readParamInfo_Surveys<-function(conn,verbose=FALSE){
                     \(x)stringr::str_length(x)>0) |>
           extractLines(start="SURVEYS",end="END");
   out = readParamInfoSectionType1(lns,verbose);
+  if (out$option=="pre-specified") {
+    out$flts = unique(out$dfr$flt);
+  } else
+  if (out$option=="function") {
+    out$flts = unique(out$Fcns$dfr$flt);
+  }
   return(out);
 }
 

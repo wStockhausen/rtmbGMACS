@@ -78,6 +78,7 @@ plotSelVals(1,1,1)
 plotSelVals(2,1,1)
 plotSelVals(1,4,1)
 plotSelVals(2,4,1)
+plotSelVals(3,2,1)
 
 #--test selectivity functions in RTMB objective function----
 obj_fun<-function(params){

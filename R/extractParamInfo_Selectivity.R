@@ -43,7 +43,9 @@ extractParamInfo_Selectivity<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Selectivity",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Selectivity",
+                                        xtra_cols=character(0),
+                                        verbose=verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----

@@ -5,7 +5,7 @@
 #' @param dims - dimensions list
 #' @param info - info list (output list from [extractParamInfo_Surveys()])
 #' @param params - RTMB parameters list with elements specific to survey catchability
-#' @param lstSels - list of selectivity functions (output from [calcSelectivity()])
+#' @param lstSels - list of selectivity value arrays (output from [calcSelectivity()])
 #' @param verbose - flag to print diagnostic info
 #'
 #' @return A list of size-specific survey catchability arrays by survey fleet
@@ -23,14 +23,16 @@
 calcSurveys<-function(dims,info,params,lstSels,verbose=FALSE){
   if (verbose) cat("Starting calcSurvey.\n")
   lstSrvVals<-list();#--arrays of expanded survey catchability, by survey
+  for (flt_ in info$flts){
+    lstSrvVals[[flt_]] = RTMB::AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+  }
   if (info$option=="pre-specified"){
     ##--"data" option----
-    p = params$pSrv_FPs;#--vector of (fixed) selectivity values
+    p = params$pSrvQ_FPs;#--vector of (fixed) selectivity values
     #--need to expand to p to all population categories, years, and seasons
-    dfrUniqSrvs = info$dfrIdx2Pars |> dplyr::distinct(fcn_idx);
-    for (if_ in dfrUniqSrvs$fcn_idx){
-      dfrDims2Pars = info$dfrDims2Pars |> dplyr::filter(fcn_idx==if_);
-      arrSrvVals = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+    for (flt_ in info$flts){
+      #--testing: flt_ = info$flts[1];
+      dfrDims2Pars = info$dfrDims2Pars |> dplyr::filter(flt==flt_);
       for (iy_ in 1:dims$nYs){
         #--testing: iy_ = 1;
         y_ = dims$y[iy_];
@@ -39,16 +41,14 @@ calcSurveys<-function(dims,info,params,lstSels,verbose=FALSE){
           s_ = dims$s[is_];
           dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |>
                        dplyr::mutate(ic_=dplyr::row_number());
-          dfrIdxs = dfrDims |> dplyr::left_join(dfrDims2Pars,
+          dfrIdxs = dfrDims |> dplyr::inner_join(dfrDims2Pars,
                                                 by = dplyr::join_by(y, s, r, x, m, p, z));
           if (nrow(dfrIdxs)>0){
             ic_ = dfrIdxs$ic_;
-            arrSrvVals[iy_,is_,ic_] = p[dfrIdxs$pidx];
+            lstSrvVals[[flt_]][iy_,is_,ic_] = p[dfrIdxs$pidx];
           }
         }#--is_ loop
       }#--iy_ loop
-      lstSrvVals[[as.character(if_)]] = arrSrvVals;
-      rm(arrSrvVals);
     }#--if_ loop
   } else if (tolower(info$option)=="function"){
     ##--"function" option----
@@ -98,20 +98,26 @@ calcSurveys<-function(dims,info,params,lstSels,verbose=FALSE){
         fcn<-function(z){lnQ(z,
                              vals[idxVals[rwUHCs$pLnQ]],
                              verbose=verbose)};
-      } else
+      } else {
         stop("unrecognized selectivity function option for calcSurvey:",rwUHCs$fcn);
       }
       lstFcns[[paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx)]] = fcn;#--save the function
       rm(fcn);
     }#--rw loop
+    #browser();
 
     #--loop over surveys, years, seasons, evaluate survey catchability functions----
     for (rw in 1:nrow(info$dfrUHCs)){
       #--rw = 1;
-      rwUHCs = info$dfrUHCs[rw,];
+      rwUHCs  = info$dfrUHCs[rw,];
+      flt_    = rwUHCs$flt;
       fcn_idx = paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx);
+      if (verbose) cat("flt_:",flt_,"fcn_idx:",fcn_idx,"sel_idx:",rwUHCs$sel_idx,"avl_idx:",rwUHCs$avl_idx,"\n")
+      arrSelVals = lstSels[[rwUHCs$sel_idx]];
+      if (rwUHCs$avl_idx>0) {#--apply availability
+        arrSelVals = lstSels[[rwUHCs$avl_idx]] * arrSelVals;
+      }
       fcn = lstFcns[[fcn_idx]];
-      arrSrvVals = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
       for (iy_ in 1:dims$nYs){
         #--iy_ = 1;
         y_ = dims$y[iy_];
@@ -123,11 +129,16 @@ calcSurveys<-function(dims,info,params,lstSels,verbose=FALSE){
                        dplyr::filter(fcn_idx==rwUHCs$fcn_idx,grp_idx==rwUHCs$grp_idx);
           if (nrow(dfrIdxs)>0){
             ic_ = dfrIdxs$ic_;
-            arrSrvVals[iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z));
+            if (rwUHCs$sel_idx>0) {
+              #--combine fully-selected Q and selectivity/availability values
+              lstSrvVals[[flt_]][iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z))*arrSelVals[iy_,is_,ic_];
+            } else {
+              #--
+              lstSrvVals[[flt_]][iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z));
+            }
           }
         }#--is_ loop
       }#--iy_ loop
-      lstSrvVals[[fcn_idx]] = arrSrvVals;
     }#--rw loop
   } else {
     stop("unrecognized type option for calcSurvey:",info$option);

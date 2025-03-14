@@ -29,8 +29,8 @@
 #' @export
 #'
 extractParamInfo_Surveys<-function(lst,
-                                       dims=NULL,
-                                       verbose=TRUE){
+                                   dims=NULL,
+                                   verbose=TRUE){
   if (verbose) message("starting extractParameters_Surveys.")
   if (FALSE){
     #--NOTE: run this section if you are just stepping through the code for development purposes
@@ -46,7 +46,7 @@ extractParamInfo_Surveys<-function(lst,
     out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Surveys",
                                         xtra_cols=c("flt","sel_idx","avl_idx"),
                                         verbose=verbose);
-
+    out$flts = lst$flts;
   } else if (tolower(lst$option)=="pre-specified"){
     ##--option == "pre-specified"----
     ###--inputs are pre-specified (fixed values)
@@ -93,7 +93,10 @@ extractParamInfo_Surveys<-function(lst,
     for (dmnm in dmnms){
       if (!(dmnm %in% names(dfr))) dfr[[dmnm]] = "all";
     }
-    dfr = dfr |> dplyr::select(pidx,flt,sel_idx,avl_idx,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2);
+    dfr = dfr |> dplyr::select(pidx,flt,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2) |>
+            dplyr::mutate(sel_idx=0,    #--no need for a sel function
+                          avl_idx=0,    #--no need for a avl function
+                          .after=flt);
     ###--extract parameter values----
     if (verbose) {
       message("in extractParameters_Surveys: resolved 'pre-specified' option values");
@@ -110,6 +113,7 @@ extractParamInfo_Surveys<-function(lst,
               dplyr::select(!c(IV,LB,UB,phz,PriorType,Pr1,Pr2)) |>
               expandDataframe(lstAlls=lstAlls,verbose=verbose);#--expanded for "alls"
     out = list(option="pre-specified",
+               flts=lst$flts,
                params=pSrvQ_FPs,
                map=map,
                dfrIdx2Pars=dfr,

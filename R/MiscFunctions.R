@@ -147,3 +147,18 @@ squarewave<-function(zL,zR,zs,dz=1,shftfac=2,sclfac=20){
         squarewave_left(zR,zs,dz=dz,shftfac=shftfac,sclfac=sclfac);
   return(w);
 }
+
+addList<-function(lst1,lst2){
+  if (is.null(lst2)) return(lst1); #--do nothing to lst1
+  if (is.null(lst1)) {
+    if (class(lst2)!="list") stop(paste0("lst2 is class '",class(lst2),"'. Class must be 'list'."));
+    return(lst2); #--return lst2
+  } else {
+    if (class(lst1)!="list") stop(paste0("lst1 is class '",class(lst1),"'. Class must be 'list'."));
+    if (class(lst2)!="list") stop(paste0("lst2 is class '",class(lst2),"'. Class must be 'list'."));
+    for (nm in names(lst2)){
+      lst1[[nm]] = lst2[[nm]];
+    }
+  }
+  return(lst1);
+}
