@@ -3,7 +3,7 @@
 #' @description
 #' Function to calculate surveys catchability for all model categories across time.
 #' @param dims - dimensions list
-#' @param info - info list (output list from [extractParamInfo_Surveys()])
+#' @param info - info list (output list from [extractParamInfo_SurveysCatchability()])
 #' @param params - RTMB parameters list with elements specific to survey catchability
 #' @param lstSels - list of selectivity value arrays (output from [calcSelectivity()])
 #' @param verbose - flag to print diagnostic info
@@ -20,8 +20,8 @@
 #' @md
 #' @export
 #'
-calcSurveys<-function(dims,info,params,lstSels,verbose=FALSE){
-  if (verbose) cat("Starting calcSurvey.\n")
+calcSurveysCatchability<-function(dims,info,params,lstSels,verbose=FALSE){
+  if (verbose) cat("Starting calcSurveyCatchability.\n")
   lstSrvVals<-list();#--arrays of expanded survey catchability, by survey
   for (flt_ in info$flts){
     lstSrvVals[[flt_]] = RTMB::AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
@@ -99,7 +99,7 @@ calcSurveys<-function(dims,info,params,lstSels,verbose=FALSE){
                              vals[idxVals[rwUHCs$pLnQ]],
                              verbose=verbose)};
       } else {
-        stop("unrecognized selectivity function option for calcSurvey:",rwUHCs$fcn);
+        stop("unrecognized selectivity function option for calcSurveysCatchability:",rwUHCs$fcn);
       }
       lstFcns[[paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx)]] = fcn;#--save the function
       rm(fcn);
@@ -141,7 +141,7 @@ calcSurveys<-function(dims,info,params,lstSels,verbose=FALSE){
       }#--iy_ loop
     }#--rw loop
   } else {
-    stop("unrecognized type option for calcSurvey:",info$option);
+    stop("unrecognized type option for calcSurveysCatchability:",info$option);
   }
   return(lstSrvVals);
 }#--end of function

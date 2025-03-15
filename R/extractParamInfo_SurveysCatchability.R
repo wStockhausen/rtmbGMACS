@@ -2,7 +2,7 @@
 #'
 #' @title Extract survey catchability functions parameters from parameter info list
 #' @description Function to extract survey catchability functions parameters from parameter info list.
-#' @param lst - parameter info list from [readParamInfo_Surveys()]
+#' @param lst - parameter info list from [readParamInfo_SurveysCatchability()]
 #' @param dims - `dims` list from `setupModelDims`
 #' @return a list (see details)
 #' @details The format of the returned list depends on the `option` specified in `lst`.
@@ -28,22 +28,22 @@
 #'
 #' @export
 #'
-extractParamInfo_Surveys<-function(lst,
-                                   dims=NULL,
-                                   verbose=TRUE){
-  if (verbose) message("starting extractParameters_Surveys.")
+extractParamInfo_SurveysCatchability<-function(lst,
+                                               dims=NULL,
+                                               verbose=TRUE){
+  if (verbose) message("starting extractParameters_SurveysCatchability.")
   if (FALSE){
     #--NOTE: run this section if you are just stepping through the code for development purposes
     ##--assumes you've created `dims` via `dims = setupModelDims();`
     verbose = TRUE;
-    lst = res;#--assumed output from `res  = readParamInfo_Surveys(conn,verbose=FALSE);`
+    lst = res;#--assumed output from `res  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);`
   }
 
   #--expand Surveys parameter information----
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Surveys",
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Surveys_Catchability",
                                         xtra_cols=c("flt","sel_idx","avl_idx"),
                                         verbose=verbose);
     out$flts = lst$flts;
@@ -99,7 +99,7 @@ extractParamInfo_Surveys<-function(lst,
                           .after=flt);
     ###--extract parameter values----
     if (verbose) {
-      message("in extractParameters_Surveys: resolved 'pre-specified' option values");
+      message("in extractParameters_SurveysCatchability: resolved 'pre-specified' option values");
       print(dfr);
     }
     pSrvQ_FPs = dfr$IV;#--survey catchability value
@@ -132,14 +132,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R/readParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testSurveys/inputSpecs_Surveys.pre-specified-vertical.txt");
-  res1v  = readParamInfo_Surveys(conn,verbose=FALSE);
-  res2v = extractParamInfo_Surveys(res1v,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.pre-specified-vertical.txt");
+  res1v  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);
+  res2v = extractParamInfo_SurveysCatchability(res1v,dims,verbose=FALSE);
   View(res2v$dfrDims2Pars);
   View(res2v$dfrIdx2Pars);
 }
@@ -151,14 +151,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R/readParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testSurveys/inputSpecs_Surveys.pre-specified-horizontal.txt");
-  res1h  = readParamInfo_Surveys(conn,verbose=FALSE);
-  res2h = extractParamInfo_Surveys(res1h,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.pre-specified-horizontal.txt");
+  res1h  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);
+  res2h = extractParamInfo_SurveysCatchability(res1h,dims,verbose=FALSE);
   View(res2h$dfrDims2Pars);
   View(res2h$dfrIdx2Pars);
 }
@@ -170,14 +170,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R/readParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testSurveys/inputSpecs_Surveys.function.txt");
-  res1f  = readParamInfo_Surveys(conn,verbose=FALSE);
-  res2f = extractParamInfo_Surveys(res1f,dims,verbose=TRUE);
+  conn = file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.function.txt");
+  res1f  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);
+  res2f = extractParamInfo_SurveysCatchability(res1f,dims,verbose=TRUE);
   View(res2f$Fcns);
   View(res2f$dfrUniqCmbs);
   View(res2f$dfrUHCs);

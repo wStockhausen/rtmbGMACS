@@ -1,6 +1,6 @@
-#--read Surveys info
-#' @title Read Surveys info
-#' @description Function to read recruitment category proportions info.
+#--read SurveysCatchability info
+#' @title Read SurveysCatchability info
+#' @description Function to read surveys catchability info.
 #' @param conn - connection (or filename) to read from
 #' @param verbose - flag to print extra info
 #' @return nested list with elements (see **Details**)
@@ -58,20 +58,20 @@
 #' @examples
 #' # example code reading "vertical" data format
 #' if (FALSE){
-#'   conn="inputSpecs_Growth.data_vertical.txt";
-#'   lstResults = readParamInfo_Growth(conn,verbose=TRUE);
+#'   conn="inputSpecs_SurveysCatchability.pre-specified_vertical.txt";
+#'   lstResults = readParamInfo_SurveysCatchability(conn,verbose=TRUE);
 #' }
 #'
 #' # example code reading "horizontal" data format
 #' if (FALSE){
-#'   conn="inputSpecs_Growth.data_horizontal.txt";
-#'   lstResults = readParamInfo_Growth(conn,verbose=TRUE);
+#'   conn="inputSpecs_SurveysCatchability.pre-specified_horizontal.txt";
+#'   lstResults = readParamInfo_SurveysCatchability(conn,verbose=TRUE);
 #' }
 #'
 #' # example code reading "function" format
 #' if (FALSE){
-#'   conn="inputSpecs_Growth.function.txt";
-#'   lstResults = readParamInfo_Growth(conn,verbose=TRUE);
+#'   conn="inputSpecs_SurveysCatchability.function.txt";
+#'   lstResults = readParamInfo_SurveysCatchability(conn,verbose=TRUE);
 #' }
 #'
 #' @import dplyr
@@ -81,10 +81,10 @@
 #' @md
 #' @export
 #'
-readParamInfo_Surveys<-function(conn,verbose=FALSE){
+readParamInfo_SurveysCatchability<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
-          extractLines(start="SURVEYS",end="END");
+          extractLines(start="SURVEYS_CATCHABILITY",end="END");
   out = readParamInfoSectionType1(lns,verbose);
   if (out$option=="pre-specified") {
     out$flts = unique(out$dfr$flt);
@@ -100,7 +100,7 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testSurveys/inputSpecs_Surveys.pre-specified-vertical.txt");
+  conn=file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.pre-specified-vertical.txt");
   resV = readParamInfo_Surveys(conn,TRUE);
   View(resV$dfr);
 }
@@ -110,7 +110,7 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testSurveys/inputSpecs_Surveys.pre-specified-horizontal.txt");
+  conn=file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.pre-specified-horizontal.txt");
   resH = readParamInfo_Surveys(conn,TRUE);
   View(resH$dfr);
 }
@@ -120,7 +120,7 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testSurveys/inputSpecs_Surveys.function.txt");
+  conn=file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.function.txt");
   resF = readParamInfo_Surveys(conn,TRUE);
   View(resF$Fcns);
   View(resF$MPs);

@@ -1,4 +1,4 @@
-#--test "function" surveys specifications for the gmacs objective function
+#--test "function" surveys catchability specifications for the gmacs objective function
 require(RTMB);
 require(ggplot2);
 dirPrj = rstudioapi::getActiveProject();
@@ -15,11 +15,11 @@ if (FALSE){
   source(file.path(dirPrj,"R","MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R","MiscFunctions.R"))
   source(file.path(dirPrj,"R","readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R","readParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R","readParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"R","extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R","extractParamInfo_Surveys.R"))
+  source(file.path(dirPrj,"R","extractParamInfo_SurveysCatchability.R"))
   source(file.path(dirPrj,"R","Functions_Catchability.R"))
-  source(file.path(dirPrj,"R","calcSurveys.R"))
+  source(file.path(dirPrj,"R","calcSurveysCatchability.R"))
 }
 
 ##--set up model dimensions----
@@ -46,7 +46,7 @@ if (type=="function"){
   if (!is.null(lstSel$REs$params)) params[["pSel_REs"]]=lstSel$REs$params;
 
   ###--survey catchability inputs with function format----
-  conn   = file.path(dirPrj,"testing/testSurveys/inputSpecs_Surveys.function.txt");
+  conn   = file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.function.txt");
   res    = readParamInfo_Surveys(conn,FALSE);
   lstSrv = extractParamInfo_Surveys(res,dims,FALSE);
   params[["pSrv_MPs"]]=lstSrv$MPs$params;
@@ -63,8 +63,8 @@ inputs$lstSrv = lstSrv;#--add lstSrv to inputs
 #--test calcSurveys function----
 source(file.path(dirPrj,"R/calcSelectivity.R"));
 lstSelVals = calcSelectivity(inputs$dims,inputs$lstSel,params,FALSE);
-source(file.path(dirPrj,"R/calcSurveys.R"));
-lstSrvVals = calcSurveys(inputs$dims,inputs$lstSrv,params,lstSelVals,TRUE);
+source(file.path(dirPrj,"R/calcSurveysCatchability.R"));
+lstSrvVals = calcSurveysCatchability(inputs$dims,inputs$lstSrv,params,lstSelVals,TRUE);
 
 #--plot results----
 plotSrvVals<-function(if_=1,iy_=1,is_=1){
@@ -92,7 +92,7 @@ obj_fun<-function(params){
   REPORT(lstSelVals);
   #--calculate survey catchability time series----
   info = inputs$lstSrv;
-  lstSrvVals = calcSurveys(dims,info,params,lstSelVals,verbose);
+  lstSrvVals = calcSurveysCatchability(dims,info,params,lstSelVals,verbose);
   REPORT(lstSrvVals);
 
   nll = -dnorm(1,params$dummy,1,log=TRUE);
