@@ -1,6 +1,6 @@
-#--rtmbGMACS surveys specifications----
-#----------------------EXAMPLE: horizontal pre-specified surveys---------------------------
-SURVEYS
+#--rtmbGMACS surveys catchability specifications----
+#----------------------EXAMPLE: horizontal pre-specified surveys catchability---------------------------
+SURVEYS_CATCHABILITY
 pre-specified #--input option ("function", "pre-specified")
 horizontal    #--orientation
 6             #--number of rows of input

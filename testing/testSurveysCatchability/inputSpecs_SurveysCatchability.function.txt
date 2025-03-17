@@ -1,6 +1,6 @@
-#--rtmbGMACS fisheries rates specifications----
-#----------------------EXAMPLE: fisheries rates---------------------------
-FISHERIES_RATES
+#--rtmbGMACS surveys catchability specifications----
+#----------------------EXAMPLE: surveys catchability---------------------------
+SURVEYS_CATCHABILITY
 function #--input option ("function", "pre-specified")
 #--Catchability function definitions----
  5 #--number of functions defined

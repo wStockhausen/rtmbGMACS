@@ -1,14 +1,14 @@
-#--rtmbGMACS fisheries rates specifications----
-#----------------------EXAMPLE: fisheries rates---------------------------
-FISHERIES_RATES
+#--rtmbGMACS fisheries capture rates specifications----
+#----------------------EXAMPLE: fisheries capture rates---------------------------
+FISHERIES_CAPTURE_RATES
 function #--input option ("function", "pre-specified")
 #--Catchability function definitions----
  5 #--number of functions defined
-fcn_idx   flt         fcn      sel_idx      avl_idx      y          x       #{other population categories}
-   1      NMFS        lnQ         1           0       (2020)        male
-   2      NMFS        lnQ         2           0       (2020)        female
-   3      NMFS        lnQ         3           0       (2021:2024)   male
-   4      NMFS        lnQ         1           0       (2021:2024)   female
+fcn_idx   flt         fcn      cap_idx      ret_idx      y          x       #{other population categories}
+   1      TCF         lnFc        1           2       (2020)        male
+   2      TCF         lnFc        2           0       (2020)        female
+   3      SCF        lnQ         3           0       (2021:2024)   male
+   4      SCF        lnQ         1           0       (2021:2024)   female
    5      BSFRF       lnQ         3           0       (2021:2022)   all
 ###--reference levels
  0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
