@@ -19,18 +19,18 @@
 #' @md
 #' @export
 #'
-readParamInfo_FisheriesRates<-function(conn,verbose=FALSE){
+readInfo_FisheriesRates<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
           extractLines(start="FISHERIES_RATES",end="END");
-  out = readInfoSectionType1(lns,verbose);
+  out = readInfoType1(lns,verbose);
   return(out);
 }
 
 if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
-  source(file.path(dirPrj,"R/readInfoSectionType1.R"))
+  source(file.path(dirPrj,"R/readInfoType1.R"))
   conn=file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesRates.txt");
   res = readParamInfo_FisheriesRates(conn,TRUE);
   View(res$Fcns);

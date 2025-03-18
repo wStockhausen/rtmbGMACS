@@ -7,14 +7,14 @@ function #--input option ("function", "data")
 fcn_idx      fcn             y        # info
    1     asclogistic1   2020:2024     # TCF: capture selectivity    - logistic selectivity with params pZ50, pWdZ; consts pRefZ
    2     asclogistic1   2020:2024     # TCF: retetntion selectivity - logistic selectivity with params pZ50, pWdZ; consts pRefZ
-   2     asclogistic1   2020:2024     # SCF: capture selectivity    - logistic selectivity with params pZ50, pWdZ; consts pRefZ
+   3     asclogistic1   2020:2024     # SCF: capture selectivity    - logistic selectivity with params pZ50, pWdZ; consts pRefZ
 ###--reference levels
  0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
 # fcn_idx      {categories}
     
 #--Parameters----
 ##--Main parameters----
- 7 #--number of main parameters defined
+ 9 #--number of main parameters defined
 fcn_idx   grp_idx  mp_idx  param   x   tform   IV   LB   UB   phz   PriorType  Pr1  Pr2
     1         1       1    pZ50   all   none   55  50    100   4      none      0   999  # TCF: capture selectivity
     1         1       2    pWdZ   all   none   55  50    100   4      none      0   999  # TCF: capture selectivity

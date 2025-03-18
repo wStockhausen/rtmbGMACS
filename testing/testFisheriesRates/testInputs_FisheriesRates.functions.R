@@ -14,10 +14,22 @@ if (FALSE){
   source(file.path(dirPrj,"R","MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R","MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R","MiscFunctions.R"))
+  source(file.path(dirPrj,"R","Functions_Selectivity.R"))
   source(file.path(dirPrj,"R","readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R","readParamInfo_FisheriesRates.R"))
   source(file.path(dirPrj,"R","extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R","extractParamInfo_FisheriesRates.R"))
+  source(file.path(dirPrj,"R","readParamInfo_Selectivity.R"))
+  source(file.path(dirPrj,"R","extractParamInfo_Selectivity.R"))
+  source(file.path(dirPrj,"R","calcSelectivity.R"))
+  source(file.path(dirPrj,"R","readParamInfo_FisheriesCaptureRates.R"))
+  source(file.path(dirPrj,"R","extractParamInfo_FisheriesCaptureRates.R"))
+  source(file.path(dirPrj,"R","calcFisheriesCaptureRates.R"))
+  source(file.path(dirPrj,"R","readParamInfo_FisheriesHandlingMortalityRates.R"))
+  source(file.path(dirPrj,"R","extractParamInfo_FisheriesHandlingMortalityRates.R"))
+  source(file.path(dirPrj,"R","calcFisheriesHandlingMortalityRates.R"))
+  source(file.path(dirPrj,"R","readInfoType1.R"))
+  source(file.path(dirPrj,"R","extractInfoType1.R"))
+  source(file.path(dirPrj,"R","readInfo_FisheriesRates.R"))
+  source(file.path(dirPrj,"R","extractInfo_FisheriesRates.R"))
   source(file.path(dirPrj,"R","calcFisheriesRates.R"))
 }
 
@@ -32,23 +44,17 @@ params = list();
 map = list();
 
 ##--get selectivity information
-source(file.path(dirPrj,"R","readParamInfo_Selectivity.R"))
-source(file.path(dirPrj,"R","extractParamInfo_Selectivity.R"))
-source(file.path(dirPrj,"R","calcSelectivity.R"))
-conn   = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FshSelectivity.function.txt");
-res    = readParamInfo_Selectivity(conn,FALSE);
-lstSel = extractParamInfo_Selectivity(res,dims,FALSE);
-params[["pSel_MPs"]]=lstSel$MPs$params;
-map = addList(map,lstSel$map);
-if (!is.null(lstSel$OPs$params)) params[["pSel_OPs"]]=lstSel$OPs$params;
-if (!is.null(lstSel$DPs$params)) params[["pSel_DPs"]]=lstSel$DPs$params;
-if (!is.null(lstSel$REs$params)) params[["pSel_REs"]]=lstSel$REs$params;
-inputs$lstSel = lstSel;#--add lstSel to inputs
+conn    = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FshSelectivity.function.txt");
+res     = readParamInfo_Selectivity(conn,FALSE);
+lstSels = extractParamInfo_Selectivity(res,dims,FALSE);
+params[["pSel_MPs"]]=lstSels$MPs$params;
+map = addList(map,lstSels$map);
+if (!is.null(lstSels$OPs$params)) params[["pSel_OPs"]]=lstSels$OPs$params;
+if (!is.null(lstSels$DPs$params)) params[["pSel_DPs"]]=lstSels$DPs$params;
+if (!is.null(lstSels$REs$params)) params[["pSel_REs"]]=lstSels$REs$params;
+inputs$lstSels = lstSels;#--add lstSel to inputs
 
 ##--get fishery capture rates information
-source(file.path(dirPrj,"R","readParamInfo_FisheriesCaptureRates.R"))
-source(file.path(dirPrj,"R","extractParamInfo_FisheriesCaptureRates.R"))
-source(file.path(dirPrj,"R","calcFisheriesCaptureRates.R"))
 conn    = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesCaptureRates.function.txt");
 res     = readParamInfo_FisheriesCaptureRates(conn,FALSE);
 lstFCRs = extractParamInfo_FisheriesCaptureRates(res,dims,FALSE);
@@ -60,9 +66,6 @@ if (!is.null(lstFCRs$REs$params)) params[["pFCRs_REs"]]=lstFCRs$REs$params;
 inputs$lstFCRs = lstFCRs;#--add lstFCRs to inputs
 
 ##--get fishery handling mortality rates information
-source(file.path(dirPrj,"R","readParamInfo_FisheriesHandlingMortalityRates.R"))
-source(file.path(dirPrj,"R","extractParamInfo_FisheriesHandlingMortalityRates.R"))
-source(file.path(dirPrj,"R","calcFisheriesHandlingMortalityRates.R"))
 conn    = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesHandlingMortalityRates.function.txt");
 res     = readParamInfo_FisheriesHandlingMortalityRates(conn,FALSE);
 lstHMRs = extractParamInfo_FisheriesHandlingMortalityRates(res,dims,FALSE);
@@ -73,50 +76,72 @@ if (!is.null(lstHMRs$DPs$params)) params[["pHMRs_DPs"]]=lstHMRs$DPs$params;
 if (!is.null(lstHMRs$REs$params)) params[["pHMRs_REs"]]=lstHMRs$REs$params;
 inputs$lstHMRs = lstHMRs;#--add lstHMRs to inputs
 
-###--fishery rates inputs with function format----
+###--get fishery rates info----
 conn   = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesRates.txt");
 res    = readInfo_FisheriesRates(conn,FALSE);
-lstSrv = extractInfo_FisheriesRates(res,dims,FALSE);
-params[["pFsh_MPs"]]=lstFsh$MPs$params;
-map = addList(map,lstFsh$map);
-if (!is.null(lstFsh$OPs$params)) params[["pFsh_OPs"]]=lstFsh$OPs$params;
-if (!is.null(lstFsh$DPs$params)) params[["pFsh_DPs"]]=lstFsh$DPs$params;
-if (!is.null(lstFsh$REs$params)) params[["pFsh_REs"]]=lstFsh$REs$params;
+lstFsh = extractInfo_FisheriesRates(res,dims,FALSE);
 inputs$lstFsh = lstFsh;#--add lstFsh to inputs
 
 #--test calcFisheriesRates function----
+lstArrSels = calcSelectivity(dims,lstSels,params,FALSE);
+lstArrFCRs = calcFisheriesCaptureRates(dims,lstFCRs,params,FALSE);
+lstArrHMRs = calcFisheriesHandlingMortalityRates(dims,lstHMRs,params,FALSE);
 source(file.path(dirPrj,"R/calcFisheriesRates.R"));
-#--inputs list elements: dims, lstFsh,lstSels,lstFCRs,lstHMRs
-lstFshVals = calcFisheriesRates(inputs,params,TRUE);
+lstFshVals = calcFisheriesRates(dims,inputs$lstFsh,lstArrFCRs,lstArrHMRs,lstArrSels,TRUE);
 
-#--plot results----
-plotSrvVals<-function(if_=1,iy_=1,is_=1){
-  dfrSrv = dims$dmsC |>
-            dplyr::mutate(value=(lstSrvVals[[if_]])[iy_,is_,],
-                          z=as.numeric(as.character(z)));
-  ggplot(dfrSrv, aes(x=as.numeric(z),y=value)) +
-    geom_line() + geom_hline(yintercept=0,linetype=3,colour="grey") +
-    facet_grid(m+p~x) +
-    labs(x="size",y="survey catchability") +
-    wtsPlots::getStdTheme();
+#--convert list/arrays to dataframe----
+getDFR3<-function(dims,lstArr){
+  lstDfrs = list();
+  nms = names(lstArr);
+  for (il_ in 1:length(nms)){
+    #--testing: il_=1;
+    nm = nms[il_];
+    arrYSC = lstArr[[nm]];
+    dfrp = dims$dmsYSC;
+    dfrp$value = as.vector(aperm(arrYSC,perm=c(3,2,1)));
+    lstDfrs[[nm]] = dfrp |> dplyr::mutate(flt=nm);
+    rm(dfrp);
+  }
+  return(dplyr::bind_rows(lstDfrs));
 }
-plotSrvVals(1,1,1)
-plotSrvVals(2,1,1)
-plotSrvVals(1,2,1)
-plotSrvVals(2,2,1)
+dfrFCRs = getDFR3(dims,lstArrFCRs) ; View(dfrFCRs);
+dfrHMRs = getDFR3(dims,lstArrHMRs) ; View(dfrHMRs);
+dfrSels = getDFR3(dims,lstArrSels) ; View(dfrSels);
+
+getDFR4<-function(dims,lstArr,
+                  types=c("FCR","RMR","DMR","TFMR","cap_rt","hm_rt","cap_sel","ret_sel")){
+  lstDfrs = list();
+  nms = names(lstArr);
+  for (il_ in 1:length(nms)){
+    #--testing: il_=1;
+    nm = nms[il_];
+    arrYSC = lstArr[[nm]];
+    dfrp = tibble::tibble(type=types) |>
+             dplyr::cross_join(dims$dmsYSC);
+    dfrp$value = as.vector(aperm(arrYSC,perm=c(4,3,2,1)));
+    lstDfrs[[nm]] = dfrp |> dplyr::mutate(flt=nm);
+    rm(dfrp);
+  }
+  return(dplyr::bind_rows(lstDfrs));
+}
+dfrFsh = getDFR4(dims,lstFshVals) |> dplyr::select(!sparse_idx) |>
+           tidyr::pivot_wider(names_from="type",values_from="value");
+View(dfrFsh);
 
 #--test in RTMB objective function----
 obj_fun<-function(params){
   #--get dimensions----
   dims = inputs$dims;
-  #--calculate selectivity functions----
-  info = inputs$lstSel;
-  lstSelVals = calcSelectivity(dims,info,params,verbose);
-  REPORT(lstSelVals);
-  #--calculate survey catchability time series----
-  info = inputs$lstSrv;
-  lstSrvVals = calcFisheriesRates(dims,info,params,lstSelVals,verbose);
-  REPORT(lstSrvVals);
+  #--calculate selectivity functions, fully-selected capture rates, handling mortality rates----
+  lstArrSels = calcSelectivity(dims,inputs$lstSels,params,FALSE);
+  lstArrFCRs = calcFisheriesCaptureRates(dims,inputs$lstFCRs,params,FALSE);
+  lstArrHMRs = calcFisheriesHandlingMortalityRates(dims,inputs$lstHMRs,params,FALSE);
+  REPORT(lstArrSels);
+  REPORT(lstArrFCRs);
+  REPORT(lstArrHMRs);
+  #--calculate fisheries mortality rates----
+  lstSrvVals = calcFisheriesRates(dims,inputs$lstFsh,lstArrFCRs,lstArrHMRs,lstArrSels,TRUE);
+  REPORT(lstFshVals);
 
   nll = -dnorm(1,params$dummy,1,log=TRUE);
   return(nll);
@@ -126,9 +151,8 @@ verbose=FALSE;
 params$dummy = 0;
 obj = MakeADFun(obj_fun,params,random=NULL,map=map,silent=FALSE);
 rep = obj$report();
-lstSrvVals = rep$lstSrv;
-plotSrvVals(1,1,1)
-plotSrvVals(2,1,1)
-plotSrvVals(1,2,1)
-plotSrvVals(2,2,1)
+dfrFshVals = getDFR4(dims,rep$lstFshVals) |> dplyr::select(!sparse_idx) |>
+           tidyr::pivot_wider(names_from="type",values_from="value");
+View(dfrFshVals);
+
 

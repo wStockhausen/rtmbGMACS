@@ -41,7 +41,7 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Alls.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
-  source(file.path(dirPrj,"R/readInfoSectionType1.R"))
+  source(file.path(dirPrj,"R/readInfoType1.R"))
   source(file.path(dirPrj,"R/readInfo_FisheriesRates.R"))
   source(file.path(dirPrj,"R/extractInfoType1.R"))
   source(file.path(dirPrj,"R/extractInfo_FisheriesRates.R"))
@@ -51,6 +51,6 @@ if (FALSE){
   res1  = readInfo_FisheriesRates(conn,verbose=FALSE);
   res2 = extractInfo_FisheriesRates(res1,dims,verbose=TRUE);
   View(res2$Fcns);
-  View(res2f$dfrUniqCmbs);
-  View(res2f$dfrUHCs);
+  View(res2$dfrUniqCmbs);
+  View(res2$dfrCmbs);
 }

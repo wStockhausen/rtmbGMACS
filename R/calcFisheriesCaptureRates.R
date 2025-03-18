@@ -88,7 +88,7 @@ calcFisheriesCaptureRates<-function(dims,info,params,verbose=FALSE){
 
     ###--create individual capture rate functions----
     expFCR<-function(z,pLnFCR,verbose){
-      print(pLnFCR);
+      # print(pLnFCR);
       RTMB::AD(array(exp(pLnFCR),length(z)))
     }
     dZ = unname(dims$zb[2]-dims$zb[1]);#--bin size
@@ -98,7 +98,7 @@ calcFisheriesCaptureRates<-function(dims,info,params,verbose=FALSE){
       rwUHCs = info$dfrUHCs[rw,];
       rwsUCs = rwUHCs |> dplyr::inner_join(dfrUCs);
       if (rwUHCs$fcn=="exp"){####--expFCR----
-        fcn<-function(z){print(vals[idxVals[rwUHCs$pLnFCR]]);
+        fcn<-function(z){#print(vals[idxVals[rwUHCs$pLnFCR]]);
                          expFCR(z,
                                 vals[idxVals[rwUHCs$pLnFCR]],
                                 verbose)};

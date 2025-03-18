@@ -20,10 +20,10 @@
 #' @md
 #' @export
 #'
-readInfoSectionType1<-function(lns,verbose=FALSE){
+readInfoType1<-function(lns,verbose=FALSE){
   iln = 1;
   #--parse input format option----
-  if (verbose) cat("Starting readInfoSectionType1\n");
+  if (verbose) cat("Starting readInfoType1\n");
   # lst     = extractTextSection(lns,1,1);
   # option  = (stringr::str_trim(stringr::str_split_1(lst$txt,"#")))[1];#--input format option
   #--parse text----
@@ -40,7 +40,7 @@ readInfoSectionType1<-function(lns,verbose=FALSE){
     if (verbose) cat("creating output list\n");
     out = list(Fcns=list(n=nFcns,dfr=dfrFcns)        #--functions
                );
-  if (verbose) cat("Finished readInfoSectionType1\n");
+  if (verbose) cat("Finished readInfoType1\n");
   return(out);
 }
 

@@ -37,7 +37,7 @@ extractInfoType1<-function(lst,
 
     ####--functions----
     if (verbose) message("in extractInfoType1 for ",process_type,": processing functions.")
-    fcn_cols = c("y","s","r","x","m","p","z","fcn","fcn_idx");
+    fcn_cols = c("y","s","r","x","m","p","z","fcn_idx");
     if (length(xtra_cols)) fcn_cols = c(fcn_cols,xtra_cols);
     dfrFcns = lst$Fcns$dfr |> expandDataframe(lstAlls,verbose=verbose) |>
                 dplyr::select(tidyselect::all_of(fcn_cols));
@@ -52,7 +52,6 @@ extractInfoType1<-function(lst,
 
     ###--create output list----
     out = list(Fcns=list(dfrIdxs=lst$Fcns$dfr,
-                         dfrRefLvls=dfrRefLvlsFcns,
                          dfrDims2Idxs=dfrFcns),
                dfrCmbs=dfrCmbs,
                dfrUniqCmbs=dfrUniqCmbs);
