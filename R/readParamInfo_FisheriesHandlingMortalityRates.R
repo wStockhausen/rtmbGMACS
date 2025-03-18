@@ -1,5 +1,5 @@
-#--read fisheries rates info
-#' @title Read fisheries rates info
+#--read fisheries handling mortality rates info
+#' @title Read fisheries handling mortality rates info
 #' @description Function to read fisheries rates info.
 #' @param conn - connection (or filename) to read from
 #' @param verbose - flag to print extra info
@@ -81,10 +81,10 @@
 #' @md
 #' @export
 #'
-readParamInfo_FisheriesRates<-function(conn,verbose=FALSE){
+readParamInfo_FisheriesHandlingMortalityRates<-function(conn,verbose=FALSE){
   lns = purrr::keep(stringr::str_trim(readLines(conn,skipNul=TRUE)),
                     \(x)stringr::str_length(x)>0) |>
-          extractLines(start="FISHERIES_RATES",end="END");
+          extractLines(start="FISHERIES_HANDLING_MORTALITY_RATES",end="END");
   out = readParamInfoSectionType1(lns,verbose);
   if (out$option=="pre-specified") {
     out$flts = unique(out$dfr$flt);
@@ -100,8 +100,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesRates.pre-specified-vertical.txt");
-  resV = readParamInfo_FisheriesRates(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesHandlingMortalityRates.pre-specified-vertical.txt");
+  resV = readParamInfo_FisheriesHandlingMortalityRates(conn,TRUE);
   View(resV$dfr);
 }
 
@@ -110,8 +110,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesRates.pre-specified-horizontal.txt");
-  resH = readParamInfo_FisheriesRates(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesHandlingMortalityRates.pre-specified-horizontal.txt");
+  resH = readParamInfo_FisheriesHandlingMortalityRates(conn,TRUE);
   View(resH$dfr);
 }
 
@@ -120,8 +120,8 @@ if (FALSE){
   dirPrj = rstudioapi::getActiveProject();
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  conn=file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesRates.function.txt");
-  resF = readParamInfo_FisheriesRates(conn,TRUE);
+  conn=file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesHandlingMortalityRates.function.txt");
+  resF = readParamInfo_FisheriesHandlingMortalityRates(conn,TRUE);
   View(resF$Fcns);
   View(resF$MPs);
   View(resF$OPs);

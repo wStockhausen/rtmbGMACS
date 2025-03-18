@@ -1,39 +1,32 @@
 #'
-#' @title Calculate fisheries capture and mortality rates for all model categories across time
+#' @title Calculate fully-selected fisheries handling mortality rates for all model categories across time
 #' @description
-#' Function to calculate fisheries capture and mortality rates for all model categories across time.
-#' @param inputs - list  with elements `dims`,`lstFshs`,`lstSels`,`lstFCRs`,and `lstHMRs`
+#' Function to calculate fully-selected fisheries handling mortality rates for all model categories across time.
+#' @param dims - dimensions list
+#' @param info - info list (output list from [extractParamInfo_FisheriesHandlingMortalityRates()])
 #' @param params - RTMB parameters list with elements specific to fisheries rates
 #' @param verbose - flag to print diagnostic info
 #'
-#' @return A list by fishery fleet of size-specific fishery capture, retention, discard,
-#' and total mortality rates as an array
+#' @return A list by fishery fleet of fully-selected fishery handling mortalitys as an array
 #'
 #' @details If `f_`, `y_`, and `s_` are the fishery fleet, year, and season of interest,
-#' then the indices into the population vector and associated fishing rates are
-#' given by `ic_` and `type_`:
-#'
-#' fshRs = lst[[f_]][y_,s_,ic_,type_];
-#'
-#' where `type` is one of "FCR" (fishery capture rate),"RMR" (retention mortality rate),
-#' "DMR" (discard mortality rate), "TFMR" (total fishing mortality rate)
+#' then the fully-selected fisheries handling mortality rates by population category `ic_` are:
+#' fshCRs = lst[[f_]][y_,s_,ic_];
 #'
 #' @import dplyr
 #'
 #' @md
 #' @export
 #'
-calcFisheriesRates<-function(inputs,params,verbose=FALSE){
+calcFisheriesHandlingMortalityRates<-function(dims,info,params,verbose=FALSE){
   if (verbose) cat("Starting calcFisheriesRates.\n")
-  nTypes = 4;
-  types = c("FCR","RMR","DMR","TFMR");
-  lstFshVals<-list();#--arrays of expanded fishery rates, by fleet
+  lstVals<-list();#--arrays of expanded fishery handling mortality rates, by fleet
   for (flt_ in info$flts){
-    lstFshVals[[flt_]] = RTMB::AD(array(0,c(dims$nYs,dims$nSs,dims$nCs,nTypes)));
+    lstVals[[flt_]] = RTMB::AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
   }
   if (info$option=="pre-specified"){
     ##--"pre-specified" option----
-    p = params$pFshQ_FPs;#--vector of (fixed) fisheries rates values
+    p = params$pSrvQ_FPs;#--vector of (fixed) fisheries rates values
     #--need to expand to p to all population categories, years, and seasons
     for (flt_ in info$flts){
       #--testing: flt_ = info$flts[1];
@@ -63,24 +56,25 @@ calcFisheriesRates<-function(inputs,params,verbose=FALSE){
     dfrUCs = info$dfrUniqCmbs;
     nRWs = nrow(dfrUCs);
     vals  = AD(array(0,nRWs)); #
+    #browser();
     for (rw in 1:nrow(dfrUCs)){
       #--testing: rw = 1;
       dfrUCr = dfrUCs[rw,];
       p = AD(0);
       if (!is.na(dfrUCr$mpr_idx[1])) {
-        p = p + params$pFsh_MPs[dfrUCr$mpr_idx[1]];
+        p = p + params$pHMRs_MPs[dfrUCr$mpr_idx[1]];
       }
       if (any(names(dfrUCr)=="opr_idx"))
         if(!is.na(dfrUCr$opr_idx[1])) {
           if (dfrUCr$op_type=="additive") {
-            p = p + params$pFsh_OPs[dfrUCr$opr_idx[1]];
-          } else {p = p * params$pFsh_OPs[dfrUCr$opr_idx[1]];}
+            p = p + params$pHMRs_OPs[dfrUCr$opr_idx[1]];
+          } else {p = p * params$pHMRs_OPs[dfrUCr$opr_idx[1]];}
         }
       if (any(names(dfrUCr)=="dpr_idx"))
         if (!is.na(dfrUCr$dpr_idx[1])) {
           if (dfrUCr$dv_type=="additive") {
-            p = p + params$pFsh_DPs[dfrUCr$dpr_idx[1]];
-          } else {p = p * params$pFsh_DPs[dfrUCr$dpr_idx[1]];}
+            p = p + params$pHMRs_DPs[dfrUCr$dpr_idx[1]];
+          } else {p = p * params$pHMRs_DPs[dfrUCr$dpr_idx[1]];}
         }
       vals[rw] = p;
     }
@@ -92,37 +86,49 @@ calcFisheriesRates<-function(inputs,params,verbose=FALSE){
     idxVals = 1:length(vals);
     names(idxVals) = dfrUCs$idx;
 
-    ###--create individual catchability functions----
+    ###--create individual handling mortality rate functions----
+    identity<-function(z,pHMR,verbose){
+      print(pHMR);
+      RTMB::AD(array(pHMR,length(z)));
+    }
+    expHMR<-function(z,pLnHMR,verbose){
+      print(pLnHMR);
+      RTMB::AD(array(exp(pLnHMR),length(z)));
+    }
     dZ = unname(dims$zb[2]-dims$zb[1]);#--bin size
     lstFcns = list();
     for (rw in 1:nrow(info$dfrUHCs)){
       #--for testing: rw = 1;
       rwUHCs = info$dfrUHCs[rw,];
       rwsUCs = rwUHCs |> dplyr::inner_join(dfrUCs);
-      if (rwUHCs$fcn=="lnQ"){####--lnQ----
-        fcn<-function(z){lnQ(z,
-                             vals[idxVals[rwUHCs$pLnQ]],
-                             verbose=verbose)};
+      if (rwUHCs$fcn=="identity"){####--identity----
+        fcn<-function(z){print(vals[idxVals[rwUHCs$pHMR]]);
+                         identity(z,
+                                  vals[idxVals[rwUHCs$pHMR]],
+                                  verbose)};
+      } else
+      if (rwUHCs$fcn=="exp"){####--exp----
+        fcn<-function(z){print(vals[idxVals[rwUHCs$pLnHMR]]);
+                         expHMR(z,
+                                vals[idxVals[rwUHCs$pLnHMR]],
+                                verbose)};
       } else {
-        stop("unrecognized selectivity function option for calcSurvey:",rwUHCs$fcn);
+        stop("unrecognized function option for calcFisheriesHandlingMortalityRates:",rwUHCs$fcn);
       }
-      lstFcns[[paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx)]] = fcn;#--save the function
+      #nm = concatenateText(rwUHCs$fcn_idx,rwUHCs$grp_idx,)
+      lstFcns[[rwUHCs$full_idx]] = fcn;#--save the function
       rm(fcn);
     }#--rw loop
     #browser();
 
-    #--loop over surveys, years, seasons, evaluate survey catchability functions----
+    #--loop over fisheries, years, seasons, evaluate fisheries handling mortality rates functions----
     for (rw in 1:nrow(info$dfrUHCs)){
       #--rw = 1;
       rwUHCs  = info$dfrUHCs[rw,];
       flt_    = rwUHCs$flt;
-      fcn_idx = paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx);
-      if (verbose) cat("flt_:",flt_,"fcn_idx:",fcn_idx,"sel_idx:",rwUHCs$sel_idx,"avl_idx:",rwUHCs$avl_idx,"\n")
-      arrSelVals = lstSels[[rwUHCs$sel_idx]];
-      if (rwUHCs$avl_idx>0) {#--apply availability
-        arrSelVals = lstSels[[rwUHCs$avl_idx]] * arrSelVals;
-      }
-      fcn = lstFcns[[fcn_idx]];
+      if (verbose) cat("flt_:",flt_,"full_idx:",rwUHCs$full_idx,"\n")
+      fcn = lstFcns[[rwUHCs$full_idx]];
+      arrVals = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
       for (iy_ in 1:dims$nYs){
         #--iy_ = 1;
         y_ = dims$y[iy_];
@@ -131,22 +137,18 @@ calcFisheriesRates<-function(inputs,params,verbose=FALSE){
           s_ = dims$s[is_];
           dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |> dplyr::mutate(ic_=dplyr::row_number());
           dfrIdxs = dfrDims |> dplyr::inner_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z)) |>
-                       dplyr::filter(fcn_idx==rwUHCs$fcn_idx,grp_idx==rwUHCs$grp_idx);
+                       dplyr::filter(full_idx==rwUHCs$full_idx);
           if (nrow(dfrIdxs)>0){
             ic_ = dfrIdxs$ic_;
-            if (rwUHCs$sel_idx>0) {
-              #--combine fully-selected Q and selectivity/availability values
-              lstFshVals[[flt_]][iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z))*arrSelVals[iy_,is_,ic_];
-            } else {
-              #--
-              lstFshVals[[flt_]][iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z));
-            }
+            arrVals[iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z));
           }
+          #browser();
         }#--is_ loop
       }#--iy_ loop
+      lstVals[[flt_]] = lstVals[[flt_]] + arrVals;
     }#--rw loop
   } else {
-    stop("unrecognized type option for calcSurvey:",info$option);
+    stop("unrecognized type option for calcFisheriesHandlingMortalityRates:",info$option);
   }
-  return(lstFshVals);
+  return(lstVals);
 }#--end of function

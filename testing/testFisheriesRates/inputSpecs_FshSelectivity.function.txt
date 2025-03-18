@@ -1,0 +1,71 @@
+#--rtmbGMACS selectivity specifications----
+#----------------------EXAMPLE: selectivity for fisheries---------------------------
+SELECTIVITY
+function #--input option ("function", "data")
+#--Function definitions----
+ 3 #--number of functions defined
+fcn_idx      fcn             y        # info
+   1     asclogistic1   2020:2024     # TCF: capture selectivity    - logistic selectivity with params pZ50, pWdZ; consts pRefZ
+   2     asclogistic1   2020:2024     # TCF: retetntion selectivity - logistic selectivity with params pZ50, pWdZ; consts pRefZ
+   2     asclogistic1   2020:2024     # SCF: capture selectivity    - logistic selectivity with params pZ50, pWdZ; consts pRefZ
+###--reference levels
+ 0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
+# fcn_idx      {categories}
+    
+#--Parameters----
+##--Main parameters----
+ 7 #--number of main parameters defined
+fcn_idx   grp_idx  mp_idx  param   x   tform   IV   LB   UB   phz   PriorType  Pr1  Pr2
+    1         1       1    pZ50   all   none   55  50    100   4      none      0   999  # TCF: capture selectivity
+    1         1       2    pWdZ   all   none   55  50    100   4      none      0   999  # TCF: capture selectivity
+    1         1       3    pRefZ  all   none  100  99    101  -1      none      0   999  # TCF: capture selectivity
+    2         1       4    pZ50  male   none   85  50    100   4      none      0   999  # TCF: retetntion selectivity
+    2         1       5    pWdZ  male   none   30  10     50   4      none      0   999  # TCF: retetntion selectivity
+    2         1       6    pRefZ male   none  100  99    101  -1      none      0   999  # TCF: retetntion selectivity
+    3         1       7    pZ50   all   none   35  20    100   4      none      0   999  # SCF: capture selectivity
+    3         1       8    pWdZ   all   none   35  20    100   4      none      0   999  # SCF: capture selectivity
+    3         1       9    pRefZ  all   none  100  99    101  -1      none      0   999  # SCF: capture selectivity
+##--Offset parameters----
+0 #--number of offset parameters defined
+#   mp_idx  param   op_idx    op_type      x     tform    IV       LB       UB     phz   PriorType  Pr1    Pr2
+       
+##--"devs" (fixed effects) vectors----
+ 0 #--number of devs vectors defined
+#   mp_idx  param   dv_idx     dv_type   rw_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
+###--reference levels
+ 0 #--number of reference levels
+#   param  mp_idx  dv_idx     y      x     m         p       z
+
+##--"RE" vectors----
+ 0 #--number of RE vectors defined
+#  param   mp_idx  rv_idx   rv_type  expand_across     y       x    tform    IV    LB         UB     phz   PriorType  Pr1    Pr2
+###--RE covariance definitions
+
+##--parameter-level environmental covariates----
+###--definitions
+ 0 #--number of environmental covariate relationships defined
+# mp_idx  param   cv_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z
+###--reference levels
+ 0 #--number of reference levels
+# pcov_idx  covar   y   r   x   m   a   z
+
+##--function-level environmental covariates----
+###--definitions
+ 0 #--number of environmental covariate relationships defined
+#fcn_idx  fcn       fcov_idx  covar link_type    IV    LB    UB    phz   PriorType  Pr1    Pr2      y      # r   x    m    p    z
+###--reference levels
+0 #--number of reference levels
+# fcov_idx  fcn   y   r   x   m   p   z
+
+#--functional priors----
+0 #--number of functional priors
+# fcn_idx  tform   PriorType  Pr1    Pr2  # y   r   x    m    p    z
+
+END
+
+
+
+
+
+
+

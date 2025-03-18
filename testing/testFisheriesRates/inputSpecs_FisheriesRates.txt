@@ -1,0 +1,19 @@
+#--rtmbGMACS fisheries rates specifications----
+#----------------------EXAMPLE: fisheries rates---------------------------
+FISHERIES_RATES
+#--fishery rates definitions----
+ 5 #--number of functions defined
+fcn_idx   flt    cap_idx      ret_idx      y          x       #{other population categories}
+   1      TCF      1           2       (2020)        male
+   2      TCF      1           0       (2020)        female
+   3      TCF      2           2       (2021:2024)   male
+   4      TCF      2           0       (2021:2024)   female
+   5      SCF      3           0       (2021:2022)   all
+END
+
+
+
+
+
+
+
