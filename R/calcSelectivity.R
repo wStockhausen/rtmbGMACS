@@ -22,6 +22,9 @@
 calcSelectivity<-function(dims,info,params,verbose=FALSE){
   if (verbose) cat("Starting calcSelectivity.\n")
   lstSelVals<-list();
+  for (sel_ in as.character(info$dfrUHCs$fcn_idx)){
+    lstSelVals[[sel_]] = RTMB::AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+  }
   if (info$option=="data"){
     ##--"data" option----
     p = params$pSel_FPs;#--vector of selectivity values
@@ -100,7 +103,6 @@ calcSelectivity<-function(dims,info,params,verbose=FALSE){
     for (rw in 1:nrow(info$dfrUHCs)){
       #--for testing: rw = 1;
       rwUHCs = info$dfrUHCs[rw,];
-      rwsUCs = rwUHCs |> dplyr::inner_join(dfrUCs);
       if (rwUHCs$fcn=="const_sel"){####--const_sel----
         fcn<-function(z){const_sel(z,
                                   vals[idxVals[rwUHCs$pCnst]],
@@ -242,16 +244,17 @@ calcSelectivity<-function(dims,info,params,verbose=FALSE){
       } else {
         stop("unrecognized selectivity function option for calcSelectivity:",rwUHCs$fcn);
       }
-      lstFcns[[paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx)]] = fcn;#--save it
+      lstFcns[[rwUHCs$full_idx]] = fcn;#--save it
       rm(fcn);
     }#--rw loop
 
-    #--loop over sel functions, years, seasons, evaluate selectivity functions----
+    #--loop over unique sel functions to evaluate years, seasons and
+    #--evaluate selectivity functions----
     for (rw in 1:nrow(info$dfrUHCs)){
       #--rw = 1;
-      rwUHCs = info$dfrUHCs[rw,];
-      fcn_idx = paste(rwUHCs$fcn_idx,"+",rwUHCs$grp_idx);
-      fcn = lstFcns[[fcn_idx]];
+      rwUHCs  = info$dfrUHCs[rw,];
+      fcn_idx = as.character(rwUHCs$fcn_idx);
+      fcn = lstFcns[[rwUHCs$full_idx]];
       arrSelVals = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
       for (iy_ in 1:dims$nYs){
         #--iy_ = 1;
@@ -261,14 +264,14 @@ calcSelectivity<-function(dims,info,params,verbose=FALSE){
           s_ = dims$s[is_];
           dfrDims = (dims$dmsYSC |> dplyr::filter(y==y_,s==s_)) |> dplyr::mutate(ic_=dplyr::row_number());
           dfrIdxs = dfrDims |> dplyr::inner_join(info$dfrHCs,by = dplyr::join_by(y, s, r, x, m, p, z)) |>
-                       dplyr::filter(fcn_idx==rwUHCs$fcn_idx,grp_idx==rwUHCs$grp_idx);
+                       dplyr::filter(full_idx==rwUHCs$full_idx);
           if (nrow(dfrIdxs)>0){
             ic_ = dfrIdxs$ic_;
             arrSelVals[iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z));
           }
         }#--is_ loop
       }#--iy_ loop
-      lstSelVals[[fcn_idx]] = arrSelVals;
+      lstSelVals[[fcn_idx]] = lstSelVals[[fcn_idx]]+arrSelVals;
     }#--rw loop
   } else {
     stop("unrecognized type option for calcSelectivity:",info$option);

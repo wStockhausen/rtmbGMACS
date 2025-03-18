@@ -43,7 +43,7 @@ extractParamInfo_Allometry<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Allometry",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Allometry",verbose=verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----

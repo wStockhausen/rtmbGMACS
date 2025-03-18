@@ -43,11 +43,11 @@ extractParamInfo_Recruitment_TimeSeries<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Recruitment_TimeSeries",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Recruitment_TimeSeries",verbose=verbose);
 
-  } else if (tolower(lst$option)=="data"){
-    ##--option == "data"----
-    ###--inputs are data (fixed values)
+  } else if (tolower(lst$option)=="pre-specified"){
+    ##--option == "pre-specified"----
+    ###--inputs are fixed values
     tform = stringr::str_starts(lst$transform,"tf_") |>
               ifelse(lst$transform,paste0("tf_",lst$transform));
     eval(parse(text=paste0("tf<-",tform)));#--evaluate transformation

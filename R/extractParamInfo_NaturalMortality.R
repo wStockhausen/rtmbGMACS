@@ -43,7 +43,7 @@ extractParamInfo_NaturalMortality<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"NaturalMortality",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"NaturalMortality",verbose=verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----

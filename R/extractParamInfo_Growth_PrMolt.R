@@ -43,7 +43,7 @@ extractParamInfo_Growth_PrMolt<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Growth_PrMolt",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Growth_PrMolt",verbose=verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----

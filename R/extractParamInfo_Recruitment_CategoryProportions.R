@@ -43,7 +43,7 @@ extractParamInfo_Recruitment_CategoryProportions<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Recruitment_CategoryProportions",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Recruitment_CategoryProportions",verbose=verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----

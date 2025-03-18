@@ -1,0 +1,15 @@
+#--rtmbGMACS recruitment time series specifications----
+#----------------------EXAMPLE: vertical recruitment time series pre-specified---------------------------
+RECRUITMENT_TIME_SERIES
+pre-specified     #--input option ("function", "data")
+vertical          #--orientation
+5                 #--number of rows of data
+none              #--transform function (values are millions of crab)
+y    value
+2020  20
+2021  21
+2022  22
+2023  23
+2024  24
+END
+

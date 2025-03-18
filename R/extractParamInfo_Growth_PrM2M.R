@@ -43,7 +43,7 @@ extractParamInfo_Growth_PrM2M<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType2(lst,dims$dmsYSC,"Growth_PrM2M",tmCats="m",verbose);
+    out = extractParamInfoFunctionType2(lst,dims$dmsYSC,"Growth_PrM2M",tmCats="m",verbose=verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----

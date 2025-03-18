@@ -25,11 +25,11 @@ if (FALSE){
 #----"y","s","r","x","m","a","z"
 source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
 
-type = "data-vertical";
-if (type=="data-vertical"){
+type = "pre-specified-vertical";
+if (type=="pre-specified-vertical"){
   ###--recruitment time series with data-vertical----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
-  conn     = file.path(dirPrj,"testing/testRecruitment_TimeSeries/inputSpecs_Recruitment_TimeSeries.data-vertical.txt");
+  conn     = file.path(dirPrj,"testing/testRecruitment_TimeSeries/inputSpecs_Recruitment_TimeSeries.pre-specified-vertical.txt");
   res      = readParamInfo_Recruitment_TimeSeries(conn,TRUE);
   lstRecTS = extractParamInfo_Recruitment_TimeSeries(res,dims,FALSE);
   params = list(pRecTS_FPs=lstRecTS$params);#--"FP" for "fixed" parameters
@@ -37,7 +37,7 @@ if (type=="data-vertical"){
 if (type=="data-horizontal"){
   ###--recruitment time series with data-horizontal----
   dims = setupModelDims(zcs=seq(24.5,184.5,5));
-  conn     = file.path(dirPrj,"testing/testRecruitment_TimeSeries/inputSpecs_Recruitment_TimeSeries.data-horizontal.txt");
+  conn     = file.path(dirPrj,"testing/testRecruitment_TimeSeries/inputSpecs_Recruitment_TimeSeries.pre-specified-horizontal.txt");
   res      = readParamInfo_Recruitment_TimeSeries(conn,TRUE);
   lstRecTS = extractParamInfo_Recruitment_TimeSeries(res,dims);
   params = list(pRecTS_FPs=lstRecTS$params);#--"FP" for "fixed" parameters
@@ -59,7 +59,7 @@ inputs$lstRecTS = lstRecTS;#--add lstRecTS to inputs
 
 #--test arrRecTS function----
 source(file.path(dirPrj,"R/calcRecruitment_TimeSeries.R"));
-arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,TRUE,loopIC_=TRUE); #--slower
+#--arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,TRUE,loopIC_=TRUE); #--slower
 arrRecTS = calcRecruitment_TimeSeries(inputs$dims,inputs$lstRecTS,params,FALSE,loopIC_=FALSE);#--faster
 dfrRecTS = tibble::as_tibble(arrRecTS[1:5,1,1]) |>
          dplyr::mutate(row_id=dplyr::row_number()) |>

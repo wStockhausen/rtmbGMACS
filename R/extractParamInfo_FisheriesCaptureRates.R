@@ -1,12 +1,13 @@
-#--extract survey catchability functions parameters
+#--extract fisheries capture rates parameters
 #'
-#' @title Extract survey catchability functions parameters from parameter info list
-#' @description Function to extract survey catchability functions parameters from parameter info list.
-#' @param lst - parameter info list from [readParamInfo_SurveysCatchability()]
+#' @title Extract fisheries capture rates parameters from parameter info list
+#' @description Function to extract fisheries capture rates parameters from parameter info list.
+#' @param lst - parameter info list from [readParamInfo_FisheriesCaptureRates()]
 #' @param dims - `dims` list from `setupModelDims`
+#' @param verbose - flag (TRUE/FALSE) to print diagnostic info
 #' @return a list (see details)
 #' @details The format of the returned list depends on the `option` specified in `lst`.
-#' If `lst$option` is "pre-specified" (i.e., the input parameter values are fixed values of weight-at-size
+#' If `lst$option` is "pre-specified" (i.e., the input parameter values are fixed values of fishery capture rates
 #' specified at least for every population category), the output list has elements
 #' \itemize{
 #' \item{option - format option}
@@ -28,23 +29,23 @@
 #'
 #' @export
 #'
-extractParamInfo_SurveysCatchability<-function(lst,
-                                               dims=NULL,
-                                               verbose=TRUE){
-  if (verbose) message("starting extractParameters_SurveysCatchability.")
+extractParamInfo_FisheriesCaptureRates<-function(lst,
+                                   dims=NULL,
+                                   verbose=TRUE){
+  if (verbose) message("starting extractParameters_FisheriesCaptureRates.")
   if (FALSE){
     #--NOTE: run this section if you are just stepping through the code for development purposes
     ##--assumes you've created `dims` via `dims = setupModelDims();`
     verbose = TRUE;
-    lst = res;#--assumed output from `res  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);`
+    lst = res;#--assumed output from `res  = readParamInfo_FisheriesCaptureRates(conn,verbose=FALSE);`
   }
 
-  #--expand Surveys parameter information----
+  #--expand FisheriesCaptureRates parameter information----
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Surveys_Catchability",
-                                        xtra_cols=c("flt","sel_idx","avl_idx"),
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"FisheriesCaptureRates",
+                                        xtra_cols=c("flt"),
                                         verbose=verbose);
     out$flts = lst$flts;
   } else if (tolower(lst$option)=="pre-specified"){
@@ -57,7 +58,7 @@ extractParamInfo_SurveysCatchability<-function(lst,
       ###--values are character strings----
       ###--need to evaluate and transform `value`s to get (fixed) parameter values
       if (verbose){
-        message("in extractParamInfo_SurveysCatchabiity: lst$dfr:")
+        message("in extractParamInfo_FisheriesCaptureRates: lst$dfr:")
         print(lst$dfr);
       }
       dfrp = lst$dfr |> dplyr::select(!c(z,value));
@@ -93,18 +94,15 @@ extractParamInfo_SurveysCatchability<-function(lst,
     for (dmnm in dmnms){
       if (!(dmnm %in% names(dfr))) dfr[[dmnm]] = "all";
     }
-    dfr = dfr |> dplyr::select(pidx,flt,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2) |>
-            dplyr::mutate(sel_idx=0,    #--no need for a sel function
-                          avl_idx=0,    #--no need for a avl function
-                          .after=flt);
+    dfr = dfr |> dplyr::select(pidx,flt,y,s,r,x,m,p,z,IV,LB,UB,phz,PriorType,Pr1,Pr2);
     ###--extract parameter values----
     if (verbose) {
-      message("in extractParameters_SurveysCatchability: resolved 'pre-specified' option values");
+      message("in extractParameters_FisheriesCaptureRates: resolved 'pre-specified' option values");
       print(dfr);
     }
-    pSrvQ_FPs = dfr$IV;#--survey catchability value
-    map = list(pSrvQ_FPs=factor(NA+pSrvQ_FPs));#--NAs indicate fixed values
-    if (verbose) message("in extractParameters_SurveysCatchabiity: expanding dataframe.")
+    pFCR_FPs = dfr$IV;#--fishery capture rate value
+    map = list(pFCR_FPs=factor(NA+pFCR_FPs));#--NAs indicate fixed values
+    if (verbose) message("in extractParameters_FisheriesCaptureRates: expanding dataframe.")
     ###--create list of all dimension levels in `dims$dmsYSC` to convert "all"'s to pop levels----
     ####--listAlls is a list with all individual dimension levels, by individual dimension y, s, r, x, m, a, p, z
     lstAlls = NULL;
@@ -114,7 +112,7 @@ extractParamInfo_SurveysCatchability<-function(lst,
               expandDataframe(lstAlls=lstAlls,verbose=verbose);#--expanded for "alls"
     out = list(option="pre-specified",
                flts=lst$flts,
-               params=pSrvQ_FPs,
+               params=pFCR_FPs,
                map=map,
                dfrIdx2Pars=dfr,
                dfrDims2Pars=dfrp);
@@ -132,14 +130,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_SurveysCatchability.R"))
+  source(file.path(dirPrj,"R/readParamInfo_FisheriesCaptureRates.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_SurveysCatchability.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_FisheriesCaptureRates.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.pre-specified-vertical.txt");
-  res1v  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);
-  res2v = extractParamInfo_SurveysCatchability(res1v,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesCaptureRates.pre-specified-vertical.txt");
+  res1v  = readParamInfo_FisheriesCaptureRates(conn,verbose=FALSE);
+  res2v = extractParamInfo_FisheriesCaptureRates(res1v,dims,verbose=FALSE);
   View(res2v$dfrDims2Pars);
   View(res2v$dfrIdx2Pars);
 }
@@ -151,14 +149,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_SurveysCatchability.R"))
+  source(file.path(dirPrj,"R/readParamInfo_FisheriesCaptureRates.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_SurveysCatchability.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_FisheriesCaptureRates.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.pre-specified-horizontal.txt");
-  res1h  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);
-  res2h = extractParamInfo_SurveysCatchability(res1h,dims,verbose=FALSE);
+  conn = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesCaptureRates.pre-specified-horizontal.txt");
+  res1h  = readParamInfo_FisheriesCaptureRates(conn,verbose=FALSE);
+  res2h = extractParamInfo_FisheriesCaptureRates(res1h,dims,verbose=FALSE);
   View(res2h$dfrDims2Pars);
   View(res2h$dfrIdx2Pars);
 }
@@ -170,14 +168,14 @@ if (FALSE){
   source(file.path(dirPrj,"R/MiscFunctions_Text.R"))
   source(file.path(dirPrj,"R/MiscFunctions_Transforms.R"))
   source(file.path(dirPrj,"R/readParamInfoSectionType1.R"))
-  source(file.path(dirPrj,"R/readParamInfo_SurveysCatchability.R"))
+  source(file.path(dirPrj,"R/readParamInfo_FisheriesCaptureRates.R"))
   source(file.path(dirPrj,"R/extractParamInfoFunctionType1.R"))
-  source(file.path(dirPrj,"R/extractParamInfo_SurveysCatchability.R"))
+  source(file.path(dirPrj,"R/extractParamInfo_FisheriesCaptureRates.R"))
   source(file.path(dirPrj,"testing/r_setupModelDimensions.TestA.R"))
   dims = setupModelDims();
-  conn = file.path(dirPrj,"testing/testSurveysCatchability/inputSpecs_SurveysCatchability.function.txt");
-  res1f  = readParamInfo_SurveysCatchability(conn,verbose=FALSE);
-  res2f = extractParamInfo_SurveysCatchability(res1f,dims,verbose=TRUE);
+  conn = file.path(dirPrj,"testing/testFisheriesRates/inputSpecs_FisheriesCaptureRates.function.txt");
+  res1f  = readParamInfo_FisheriesCaptureRates(conn,verbose=FALSE);
+  res2f = extractParamInfo_FisheriesCaptureRates(res1f,dims,verbose=TRUE);
   View(res2f$Fcns);
   View(res2f$dfrUniqCmbs);
   View(res2f$dfrUHCs);

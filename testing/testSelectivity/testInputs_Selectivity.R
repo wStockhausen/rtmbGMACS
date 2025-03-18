@@ -64,6 +64,25 @@ inputs$lstSel = lstSel;#--add lstSel to inputs
 #--test calcSelectivity function----
 source(file.path(dirPrj,"R/calcSelectivity.R"));
 lstSelVals = calcSelectivity(inputs$dims,inputs$lstSel,params,FALSE);
+
+#--convert list/arrays to dataframe----
+getDFR<-function(dims,lstArr){
+  lstDfrs = list();
+  nms = names(lstArr);
+  for (il_ in 1:length(nms)){
+    #--testing: il_=1;
+    nm = nms[il_];
+    arrYSC = lstArr[[nm]];
+    dfrp = dims$dmsYSC;
+    dfrp$value = as.vector(aperm(arrYSC,perm=c(3,2,1)));
+    lstDfrs[[nm]] = dfrp |> dplyr::mutate(sel_fcn=nm);
+    rm(dfrp);
+  }
+  return(dplyr::bind_rows(lstDfrs));
+}
+dfrSels = getDFR(dims,lstSelVals);
+
+
 plotSelVals<-function(if_=1,iy_=1,is_=1){
   dfrSel = dims$dmsC |>
             dplyr::mutate(value=(lstSelVals[[if_]])[iy_,is_,],

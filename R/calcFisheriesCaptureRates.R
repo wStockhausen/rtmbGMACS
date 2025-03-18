@@ -1,34 +1,32 @@
 #'
-#' @title Calculate surveys catchability for all model categories across time
+#' @title Calculate fully-selected fisheries capture rates for all model categories across time
 #' @description
-#' Function to calculate surveys catchability for all model categories across time.
+#' Function to calculate fully-selected fisheries capture rates for all model categories across time.
 #' @param dims - dimensions list
-#' @param info - info list (output list from [extractParamInfo_SurveysCatchability()])
-#' @param params - RTMB parameters list with elements specific to survey catchability
-#' @param lstSels - list of selectivity value arrays (output from [calcSelectivity()])
+#' @param info - info list (output list from [extractParamInfo_FisheryCaptureRates()])
+#' @param params - RTMB parameters list with elements specific to fisheries rates
 #' @param verbose - flag to print diagnostic info
 #'
-#' @return A list of size-specific survey catchability arrays by survey fleet
+#' @return A list by fishery fleet of fully-selected fishery captures as an array
 #'
-#' @details If `f_`, `y_`, and `s_` are the survey fleet, year, and season of interest,
-#' then the indices into the population vector and associated selectivity values are
-#' given by `ic_` and `selVals`
-#' srvQs = lst[[f_]][y_,s_,ic_];
+#' @details If `f_`, `y_`, and `s_` are the fishery fleet, year, and season of interest,
+#' then the fully-selected fisheries capture rates by population category `ic_` are:
+#' fshCRs = lst[[f_]][y_,s_,ic_];
 #'
 #' @import dplyr
 #'
 #' @md
 #' @export
 #'
-calcSurveysCatchability<-function(dims,info,params,lstSels,verbose=FALSE){
-  if (verbose) cat("Starting calcSurveyCatchability.\n")
-  lstSrvVals<-list();#--arrays of expanded survey catchability, by survey
+calcFisheriesCaptureRates<-function(dims,info,params,verbose=FALSE){
+  if (verbose) cat("Starting calcFisheriesRates.\n")
+  lstFshVals<-list();#--arrays of expanded fishery capture rates, by fleet
   for (flt_ in info$flts){
-    lstSrvVals[[flt_]] = RTMB::AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+    lstFshVals[[flt_]] = RTMB::AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
   }
   if (info$option=="pre-specified"){
-    ##--"data" option----
-    p = params$pSrvQ_FPs;#--vector of (fixed) selectivity values
+    ##--"pre-specified" option----
+    p = params$pSrvQ_FPs;#--vector of (fixed) fisheries rates values
     #--need to expand to p to all population categories, years, and seasons
     for (flt_ in info$flts){
       #--testing: flt_ = info$flts[1];
@@ -45,7 +43,7 @@ calcSurveysCatchability<-function(dims,info,params,lstSels,verbose=FALSE){
                                                 by = dplyr::join_by(y, s, r, x, m, p, z));
           if (nrow(dfrIdxs)>0){
             ic_ = dfrIdxs$ic_;
-            lstSrvVals[[flt_]][iy_,is_,ic_] = p[dfrIdxs$pidx];
+            lstFshVals[[flt_]][iy_,is_,ic_] = p[dfrIdxs$pidx];
           }
         }#--is_ loop
       }#--iy_ loop
@@ -58,24 +56,25 @@ calcSurveysCatchability<-function(dims,info,params,lstSels,verbose=FALSE){
     dfrUCs = info$dfrUniqCmbs;
     nRWs = nrow(dfrUCs);
     vals  = AD(array(0,nRWs)); #
+    #browser();
     for (rw in 1:nrow(dfrUCs)){
       #--testing: rw = 1;
       dfrUCr = dfrUCs[rw,];
       p = AD(0);
       if (!is.na(dfrUCr$mpr_idx[1])) {
-        p = p + params$pSrv_MPs[dfrUCr$mpr_idx[1]];
+        p = p + params$pFCRs_MPs[dfrUCr$mpr_idx[1]];
       }
       if (any(names(dfrUCr)=="opr_idx"))
         if(!is.na(dfrUCr$opr_idx[1])) {
           if (dfrUCr$op_type=="additive") {
-            p = p + params$pSrv_OPs[dfrUCr$opr_idx[1]];
-          } else {p = p * params$pSrv_OPs[dfrUCr$opr_idx[1]];}
+            p = p + params$pFCRs_OPs[dfrUCr$opr_idx[1]];
+          } else {p = p * params$pFCRs_OPs[dfrUCr$opr_idx[1]];}
         }
       if (any(names(dfrUCr)=="dpr_idx"))
         if (!is.na(dfrUCr$dpr_idx[1])) {
           if (dfrUCr$dv_type=="additive") {
-            p = p + params$pSrv_DPs[dfrUCr$dpr_idx[1]];
-          } else {p = p * params$pSrv_DPs[dfrUCr$dpr_idx[1]];}
+            p = p + params$pFCRs_DPs[dfrUCr$dpr_idx[1]];
+          } else {p = p * params$pFCRs_DPs[dfrUCr$dpr_idx[1]];}
         }
       vals[rw] = p;
     }
@@ -87,10 +86,10 @@ calcSurveysCatchability<-function(dims,info,params,lstSels,verbose=FALSE){
     idxVals = 1:length(vals);
     names(idxVals) = dfrUCs$idx;
 
-    ###--create individual catchability functions----
-    expQ<-function(z,pLnQ,verbose=FALSE){
-      if (verbose) cat("in function lnQ.\n")
-      return(RTMB::AD(array(exp(pLnQ),length(z))));
+    ###--create individual capture rate functions----
+    expFCR<-function(z,pLnFCR,verbose){
+      print(pLnFCR);
+      RTMB::AD(array(exp(pLnFCR),length(z)))
     }
     dZ = unname(dims$zb[2]-dims$zb[1]);#--bin size
     lstFcns = list();
@@ -98,31 +97,28 @@ calcSurveysCatchability<-function(dims,info,params,lstSels,verbose=FALSE){
       #--for testing: rw = 1;
       rwUHCs = info$dfrUHCs[rw,];
       rwsUCs = rwUHCs |> dplyr::inner_join(dfrUCs);
-      if (rwUHCs$fcn=="exp"){####--expQ----
-        fcn<-function(z){expQ(z,
-                              vals[idxVals[rwUHCs$pLnQ]],
-                              verbose=verbose)};
+      if (rwUHCs$fcn=="exp"){####--expFCR----
+        fcn<-function(z){print(vals[idxVals[rwUHCs$pLnFCR]]);
+                         expFCR(z,
+                                vals[idxVals[rwUHCs$pLnFCR]],
+                                verbose)};
       } else {
-        stop("unrecognized selectivity function option for calcSurveysCatchability:",rwUHCs$fcn);
+        stop("unrecognized function option for calcFisheriesCaptureRates:",rwUHCs$fcn);
       }
+      #nm = concatenateText(rwUHCs$fcn_idx,rwUHCs$grp_idx,)
       lstFcns[[rwUHCs$full_idx]] = fcn;#--save the function
       rm(fcn);
     }#--rw loop
     #browser();
 
-    #--loop over surveys, years, seasons, evaluate survey catchability functions----
+    #--loop over fisheries, years, seasons, evaluate fisheries capture rates functions----
     for (rw in 1:nrow(info$dfrUHCs)){
       #--rw = 1;
       rwUHCs  = info$dfrUHCs[rw,];
       flt_    = rwUHCs$flt;
       if (verbose) cat("flt_:",flt_,"full_idx:",rwUHCs$full_idx,"\n")
       fcn = lstFcns[[rwUHCs$full_idx]];
-      if (verbose) cat("flt_:",flt_,"fcn_idx:",rwUHCs$fcn_idx,"sel_idx:",rwUHCs$sel_idx,"avl_idx:",rwUHCs$avl_idx,"\n")
-      arrSelVals = lstSels[[rwUHCs$sel_idx]];
-      if (rwUHCs$avl_idx>0) {#--apply availability
-        arrSelVals = lstSels[[rwUHCs$avl_idx]] * arrSelVals;
-      }
-      arrSrvVals = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
+      arrFCRsVals = AD(array(0,c(dims$nYs,dims$nSs,dims$nCs)));
       for (iy_ in 1:dims$nYs){
         #--iy_ = 1;
         y_ = dims$y[iy_];
@@ -134,20 +130,15 @@ calcSurveysCatchability<-function(dims,info,params,lstSels,verbose=FALSE){
                        dplyr::filter(full_idx==rwUHCs$full_idx);
           if (nrow(dfrIdxs)>0){
             ic_ = dfrIdxs$ic_;
-            if (rwUHCs$sel_idx>0) {
-              #--combine fully-selected Q and selectivity/availability values
-              arrSrvVals[iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z))*arrSelVals[iy_,is_,ic_];
-            } else {
-              #--
-              arrSrvVals[iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z));
-            }
+            arrFCRsVals[iy_,is_,ic_] = fcn(as.numeric(dfrIdxs$z));
           }
+          #browser();
         }#--is_ loop
       }#--iy_ loop
-      lstSrvVals[[flt_]] = lstSrvVals[[flt_]] + arrSrvVals;
+      lstFshVals[[flt_]] = lstFshVals[[flt_]] + arrFCRsVals;
     }#--rw loop
   } else {
-    stop("unrecognized type option for calcSurveysCatchability:",info$option);
+    stop("unrecognized type option for calcFisheriesCaptureRates:",info$option);
   }
-  return(lstSrvVals);
+  return(lstFshVals);
 }#--end of function

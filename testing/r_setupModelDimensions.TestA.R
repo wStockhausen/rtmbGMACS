@@ -23,7 +23,7 @@ setupModelDims<-function(zcs=seq(55.5,104.5,5)){
   dims$zc = zcs;                                #--size bin cutpoints
   dims$zb =  0.5*(zcs[2:nzcs]+zcs[1:(nzcs-1)]); #--size bin centers
   dims$z =  dims$zb;                            #--size classes (bin centers, repeat of zb)
-  dims$f = c("TCF","NMFS");                     #--fleets
+  dims$f = c("TCF","SCF","NMFS");               #--fleets
   for (dim in names(dims)){
     dimp = dims[[dim]];
     names(dimp) = as.character(dimp);

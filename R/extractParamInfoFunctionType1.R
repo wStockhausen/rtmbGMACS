@@ -6,6 +6,7 @@
 #' @param dms - appropriate `dms...` DimsMap from `setupModelDims`
 #' @param process_type - string describing process (for verbose output)
 #' @param xtra_cols - character vector of "extra" columns in the "function" section
+#' @param verbose - flag (TRUE/FALSE) to print diagnostic info
 #' @return a list (see details)
 #' @details The output list has elements
 #'
@@ -61,26 +62,20 @@ extractParamInfoFunctionType1<-function(lst,
     if (verbose) message("in extractParamInfoFunctionType1 for ",process_type,": processing main parameters.")
     ####--mp_idx: input "index" for main parameters (not necessarily sequential)--use as join index for other tables
     ####--add mpr_idx: sequential row "index" for main parameters parameter vector
-    ####--add in_mp_idx: sequential index "within" parameter names (??)
     dfrMP1s = lst$MPs$dfr |>
                 dplyr::mutate(mpr_idx=dplyr::row_number(),.after=mp_idx);      #--add index for vector of parameter values
-                # dplyr::group_by(param) |>
-                # dplyr::mutate(in_mp_idx=row_number(),.after=mpr_idx) |> #--add index within parameter name
-                # dplyr::ungroup();
-    ####--transform initial and associated values
+    ####--transform initial and associated values to parameter scale
     dfrMP2s = dfrMP1s  |> dplyr::rowwise() |>
                 dplyr::mutate(IV=tf_apply(tform,IV),
                               LB=tf_apply(tform,LB),
                               UB=-tf_apply(tform,UB),
                               Pr1=tf_apply(tform,Pr1)) |>
                 dplyr::ungroup();
-    # ####--reorder by index "within" parameter name
-    # dfrMP3s = dfrMP2s |> dplyr::arrange(param,pv_idx);
-    ####--assign initial values to parameters vector (indexed by `pv_idx`)
+    ####--assign initial values to parameters vector (indexed by `mpr_idx`)
     mpParams = dfrMP2s$IV;
     mpFacs = factor(1:length(mpParams));#--create factor object for RTMB "map" object
     mpFacs[dfrMP2s$phz<1] = NA;         #--set values for parameters w/ non-positive phases to NA to treat as constants
-    ##--TODO: add logic to mpFacs for "grouped" parameters----
+    ##--TODO: add logic to mpFacs for "shared" parameters----
     ####--expand by all dimensions and drop values info
     dfrMPs = dfrMP2s |> expandDataframe(lstAlls,verbose=verbose) |>
                dplyr::select(y,s,r,x,m,p,z,fcn_idx,grp_idx,param,mp_idx,mpr_idx);
@@ -92,26 +87,20 @@ extractParamInfoFunctionType1<-function(lst,
     ####--mp_idx: "index" identifying main parameters (not necessarily sequential)
     ####--op_idx: "index" identifying offset parameters (not necessarily sequential)
     ####--add opr_idx: sequential row "index" for offset parameters parameter vector
-    ####--add in_op_idx: sequential index "within" parameter names (??)
       dfrOP1s = lst$OPs$dfr |>
                   dplyr::mutate(opr_idx=dplyr::row_number(),.after=op_idx);        #--add index for vector of parameter values
-                  # dplyr::group_by(param) |>
-                  # dplyr::mutate(in_off_idx=row_number(),.after=opr_idx) |> #--add offset index "within" parameter name
-                  # dplyr::ungroup() |>
-      ####--transform initial and associated values
+      ####--transform initial and associated values to parameter scale
       dfrOP2s = dfrOP1s  |> dplyr::rowwise() |>
                   dplyr::mutate(IV=tf_apply(tform,IV),
                                 LB=tf_apply(tform,LB),
                                 UB=-tf_apply(tform,UB),
                                 Pr1=tf_apply(tform,Pr1))|>
                   dplyr::ungroup();
-      ####--reorder by offset index "within" parameter name
-      # dfrOP3s = dfrOP2s |> dplyr::arrange(param,pv_idx);
-      ####--assign initial values to parameters vector (indexed by `pv_idx`)
+      ####--assign initial values to parameters vector (indexed by `opr_idx`)
       opParams = dfrOP2s$IV;
       opFacs = factor(1:length(opParams));#--create factor object for RTMB "map" object
       opFacs[dfrOP2s$phz<1] = NA;         #--set values for parameters w/ non-positive phases to NA to treat as constants
-      ##--TODO: add logic to opFacs for "grouped" parameters----
+      ##--TODO: add logic to opFacs for "shared" parameters----
       ####--expand by all dimensions and drop values info
       dfrOPs  = dfrOP2s |> expandDataframe(lstAlls,verbose=verbose) |>
                   dplyr::select(y,s,r,x,m,p,z,param,mp_idx,op_idx,opr_idx,op_type);
@@ -123,7 +112,7 @@ extractParamInfoFunctionType1<-function(lst,
     if (!is.null(lst$DPs$dfr)){
       ####--add devs vector index "within" parameter names
       dfrDP1s = lst$DPs$dfr; # |>
-      ####--transform initial and associated values
+      ####--transform initial and associated values to parameter scale
       dfrDP2s = dfrDP1s  |> dplyr::rowwise() |>
                   dplyr::mutate(IV=tf_apply(tform,IV),
                                 LB=tf_apply(tform,LB),
@@ -155,11 +144,11 @@ extractParamInfoFunctionType1<-function(lst,
       dfrDP4s = dplyr::bind_rows(lstDP4s); rm(lstDP4s);
       ####--add dev parameter index
       dfrDP4s = dfrDP4s |> dplyr::mutate(dpr_idx=dplyr::row_number(),.after=in_dv_idx);
-      ####--assign initial values to parameters across vectors (dfrDP4s$dev_par_idx identifies index into vector)
+      ####--assign initial values to parameters across vectors (dfrDP4s$dpr_idx identifies index into vector)
       dpParams = dfrDP4s$IV;
       dpFacs   = factor(1:length(dpParams));#--create factor object for RTMB "map" object
       dpFacs[dfrDP2s$phz<1] = NA;           #--set values for parameters w/ non-positive phases to NA to treat as constants
-      ##--TODO: add logic to dpFacs for "grouped" parameters----
+      ##--TODO: add logic to dpFacs for "shared" parameters----
       dfrDPs  = dfrDP4s |> expandDataframe(lstAlls,verbose=verbose) |>
                   dplyr::select(y,s,r,x,m,p,z,param,mp_idx,dv_idx,in_dv_idx,dpr_idx,dv_type);
       ####--get reference levels information
@@ -173,7 +162,7 @@ extractParamInfoFunctionType1<-function(lst,
     if (!is.null(lst$REs$dfr)){
       ####--add RE vector index "within" parameter names
       dfrRE1s = lst$REs$dfr;
-      ####--transform initial and associated values
+      ####--transform initial and associated values to parameter scale
       dfrRE2s = dfrRE1s  |> dplyr::rowwise() |>
                   dplyr::mutate(IV=tf_apply(tform,IV),
                                 LB=tf_apply(tform,LB),
@@ -209,7 +198,7 @@ extractParamInfoFunctionType1<-function(lst,
       reParams = dfrRE4s$IV;
       reFacs   = factor(1:length(reParams));#--create factor object for RTMB "map" object
       reFacs[dfrDP2s$phz<1] = NA;           #--set values for parameters w/ non-positive phases to NA to treat as constants
-      ##--TODO: add logic to reFacs for "grouped" parameters----
+      ##--TODO: add logic to reFacs for "shared" parameters----
       dfrREs  = dfrRE4s |> expandDataframe(lstAlls,verbose=verbose) |>
                   dplyr::select(y,s,r,x,m,p,z,param,mp_idx,rv_idx,in_rv_idx,rpr_idx,rv_type);
       ####--get reference levels information
@@ -222,6 +211,7 @@ extractParamInfoFunctionType1<-function(lst,
     dfrPECs = NULL; dfrPECs_RefLvls = NULL;
     if (!is.null(lst$PECs$dfr)){
       dfrPECs = lst$PECs$dfr |> expandDataframe(lstAlls,verbose=verbose);
+      pecParams=lst$PECs$dfr$IV;
       if (!is.null(lst$PECs$reflvls$dfr))
         dfrPECs_RefLvls = lst$PECs$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
     }
@@ -231,6 +221,7 @@ extractParamInfoFunctionType1<-function(lst,
     dfrFECs = NULL; dfrFECs_RefLvls = NULL;
     if (!is.null(lst$FECs$dfr)){
       dfrFECs = lst$FECs$dfr |> expandDataframe(lstAlls,verbose=verbose);
+      fecParams=lst$FECs$dfr$IV;
       if (!is.null(lst$FECs$reflvls$dfr))
         dfrFECs_RefLvls = lst$FECs$reflvls$dfr |> expandDataframe(lstAlls,verbose=verbose);
     }
@@ -273,6 +264,12 @@ extractParamInfoFunctionType1<-function(lst,
     dfrHCs = dfrCmbs  |>
                dplyr::select(tidyselect::all_of(std_cols)) |>
                tidyr::pivot_wider(names_from=param,values_from=idx);
+    par_cols = names(dfrHCs)[!(names(dfrHCs) %in% std_cols)];
+    dfrHCs = dfrHCs |>
+               dplyr::rowwise() |>
+               dplyr::mutate(full_idx=concatText(fcn_idx,grp_idx,!!!rlang::syms(par_cols))) |>
+               dplyr::ungroup();
+    #browser();
 
     ###--determine "unique" horizontal combinations
     dfrUHCs = dfrHCs |>
@@ -318,11 +315,13 @@ extractParamInfoFunctionType1<-function(lst,
                PECs=list(dfrIdxs=lst$PECs$dfr,
                          dfrRefLvls=dfrRefLvlsPECs,
                          dfrDims2Idxs=dfrPECs,
-                         params=lst$PECs$dfr$IV),
+                         params=get0("pecParams",ifnotfound=NULL),
+                         pecFacs=get0("pecFacs", ifnotfound=NULL)),
                FECs=list(dfrIdxs=lst$FECs$dfr,
                          dfrRefLvls=dfrRefLvlsFECs,
                          dfrDims2Idxs=dfrFECs,
-                         params=lst$FECs$dfr$IV),
+                         params=get0("fecParams",ifnotfound=NULL),
+                         fecFacs=get0("fecFacs", ifnotfound=NULL)),
                dfrFPs=dfrFPs,
                dfrCmbs=dfrCmbs,
                dfrUniqCmbs=dfrUniqCmbs,

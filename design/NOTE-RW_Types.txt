@@ -1,0 +1,30 @@
+NOTE: specifiying "random walk" types
+
+"rw_types" is an input category for devs (DPs) and random effects (REs) parameter vectors. It specifies the 
+relationship between the elements of the parameter vector.
+
+DPs: "devs" parameter vectors (regarded as fixed effects), require fixed variance parameters
+REs: 0-mean random effects vectors (integrated out of likelihood), require estimable variance parameters
+
+rw_types:
+RE: random effect (reference level must be specified) 
+     parameter vector: eps_{i} modifies scalar parameter p, with eps_{i=ref} = 0
+     p_{i} = p + eps_{i}
+     eps_{i} ~ Normal(0,var)
+
+RW: random walk 
+     parameter vector: eps_{i} modifies scalar parameter p, with eps_{i=ref} = 0
+     p_{i}     = p
+     eps_{i=1} = 0
+     p_{i+1}   = p_{i} + eps_{i+1}
+     LL for p_{1}?
+     eps_{i} ~ Normal(0,var)
+
+AR1: autoregressive order 1
+     p_{i}     = p
+     eps_{i=1} = 0
+     p_{i+1}   = p_{i} + rho * eps_{i+1}
+     rho needs to be specified as a parameter w/ limits -1,1
+     LL for p_{1} = ?
+     eps_{i} ~ Normal(0,var)
+

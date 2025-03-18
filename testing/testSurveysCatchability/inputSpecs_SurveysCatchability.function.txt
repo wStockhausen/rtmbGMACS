@@ -5,11 +5,11 @@ function #--input option ("function", "pre-specified")
 #--Catchability function definitions----
  5 #--number of functions defined
 fcn_idx   flt         fcn      sel_idx      avl_idx      y          x       #{other population categories}
-   1      NMFS        lnQ         1           0       (2020)        male
-   2      NMFS        lnQ         2           0       (2020)        female
-   3      NMFS        lnQ         3           0       (2021:2024)   male
-   4      NMFS        lnQ         1           0       (2021:2024)   female
-   5      BSFRF       lnQ         3           0       (2021:2022)   all
+   1      NMFS        exp         1           0       (2020)        male
+   2      NMFS        exp         2           0       (2020)        female
+   3      NMFS        exp         3           0       (2021:2024)   male
+   4      NMFS        exp         1           0       (2021:2024)   female
+   5      BSFRF       exp         3           0       (2021:2022)   all
 ###--reference levels
  0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
 # fcn_idx      {categories}
@@ -18,11 +18,11 @@ fcn_idx   flt         fcn      sel_idx      avl_idx      y          x       #{ot
 ##--Main parameters----
  5 #--number of main parameters defined
 fcn_idx   grp_idx  mp_idx  param     x     tform      IV   LB   UB   phz   PriorType  Pr1  Pr2
-    1         1       1    pLnQ     male   none       0.8  0.1  1.1   4      none      0   999
-    2         1       1    pLnQ   female   none       0.5  0.1  1.1   4      none      0   999
-    3         1       1    pLnQ     male   none       0.6  0.1  1.1   4      none      0   999
-    4         1       1    pLnQ   female   none       0.2  0.1  1.1   4      none      0   999
-    5         1       1    pLnQ   all      none       1.0  0.1  1.1  -1      none      0   999
+    1         1       1    pLnQ     male    log       0.8  0.1  1.1   4      none      0   999
+    2         1       1    pLnQ   female    log       0.5  0.1  1.1   4      none      0   999
+    3         1       1    pLnQ     male    log       0.6  0.1  1.1   4      none      0   999
+    4         1       1    pLnQ   female    log       0.2  0.1  1.1   4      none      0   999
+    5         1       1    pLnQ   all       log       1.0  0.1  1.1  -1      none      0   999
 
 ##--Offset parameters----
 0 #--number of offset parameters defined

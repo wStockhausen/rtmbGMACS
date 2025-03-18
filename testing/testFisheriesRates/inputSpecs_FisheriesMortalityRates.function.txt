@@ -1,15 +1,14 @@
-#--rtmbGMACS fisheries handling mortality specifications----
-#----------------------EXAMPLE: fisheries handling mortality---------------------------
-FISHERIES_HANDLING_MORTALITY
+#--rtmbGMACS fisheries mortality rates specifications----
+#----------------------EXAMPLE: fisheries mortality rates---------------------------
+FISHERIES_MORTALITY_RATES
 function #--input option ("function", "pre-specified")
-#--Catchability function definitions----
+#--fisheries mortality rates definitions----
  5 #--number of functions defined
-fcn_idx   flt         fcn      cap_idx      ret_idx      y          x       #{other population categories}
-   1      TCF         lnFc        1           2       (2020)        male
+fcn_idx   flt     caprt_idx   hmrt_idx  capsel_idx    ret_idx      y          x       #{other population categories}
+   1      TCF         lnFc        1         2       (2020)        male
    2      TCF         lnFc        2           0       (2020)        female
    3      SCF        lnQ         3           0       (2021:2024)   male
    4      SCF        lnQ         1           0       (2021:2024)   female
-   5      BSFRF       lnQ         3           0       (2021:2022)   all
 ###--reference levels
  0 #--number of reference levels  <--does specifying a reference level for a function make any sense??
 # fcn_idx      {categories}

@@ -183,3 +183,30 @@ extractTextBetweenBrackets<-function(txt){
 extractTextAfterString<-function(txt,str){
   return(stringr::str_extract(txt,paste0("(?<=",str,").*")));
 }
+
+#' @title Concatenate text
+#' @description Function to concatenate text
+#' @param ... - text values to concatenate
+#' @param concat - string to use as concatenator
+#' @return string
+#' @details The elements in ... are concateated into a single string using the
+#' `concat` string separated by spaces.
+#'
+#' @examples
+#' # example code
+#' concatText(1,2,3)
+#' concatText(1,NA,3)
+#' concatText(1,2,NULL,4)
+#' export
+#'
+concatText<-function(...,concat="+"){
+  n = ...length();
+  str = ...elt(1);
+  ctr = 2;
+  while (ctr<=n){
+    if (!is.null(...elt(ctr))) str = paste(str,concat,...elt(ctr));
+    ctr = ctr+1;
+  }
+  return(str);
+}
+

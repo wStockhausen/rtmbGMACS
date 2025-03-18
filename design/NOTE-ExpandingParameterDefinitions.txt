@@ -1,0 +1,29 @@
+NOTE on expanding model dimensions for parameter definitions
+
+Model dimensions relevant to a parameter definition can be specified in the following manners:
+1. by individual dimension level or vector of levels (e.g., "male", "female" for `x` [sex], (2020:2024) for `y` [year])
+2. "all"
+3. absent (equivalent to "all")
+4. "each"
+
+How should these be handled when expanding a parameter definition?
+MPs: main parameters
+indiv: parameter (value/characteristics) assigned to to specified level of model dimension
+"all": expands same parameter (value/characteristics) to all levels of model dimension
+"each": (not implemented yet) expands same INITIAL VALUE and characteristics to each level of a model dimension,
+           but each level will be treated as a different parameter under estimation (shorthand for individual specification)
+Individual "parameters" are created based on the "union" of the dimension levels resulting from specifying any of the above
+for combiniations of dimension levels.
+
+OPs: offset parameters
+same as for MPs
+
+DPs: devs parameter vectors
+
+
+REs: random effects vectors
+
+PECs: parameter-level environmental covariates
+
+FECs: function-level environmental covariates
+

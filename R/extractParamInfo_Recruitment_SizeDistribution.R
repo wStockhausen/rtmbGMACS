@@ -43,7 +43,7 @@ extractParamInfo_Recruitment_SizeDistribution<-function(lst,
   if (tolower(lst$option)=="function"){
     ##--option == "function"----
     ##--inputs are functions and parameters definitions
-    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Recruitment_SizeDistribution",verbose);
+    out = extractParamInfoFunctionType1(lst,dims$dmsYSC,"Recruitment_SizeDistribution",verbose=verbose);
 
   } else if (tolower(lst$option)=="data"){
     ##--option == "data"----
