@@ -25,7 +25,7 @@
 #'
 #' @export
 #'
-compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
+compareSelFun1<-function(fcn,z,...,map_=list(),stdv=0.05,title=fcn,verbose=FALSE){
   if (verbose) {
     cat("\n#----------------------------------------------------------\n")
     cat("#  testing",title,"\n");
@@ -101,7 +101,7 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
 
   #--create data to test fitting----
   set.seed(111);
-  data = list(fcn=fcn,z=z,obs=selr+rnorm(length(selr),0,0.05));
+  data = list(fcn=fcn,z=z,obs=selr+rnorm(length(selr),0,stdv));
 
   #--define simple objective function----
   if (verbose) cat("setting up objective function.\n")
@@ -184,6 +184,7 @@ compareSelFun1<-function(fcn,z,...,map_=list(),title=fcn,verbose=FALSE){
   if (verbose) {
     print(opt$par);
     print(RTMB::sdreport(mdl));
+    print(mdl$gr(opt$par))
   }
   #--plot the results----
   if (verbose) cat("Plotting results\n");

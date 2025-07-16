@@ -1,9 +1,9 @@
 #'
-#' @title Convert dimension values to factor levels in a dimensions map
-#' @description Function to convert dimension values to factor levels in a dimensions map.
+#' @title Convert non-numeric dimension values to factor levels in a dimensions map
+#' @description Function to convert non-numeric dimension values to factor levels in a dimensions map.
 #' @param dfr - dimensions map dataframe/tibble (e.g. output from [createSparseDimsMap()])
 #'
-#' @return - dimensions map with dimension values converted to factors
+#' @return - dimensions map with non-numeric dimension values converted to factors
 #'
 #' @details Dimension columns that are already factors are not converted.
 #'
@@ -13,16 +13,102 @@ createDimsFactors<-function(dfr){
     dmnms = attr(dfr,"dmnms");
     dmlvs = attr(dfr,"dmlvs");
     for (dmnm in dmnms){
-        if (!is.factor(dfr[[dmnm]]))
+        if (!(is.factor(dfr[[dmnm]])||is.numeric(dfr[[dmnm]])))
             dfr[[dmnm]] = factor(dfr[[dmnm]],levels=dmlvs[[dmnm]]);
     }
     return(dfr);
 }
-
 # dfrp = createDimsFactors(dfrSparse); str(dfrp);
 # dfrp = createDimsFactors(dfrp);      str(dfrp);
 
 #'
+#' @title Convert values to dimension factor levels in a dataframe
+#' @description Function to convert dataframe values to factor levels in a dimensions map.
+#' @param dfr - dataframe to convert
+#' @param dfrDms - dimensions map dataframe/tibble (e.g. output from [createSparseDimsMap()])
+#' @param contrasts - character string, list, or NULL defining contrasts to apply to (eventual) factor columns
+#' @param all - flag (T/F) to convert all columns to factors (default=TRUE)
+#' @return - dataframe with values converted to factors
+#'
+#' @details If a column name in `dfr` matches a dimension name,
+#' factor or character columns are converted to a factor with the same levels as the dimension.
+#' This also occurs if the column is numeric and `all` is TRUE. Otherwise, the
+#' column is converted to a factor using `unique` to determine the levels
+#' if it is a character column or if it numeric and
+#' `all` is TRUE.
+#'
+#' @export
+#'
+convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=TRUE){
+    dmnms = attr(dfrDms,"dmnms");
+    dmlvs = attr(dfrDms,"dmlvs");
+    print(dmnms);
+    print(dmlvs);
+    print(contrasts);
+    if (!is.null(contrasts)&&is.character(contrasts))
+      if (stringr::str_starts(contrasts,"ident")){
+        message("setting contrasts to NULL");
+        contrasts = NULL;
+      } else {
+        message("evaluating contrasts");
+        if (stringr::str_starts(contrasts,"list")){
+          eval(parse(text=paste0("contrasts=",contrasts)));
+        } else {
+          eval(parse(text=paste0("contrasts=list(",contrasts,")")));
+        }
+    }
+    print(contrasts);
+    for (colnm in names(dfr)){
+      cat(colnm,"\n");
+      if (colnm %in% dmnms){
+        #--column name matches a dimension
+        levs = dmlvs[[colnm]];
+        if (all){
+          # convert column to factor with same levels as dimension
+          dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
+          if ((!is.null(contrasts))){
+            if (colnm %in% names(contrasts))
+              dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+          }
+        } else {
+          #--don't convert numeric columns
+          if (!is.numeric(dfr[[colnm]])){
+            dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
+            if ((!is.null(contrasts))){
+              if (colnm %in% names(contrasts))
+                dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            }
+          }
+        }
+      } else {
+        #--column name does not match a dimension
+        if (all&&(!is.factor(dfr[[colnm]]))){
+          #--convert column to factor if not already a factor
+          levs = unique(as.character(dfr[[colnm]]));
+          dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
+          if ((!is.null(contrasts))){
+            if (colnm %in% names(contrasts))
+              dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+          }
+        } else {
+          if (!(is.factor(dfr[[colnm]])||is.numeric(dfr[[colnm]]))){
+            #--convert column to factor if not already a factor or numeric
+            levs = unique(as.character(dfr[[colnm]]));
+            dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
+            if ((!is.null(contrasts))){
+              if (colnm %in% names(contrasts))
+                dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            }
+          }
+        }
+      }
+    }
+    return(dfr);
+}
+# dfrp = convertToDimsFactors(dfrSparse); str(dfrp);
+# dfrp = convertToDimsFactors(dfrp);      str(dfrp);
+#'
+
 #' @title Drop selected dimensions from a dimensions map
 #' @description Function to drop selected dimensions from a dimensions map.
 #' @param dms - dimensions map

@@ -1,0 +1,38 @@
+NOTE-NewFiles
+
+defineYearBlocks.R
+  defineYearBlocks<-function(lst)
+
+DimensionsFunctions.R
+DimensionsUtilities.R
+  createDimsFactors
+  convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=TRUE)
+
+MiscFunctions_ReadParse.R
+  rmChars<-function(str,pattern="")
+  advance<-function()
+  isKeyWord<-function(str,kws = c("list","vector","matrix","dataframe"))
+  findKeyword<-function(lns,kw)
+  findNextLine<-function(lns,iln)
+  parseTextToDataframe<-function(lns,iln,nlns,col_names=TRUE,show_col_types=FALSE)
+  parseVal<-function(str,type=NULL)
+  parseLines<-function(lns,names)
+  parseList<-function(lns,verbose=FALSE)
+  parseDataframe<-function(lns,verbose=FALSE)
+  parseMatrix<-function(lns,verbose=FALSE)
+  parseVector<-function(lns,verbose=FALSE)
+MiscFunctions_Text.R
+  extractLines<-function(txt,start,end)
+  skipCommentLines<-function(txt,start,comment="#")
+  extractTextSection<-function(txt,n=length(txt),start=1,comment="#")
+  parseStrAsList<-function(strv,split="<-",verbose=FALSE)
+  extractDataframe<-function(txt,n,start,comment="#")
+  parseToDigits<-function(x)
+  extractTextBetweenParens<-function(txt)
+  extractTextBetweenBrackets<-function(txt)
+  extractTextAfterString<-function(txt,str)
+  concatText<-function(...,concat="+")
+
+readADMB_DataFileFunctions.R
+
+testing/inputFiles/TannerCrab/tcData_AllFisheriesNMFS-2SexCatchData.dat

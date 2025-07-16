@@ -14,7 +14,12 @@
 extractLines<-function(txt,start,end){
   s = stringr::str_which(txt,stringr::regex(paste0("^",start),ignore_case=TRUE));
   e = stringr::str_which(txt,stringr::regex(paste0("^",end),ignore_case=TRUE));
-  return(txt[(s+1):(e-1)]);
+  if ((s+1)<=(e-1)) return(txt[(s+1):(e-1)]);
+  return(vector(mode="character"));
+}
+
+removeCommentLines<-function(strv,comment="#"){
+  return(strv[stringr::str_starts(stringr::str_trim(strv),comment,negate=TRUE)]);
 }
 
 #' @title Identify first non-comment line in a character vector
@@ -44,8 +49,8 @@ skipCommentLines<-function(txt,start,comment="#"){
 #' @title Extract a text section with only non-comment lines from a character vector
 #' @description Function to extract a text section with only non-comment lines from a character vector.
 #' @param txt - character vector to search
-#' @param n - number of non-comment lines to extract
-#' @param start - index into `txt` to regard as the start of the search
+#' @param n - number of non-comment lines to extract (default=length(txt))
+#' @param start - index into `txt` to regard as the start of the search (default=1)
 #' @param comment - character indicating the following text in the string is a comment
 #' @return list with elements `txt` and `end` (see details)
 #' @details Each element in `txt` is regarded as a line of text (as in a text file).
@@ -58,7 +63,7 @@ skipCommentLines<-function(txt,start,comment="#"){
 #' @importFrom stringr str_starts
 #' @md
 #' @export
-extractTextSection<-function(txt,n,start,comment="#"){
+extractTextSection<-function(txt,n=length(txt),start=1,comment="#"){
   #--extract a text section with `n` non-commented lines
   idx = 0; idxp = 0;
   itxt = vector("integer",length=length(txt));#--set to max length
@@ -74,6 +79,55 @@ extractTextSection<-function(txt,n,start,comment="#"){
     idx = idx+1;
   }
   return(list(txt=txtp,end=itxt[idxp]));
+}
+
+#' @title Extract a list from a character vector
+#' @description Function to extract a list from a character vector.
+#' @param strv - character vector to parse
+#' @param split - character(s) to use to split lines into name and value (default="<-")
+#' @param verbose - flag to print diagnostic info
+#' @return list with named elements
+#' @details Each element in `strv` is an equation defining the
+#' elements of a dimension.
+#'
+#' @examplesIf FALSE
+#' # example code
+#' str=paste(
+#'   'MODEL_DIMS
+#'   y <- 2020:2024;                           #--years
+#'   s <- 1;                                   #--seasons
+#'   r <- "EBS";                               #--regions
+#'   x <- c("male","female");                  #--sex classes
+#'   m <- c("immature","mature");              #--maturity state classes
+#'   p <- c("new_shell","old_shell");          #--post-molt ages
+#'   zc <- seq(55.5,104.5,5);                  #--size bin cutpoints
+#'   f <- c("TCF","SCF","NMFS");               #--fleets
+#'   END');
+#' strv = stringr::str_split_1(str,"\\n") |> extractLines("MODEL_DIMS","END");
+#' lstDims = parseStrAsList(strv);
+#' @import stringr
+#' @md
+#' @export
+parseStrAsList<-function(strv,split="<-",verbose=FALSE){
+  strp = extractTextSection(strv)$txt;
+  ns   = length(strp);
+  lst = list();
+  i = 1;
+  while(i<=ns){
+    strpp = strp[i] |> stringr::str_remove_all(" ") |> stringr::str_split_1(split);
+    i = i+1;
+    test = !any(strpp |> stringr::str_ends(";"));
+    while((i<=ns)&&test){
+      strpp = c(strpp,
+                strp[i] |> stringr::str_remove_all(" ") |> stringr::str_split_1(split));
+      i = i+1;
+      test = !any(strpp |> stringr::str_ends(";"));
+      if (verbose) cat(test,strpp,"\n")
+    }
+    if (verbose) cat(strpp,"\n")
+    lst[[strpp[1]]] = eval(parse(text=strpp[2:length(strpp)]),envir=lst);
+  }
+  return(lst);
 }
 
 #' @title Extract a dataframe (a [tibble::tibble()]) from a character vector

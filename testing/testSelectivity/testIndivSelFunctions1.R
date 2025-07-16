@@ -71,12 +71,13 @@ res = compareSelFun1("asclogistic50D95",z,
                      verbose=TRUE);
 
 #--sel function: ascnormal1(z,p)----
-ascMnZ = 100;  #--size at which ascending limb reaches 1
+ascMnZ = 120;  #--size at which ascending limb reaches 1
 ascWdZ =  25;  #--width of ascending limb
 #--set `f` to function in global environment to be tested
 res = compareSelFun1("ascnormal1",z,
                      pAscZ1=ascMnZ,
                      pAscWdZ=ascWdZ,
+                     stdv=0.001,
                      title="ascnormal(z,p)",
                      verbose=TRUE);
 

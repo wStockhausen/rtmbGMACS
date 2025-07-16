@@ -1,45 +1,4 @@
-NOTE on structures to define functions in "ctl" file(s)
-In the "dims"" file:
-str=paste(
-'MODEL_DIMS
-  y = 2020:2024;                           #--years
-  s = 1;                                   #--seasons
-  r = "EBS";                               #--regions
-  x = c("male","female");                  #--sex classes
-  m = c("immature","mature");              #--maturity state classes
-  p = c("new_shell","old_shell");          #--post-molt ages
-  zc = seq(55.5,104.5,5);                  #--size bin cutpoints
-  f = c("TCF","SCF","NMFS");               #--fleets
-END')
-strv = stringr::str_split_1(str,"\\n") |> extractLines("MODEL_DIMS","END");
-lstDims = parseStrAsList(strv);
-dimsMap = createSparseDimsMap(!!!lstDims);
-
-Define complete model dimensions
-In the ctl file
-FUNCTIONS SECTION
-Functions are defined as in the following code block
-
-#--Functions----
-Functions
-fcn_idx  function     type          D    fcn_params  description
-   1     selTCFF      ascnormal    TCFF    pZMd,pWd   size_at_mode,_width
-   2     selTCM1      logistic     TCFM1   pZ50,pWd   size_at_50%_selected,_width
-   4     selTCFM3     smooth       TCFM3     k=6      smooth_with_6_degrees_of_freedom
-  -4     selTFM4      smooth       TCFM4     k=6      mirrors_fcn_idx_4
-   5     selSCM1      fxd_vector   SCFM1    values    vector_of_fixed_values
-   6     selSCM2      fxd_matrix   SCFM2    values    matrix of fixed values
-END  #--terminator for functions block
-
-where
-  fcn_idx - index to function (needs to be sequential?)
-  function - name of function
-  D        - name of dimension matrix to associate with each function
-  fcn_params - names of function-specific parameters
-  description - descriptive label
-
-the dimension matrix specifies the dimension ranges over which each function is defined:
-f - fleet
+NOTE on structures to define parameters in "ctl" file(s)
 y - year
 s - season
 r - region
@@ -47,10 +6,8 @@ x - sex
 m - maturity state
 p - post-molt age (i.e., shell condition)
 z - size
-
-PARAMETERS
 tform - transform to apply to given initial values, etc, to obtain parameter-scale values
-IV, LB, UB - initial value, lower bound, upper bound on input value scale (i.e., before tform)
+IV, LB, UB - initial value, lower bound, upper bound on inout value scale (i.e., before tform)
 phz - phase (< 0 for fixed parameters, > 1 for phased implementation [requires multiple model runs])
 PriorType - type of prior probability to apply, on input value scale (i.e., the inverse of `tform`)
 Pr1, Pr2 - prior probability parameter values
@@ -58,10 +15,8 @@ Pr1, Pr2 - prior probability parameter values
 "all"  - applies to all levels collectively (i.e., same value applied to all factor levels)
 "each" - applies to all levels individually (i.e., diferent value applied to each factor level)
 
-Parameters
-fcn_idx  par_idx  param  IV     LB     UB    phz   PriorType   Pr1    Pr2    tform  formula
-   1        1     pZMd   100     5    150     5   uniform      NA      NA    ident    ~1
-   1        2     pWd     20     5     50   150   uniform      NA      NA    ident    ~tblk
+#--Functions----
+fcn_idx function  y   r   x    m    p    z  main_params...
 
 #--Parameters----
 ##--Main parameters----

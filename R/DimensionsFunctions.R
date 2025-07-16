@@ -98,6 +98,7 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 #' the associated level for each dimension.
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs
+#' @param convertCharsToFactors - option to convert character dims to factors (default=FALSE)
 #' @param debug - flag (T/F) to print debugging info
 #'
 #' @return a `DimsMap` object, which is a tibble (see [tibble::tibble()]) with
@@ -116,6 +117,11 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 #' actual dimension levels. The first column ("i") contains the 1-d index associated
 #' with each combination of actual dimension levels.
 #'
+#' Alternatively, the \code{...} can be given by splicing a list:\n
+#' dimsMap = createSparseDimsMap(!!!lst)\n
+#' where `lst` is a named list of the inputs to the function.
+#' This requires the `rlang` package be loaded.
+#'
 #' @example inst/examples/example-createSparseDimsMap.R
 #'
 #' @importFrom dplyr cross_join filter mutate row_number select
@@ -124,7 +130,7 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 #'
 #' @export
 #'
-createSparseDimsMap<-function(...,debug=FALSE){
+createSparseDimsMap<-function(...,convertCharsToFactors=FALSE,debug=FALSE){
     dfr = NULL;
     dots = rlang::list2(...);
     for (nm in names(dots)){
@@ -132,8 +138,13 @@ createSparseDimsMap<-function(...,debug=FALSE){
         dfrp = traverseDimsList(dots[[nm]],nm,debug=debug);
         if (is.null(dfr)) {
             dfr = dfrp;
-            #--convert all dimensions to factors
-            for (nm in names(dfr)) dfr[[nm]] = factor(dfr[[nm]]);
+            # if(convertCharsToFactors){
+            #   #--convert all non-numeric dimensions to factors
+            #   for (nm in names(dfr)) {
+            #     if (!(is.factor(dfr[[nm]])||any(is.numeric(as.numeric(dfr[[nm]])))))
+            #       dfr[[nm]] = factor(dfr[[nm]]);
+            #   }
+            # }
         } else {
             dfr = dfr |> dplyr::cross_join(dfrp,suffix=c("LFT","RGT"));
             nmsL = stringr::str_sub(stringr::str_subset(names(dfr),"LFT$"),end=-4);
@@ -151,8 +162,12 @@ createSparseDimsMap<-function(...,debug=FALSE){
                               stringr::str_sub(nmsA,end=-4),nmsA);
                 names(dfr) = nmsA;
             }
-            #--convert all dimensions to factors
-            for (nm in names(dfr)) dfr[[nm]] = factor(dfr[[nm]]);
+            # if(convertCharsToFactors){
+            #   #--convert all  non-numeric dimensions to factors
+            #   for (nm in names(dfr))
+            #     if (!(is.factor(dfr[[nm]])||any(is.numeric(as.numeric(dfr[[nm]])))))
+            #       dfr[[nm]] = factor(dfr[[nm]]);
+            # }
         }#--!is.null(dfr);
     }#--nm
     dmsn = names(dfr);
@@ -160,16 +175,33 @@ createSparseDimsMap<-function(...,debug=FALSE){
     dmsi = vector("numeric",length(dmsn));
     names(dmsi) = dmsn;
     for (n in dmsn){
+      if (is.factor(dfr[[n]])){
         dmsl[[n]] = levels(dfr[[n]]);
         dmsi[n]   = length(dmsl[[n]]);
+      } else {
+        dmsl[[n]] = unique(dfr[[n]]);
+        dmsi[n]   = length(dmsl[[n]]);
+      }
     }
     if (is.null(dfr)) return(NULL);
-    attr(dfr,"dmtyp") <-"sparse"; #--dim type
+    attr(dfr,"dmtyp") <-"sparse"; #--map type
     attr(dfr,"dmnms") <-dmsn;#--dim names
     attr(dfr,"dmlvs") <-dmsl;#--dim levels
     attr(dfr,"dmlns") <-dmsi;#--dim lengths
-    dfrp = dfr |> createDimsFactors() |>
-                 dplyr::arrange(dplyr::pick((tidyselect::everything())));
+    if(convertCharsToFactors) {
+      dfrp = dfr |> createDimsFactors() |>
+                   dplyr::arrange(dplyr::pick((tidyselect::everything()))) |>
+                   dplyr::distinct();
+    } else {
+      dfrp = dfr |> dplyr::arrange(dplyr::pick((tidyselect::everything()))) |>
+                    dplyr::distinct();
+    }
+    # if(convertCharsToFactors){
+    #   for (nm in names(dfrp)){
+    #     if (!(is.factor(dfr[[nm]])||any(is.numeric(as.numeric(dfr[[nm]])))))
+    #       dfrp[[nm]] = as.numeric(dfrp[[nm]]);
+    #   }
+    # }
     dfr = dfrp |> dplyr::mutate(sparse_idx=dplyr::row_number(),.before=1);
     class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %in% class(dfr))]);#--add class attribute
     return(dfr);
@@ -182,6 +214,7 @@ createSparseDimsMap<-function(...,debug=FALSE){
 #' (non-nested, fully-crossed) dimension levels
 #'
 #' @param map - a DimsMap object created using [createSparseDimsMap()]
+#' @param convertCharsToFactors - option to convert character dims to factors (default=FALSE)
 #' @param debug - flag (T/F) to print debugging info
 #'
 #' @return a DimsMap object, which is atibble (see [tibble::tibble()]) with class "DimsMap"
@@ -206,7 +239,7 @@ createSparseDimsMap<-function(...,debug=FALSE){
 #'
 #' @export
 #'
-createDenseDimsMap<-function(map,debug=FALSE){
+createDenseDimsMap<-function(map,convertCharsToFactors=FALSE,debug=FALSE){
     dmlvs = attr(map,"dmlvs");
     dfr = NULL;
     for (nm in names(dmlvs)) {
@@ -222,9 +255,10 @@ createDenseDimsMap<-function(map,debug=FALSE){
     attr(dfr,"dmnms") <-attr(map,"dmnms");#--dim names
     attr(dfr,"dmlvs") <-dmlvs;            #--dim levels
     attr(dfr,"dmlns") <-attr(map,"dmlns");#--dim lengths
-    dfr = dfr |> createDimsFactors() |>
-                 dplyr::arrange(dplyr::pick((tidyselect::everything())));
-    dfr = dfr |> dplyr::mutate(dense_idx=dplyr::row_number(),.before=1)
+    if (convertCharsToFactors) dfr = dfr |> createDimsFactors();
+    dfr = dfr |>
+            dplyr::arrange(dplyr::pick((tidyselect::everything()))) |>
+            dplyr::mutate(dense_idx=dplyr::row_number(),.before=1);
     class(dfr) = c("DimsMap",class(dfr)[!("DimsMap" %in% class(dfr))]);#--add class attribute
     return(dfr);
 }
@@ -336,6 +370,7 @@ is.DenseDimsMap<-function(x){
 #' @description Function to create maps between sparse and dense dimension indices.
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> name/value dimension pairs
+#' @param convertCharsToFactors - option to convert character dims to factors (default=FALSE)
 #' @param debug - flag (T/F) to print debugging info
 #'
 #' @return a list with elements
@@ -356,9 +391,9 @@ is.DenseDimsMap<-function(x){
 #'
 #' @export
 #'
-createDimsMaps<-function(...,debug=FALSE){
-    dfrSprs = createSparseDimsMap(...,debug=debug);
-    dfrDens = createDenseDimsMap(dfrSprs,debug=debug);
+createDimsMaps<-function(...,convertCharsToFactors=FALSE,debug=FALSE){
+    dfrSprs = createSparseDimsMap(...,convertCharsToFactors=convertCharsToFactors,debug=debug);
+    dfrDens = createDenseDimsMap(dfrSprs,convertCharsToFactors=convertCharsToFactors,debug=debug);
     dmnms   = attr(dfrSprs,"dmnms");
     dfrS2D  = dfrSprs |> dplyr::inner_join(dfrDens,by=dmnms) |>
                 dplyr::select(-1) |>

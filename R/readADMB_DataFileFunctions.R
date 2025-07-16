@@ -74,14 +74,19 @@ readCatchDataFrameFormat1<-function(lnsp){
   ilnp = findNextLine(lnsp,ilnp+1);
   m = parseVal(lnsp[ilnp]);
   ilnp = findNextLine(lnsp,ilnp+1);
-  s = parseVal(lnsp[ilnp]);
+  p = parseVal(lnsp[ilnp]);
+  ilnp = findNextLine(lnsp,ilnp+1);
+  liketype = parseVal(lnsp[ilnp]);  #--likelihood type
   ilnp = findNextLine(lnsp,ilnp+1);
   nr = parseVal(lnsp[ilnp]);
   ilnp = findNextLine(lnsp,ilnp+1);
   dfr = parseTextToDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
-          dplyr::mutate(f=fleet,x=x,m=m,s=s,
+          dplyr::rename(y=year,s=season) |>
+          dplyr::mutate(f=fleet,x=x,m=m,p=p,
                         catch_type=tolower(catch_type),
-                        units_type=tolower(units_type));
+                        units_type=tolower(units_type),
+                        liketype=liketype,
+                        .before=1);
   return(list(dfr=dfr,iln=ilnp+nr-1));
 }
 
@@ -93,14 +98,13 @@ readCatchData<-function(lns){
   nlns = length(lns);
   iln = findKeyword(lns,"Catch Data");
   if (is.null(iln)) return(NULL);
-  #--read input format
-  iln = findNextLine(lns,iln+1);
-  input_format = parseVal(lns[iln]);
+  #--read number of catch datasets
   iln = findNextLine(lns,iln+1);
   nCDFs = parseVal(lns[iln]);
   if (nCDFs==0) return(NULL);
   lst = list();
   iln = iln+1;
+  input_format=1; #--need as an input if more than 1 format
   if (input_format==1){
     for (iCDF in 1:nCDFs) {
       res = readCatchDataFrameFormat1(lns[iln:nlns]);
@@ -129,18 +133,23 @@ readIndexDataFrameFormat1<-function(lnsp){
   ilnp = findNextLine(lnsp,ilnp+1);
   fleet = parseVal(lnsp[ilnp]);
   ilnp = findNextLine(lnsp,ilnp+1);
-  x = parseVal(lnsp[ilnp]);
+  x = parseVal(lnsp[ilnp]);         #--sex
   ilnp = findNextLine(lnsp,ilnp+1);
-  m = parseVal(lnsp[ilnp]);
+  m = parseVal(lnsp[ilnp]);         #--matrutiy state
   ilnp = findNextLine(lnsp,ilnp+1);
-  s = parseVal(lnsp[ilnp]);
+  p = parseVal(lnsp[ilnp]);         #--post-molt age
   ilnp = findNextLine(lnsp,ilnp+1);
-  nr = parseVal(lnsp[ilnp]);
+  liketype = parseVal(lnsp[ilnp]);  #--likelihood type
+  ilnp = findNextLine(lnsp,ilnp+1);
+  nr = parseVal(lnsp[ilnp]);        #--number of rows
   ilnp = findNextLine(lnsp,ilnp+1);
   dfr = parseTextToDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
-          dplyr::mutate(f=fleet,x=x,m=m,s=s,
+          dplyr::rename(y=year,s=season) |>
+          dplyr::mutate(f=fleet,x=x,m=m,p=p,
                         catch_type=tolower(catch_type),
-                        units_type=tolower(units_type));
+                        units_type=tolower(units_type),
+                        liketype=liketype,
+            .before=1);
   return(list(dfr=dfr,iln=ilnp+nr-1));
 }
 
@@ -153,14 +162,13 @@ readIndexData<-function(lns){
   nlns = length(lns);
   iln = findKeyword(lns,"Index Data");
   if (is.null(iln)) return(NULL);
-  #--read input format
-  iln = findNextLine(lns,iln+1);
-  input_format = parseVal(lns[iln]);
+  #--read number of realtive abundance datasets
   iln = findNextLine(lns,iln+1);
   nRADs = parseVal(lns[iln]);
   if (nRADs==0) return(NULL);
   lst = list();
   iln = iln+1;
+  input_format=1; #--need as an input if more than 1 format
   if (input_format==1){
     for (iRAD in 1:nRADs) {
       res = readIndexDataFrameFormat1(lns[iln:nlns]);
@@ -180,27 +188,57 @@ readIndexData<-function(lns){
 #' @importFrom dplyr mutate
 #'
 readSizeCompsDataFrameFormat1<-function(lnsp){
+  cat("in readSizeCompsDataFrameFormat1\n")
+  #cat(lnsp);
   nlnsp = length(lnsp);
   ilnp = 1;
   ilnp = findNextLine(lnsp,ilnp+1);
-  catch_type = parseVal(lnsp[ilnp]);
+  ext_id = parseVal(lnsp[ilnp]);    #--extender id
+  cat("ext_id =",ext_id,"\n");
   ilnp = findNextLine(lnsp,ilnp+1);
-  fleet = parseVal(lnsp[ilnp]);
+  catch_type = parseVal(lnsp[ilnp]);#--catch type
+  cat("catch_type =",catch_type,"\n");
   ilnp = findNextLine(lnsp,ilnp+1);
-  x = parseVal(lnsp[ilnp]);
+  fleet = parseVal(lnsp[ilnp]);     #--fleet
+  cat("fleet =",fleet,"\n");
   ilnp = findNextLine(lnsp,ilnp+1);
-  m = parseVal(lnsp[ilnp]);
+  x = parseVal(lnsp[ilnp]);         #--sex
+  cat("x =",x,"\n");
   ilnp = findNextLine(lnsp,ilnp+1);
-  s = parseVal(lnsp[ilnp]);
+  m = parseVal(lnsp[ilnp]);         #--maturity state
+  cat("m =",m,"\n");
   ilnp = findNextLine(lnsp,ilnp+1);
-  nr = parseVal(lnsp[ilnp]);
+  p = parseVal(lnsp[ilnp]);         #--shell condition (TODO: should be p??)
+  cat("p =",p,"\n");
   ilnp = findNextLine(lnsp,ilnp+1);
-  nc = parseVal(lnsp[ilnp]);
+  liketyp = parseVal(lnsp[ilnp]);   #--likelihood type
+  cat("liketyp =",liketyp,"\n");
+  ilnp = findNextLine(lnsp,ilnp+1);
+  tcmpfr = parseVal(lnsp[ilnp]);    #--tail compression fraction
+  cat("tcmpfr =",tcmpfr,"\n");
+  ilnp = findNextLine(lnsp,ilnp+1);
+  ext_idp = as.character(parseVal(lnsp[ilnp]));   #--extender id for extended comp
+  cat("ext_idp =",ext_idp,"\n");
+  ilnp = findNextLine(lnsp,ilnp+1);
+  nr = parseVal(lnsp[ilnp]);        #--number of rows
+  cat("nr =",nr,"\n");
+  ilnp = findNextLine(lnsp,ilnp+1);
+  nc = parseVal(lnsp[ilnp]);        #--number of columns
+  cat("nc =",nc,"\n");
   ilnp = findNextLine(lnsp,ilnp+1);
   dfr = parseTextToDataframe(lnsp,ilnp,nr,col_names=TRUE) |>
-          dplyr::mutate(f=fleet,x=x,m=m,s=s,
-                        catch_type=tolower(catch_type));
-  return(list(dfr=dfr,iln=ilnp+nr-1));
+          dplyr::rename(y=year,s=season) |>
+          dplyr::mutate(ext_id=ext_id,f=fleet,x=x,m=m,p=p,
+                         liketype=liketyp,
+                        .before=1);
+  print(dfr);
+  cat("--------\n");
+  lst=list(catch_type=tolower(catch_type),fleet=fleet,
+           ext_id=ext_id,ext_idp=ext_idp,
+           liketyp=liketyp,tailcompfr=tcmpfr);
+  print(lst);
+  cat("--------\n");
+  return(list(info=lst,dfr=dfr,iln=ilnp+nr-1));
 }
 
 #'
@@ -212,26 +250,30 @@ readSizeComps<-function(lns){
   nlns = length(lns);
   iln = findKeyword(lns,"Size Comps");
   if (is.null(iln)) return(NULL);
-  #--read input format
-  iln = findNextLine(lns,iln+1);
-  input_format = parseVal(lns[iln]);
+  #--read number of size comps
   iln = findNextLine(lns,iln+1);
   nZCs = parseVal(lns[iln]);
   if (nZCs==0) return(NULL);
-  lst = list();
+  lstZIs = list(); #--list of composition info lists
+  lstZCs = list(); #--list of size compositions
   iln = iln+1;
+  input_format=1; #--need as an input if more than 1 format
   if (input_format==1){
     for (iZC in 1:nZCs) {
       res = readSizeCompsDataFrameFormat1(lns[iln:nlns]);
-      lst[[iZC]] = res$dfr;
+      ext_id = res$info$ext_id;#--size composition extender id
+      lstZIs[[ext_id]] = res$info;
+      lstZCs[[ext_id]] = res$dfr;
       iln = res$iln+1+iln;
     }
   } else {
     #--TODO: read other formats?
   }
-  dfr = dplyr::bind_rows(lst);
-  attr(dfr,"type") = "size comps dataframe";
-  return(dfr);
+  dfrZIs = dplyr::bind_rows(lstZIs)
+  dfrZCs = dplyr::bind_rows(lstZCs);
+  attr(dfrZCs,"type") = "size comps dataframe";
+  attr(dfrZCs,"info") = "info";
+  return(dfrZCs);
 }
 
 #'
