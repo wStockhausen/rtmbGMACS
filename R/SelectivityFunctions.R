@@ -112,9 +112,14 @@ const_sel<-function(z, params,ref=0,debug=FALSE){
 #'
 #'@export
 #'
-asclogistic<-function(z,params,refZ=0,debug=FALSE){
+asclogistic<-function(z,params=NULL,pZ50=NUL,pSlp=NULL,refZ=0,debug=FALSE){
+  if (!is.null(params)){
     z50  <- params[1];
     slope<- params[2];
+  } else {
+    z50 = pZ50;
+    slope=pSlp;
+  }
     res  <- 1.0/(1.0+exp(-slope*(z-z50)));
     scl  <-1;
     if (refZ>0){

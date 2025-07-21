@@ -1,6 +1,7 @@
 #--test reading new CTL file format
 #--read in data file---
 dirPrj =  rstudioapi::getActiveProject();
+dirPrj= getwd();
 source(file.path(dirPrj,"R","MiscFunctions_ReadParse.R"));
 source(file.path(dirPrj,"R","readADMB_DataFileFunctions.R"));
 fn = file.path(dirPrj,"testing/inputFiles",
@@ -139,7 +140,9 @@ for (rf in 1:nrow(dfrFcn)){
     par = dfrPars[["id"]][rp];
     ctrs = dfrPars[["contrasts"]][rp];
     Frmla = Formula::Formula(formula(dfrPars[["FEs"]][rp]));
-    MdFrm  = Formula:::model.frame.Formula(Frmla,data=dfrMF);
+    MdFrm = Formula:::model.frame.Formula(Frmla,data=dfrMF);
     MdMtx = Formula:::model.matrix.Formula(Frmla,data=convertToDimsFactors(MdFrm,dimsMdl,contrasts=ctrs),rhs=NULL);
   }
 }
+
+

@@ -4,14 +4,15 @@ z = seq(25,180,by=5);
 z50 = 100.00; #--size at which selectivity = 0.50 (logit-scale mean)
 slp =   0.05; #--slope at z50
 refZ  = 125;  #--reference *size*
-params = list(z50=z50,slp=slp,refZ=refZ);
-map_   = list(refZ=factor(NA));
+params = list(z50=z50,slp=slp);
+map_   = NULL;
 
-selr = asclogistic(z,z50,slp,refZ,verbose=verbose);
+selr = asclogistic(z,pZ50=z50,pSlp=slp,refZ=refZ,debug=verbose);
 
   #--create data to fit----
   set.seed(111);
-  data = list(z=z,obs=selr+rnorm(length(selr),0,0.05));
+  data = list(z=z,obs=selr+rnorm(length(selr),0,0.05),
+              refZ=refZ);
 
   #--create model/objective function----
   objfn<-function(pars){
@@ -19,7 +20,7 @@ selr = asclogistic(z,z50,slp,refZ,verbose=verbose);
     dZ = z[2]-z[1];
     obs<-OBS(data$obs);
 
-    prd_sel = asclogistic(z,pars$z50,pars$slp,pars$refZ,verbose);
+    prd_sel = asclogistic(z,pZ50=pars$z50,pSlp=pars$slp,refZ=data$refZ,debug=verbose);
     ADREPORT(pars$z50);
     ADREPORT(pars$slp);
     ADREPORT(pars$refZ);
@@ -60,7 +61,7 @@ selr = asclogistic(z,z50,slp,refZ,verbose=verbose);
         geom_point(data=dfr |> dplyr::filter(type=="true R"),colour="blue") +
         geom_line(colour="green") +
         geom_line(data=dfr |> dplyr::filter(type=="est"),colour="green",linetype=3) +
-        geom_vline(xintercept=refZ,linestyle=3) +
+        geom_vline(xintercept=refZ,linetype=3) +
         scale_y_continuous(limits=c(min(c(0,dfr$value)),NA)) +
         labs(subtitle="",x="size",y="selectivity") +
         wtsPlots::getStdTheme();
