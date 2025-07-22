@@ -309,6 +309,8 @@ dbllogistic5095<-function(z,params,refZ=0,debug=FALSE){
 #'
 #'@param z      - vector of sizes at which to compute selectivity values
 #'@param params - 2-element vector of selectivity function parameters
+#' @param ascWdZ - width of ascending limb (standard deviation of a normal distribution)}
+#' @param ascMdZ - size at which ascending limb hits 1 (mode of a normal distribution)}
 #'@param refZ   - reference size (not used)
 #'@param debug - flag (T/F) to print debugging messages
 #'
@@ -316,19 +318,21 @@ dbllogistic5095<-function(z,params,refZ=0,debug=FALSE){
 #'
 #'@details The parameters are
 #' \itemize{
-#' \item{params[1] - width of ascending limb (standard deviation of a normal distribution)}
-#' \item{params[2] - size at which ascending limb hits 1 (mean of a normal distribution)}
+#' \item{params[1] - ascWdZ: width of ascending limb (standard deviation of a normal distribution)}
+#' \item{params[2] - ascMdZ: size at which ascending limb hits 1 (mode of a normal distribution)}
 #' }
 #'
 #'@export
 #'
-ascnormal1<-function(z,params,refZ=0,debug=FALSE){
+ascnormal1<-function(z,params=NULL,ascWdZ=NULL,ascMdZ=NULL,refZ=0,debug=FALSE){
   if (debug) message(paste("Starting ascnormal(...)"));
   slp = 5.0;
-  ascWdZ = params[1];#--width of ascending limb
-  ascMnZ = params[2];#--size at which ascending limb hits 1
-  ascN   = exp(-0.5*((z-ascMnZ)/ascWdZ)^2);
-  ascJ   = 1.0/(1.0+exp(slp*(z-(ascMnZ))));
+  if (!is.null(params)){
+    ascWdZ = params[1];#--width of ascending limb
+    ascMdZ = params[2];#--size at which ascending limb hits 1
+  }
+  ascN   = exp(-0.5*((z-ascMdZ)/ascWdZ)^2);
+  ascJ   = 1.0/(1.0+exp(slp*(z-(ascMdZ))));
   s    = ascJ*ascN+(1.0-ascJ);
   names(s) = as.character(z);
   if (debug) message(paste("Finished ascnormal1(...)"));
@@ -340,6 +344,8 @@ ascnormal1<-function(z,params,refZ=0,debug=FALSE){
 #' @description Function to calculate ascending normal selectivity curve.
 #' @param z      - vector of sizes at which to compute selectivity values
 #' @param params - 2-element vector of selectivity function parameters
+#' @param ascSref - selectivity at size = refZ (if `params` not given)
+#' @param ascZ1 - size at which ascending limb reaches 1 (if `params` not given)
 #' @param refZ   - size at which function reaches params[2]
 #' @param debug - flag (T/F) to print debugging messages
 #'
@@ -347,18 +353,20 @@ ascnormal1<-function(z,params,refZ=0,debug=FALSE){
 #'
 #' @details  The parameter vector has values
 #' \itemize{
-#'  \item{params[1]: selectivity at size = refZ}
-#'  \item{params[2]: size at which ascending limb reaches 1}
+#'  \item{params[1]: ascSref - selectivity at size = refZ}
+#'  \item{params[2]: ascZ1 - size at which ascending limb reaches 1}
 #' }
 #'
 #' @export
 #'
-ascnormal2<-function(z, params, refZ=0,debug=FALSE){
+ascnormal2<-function(z, params=NULL, ascSref=NULL, ascZ1=NULL, refZ=0, debug=FALSE){
   if (debug) message("Starting SelFcns::ascnormal2(...)");
   slp = 5.0;
-  ascSref = params[1];#--selectivity at ascZref
+  if (is.null(params)){
+    ascSref = params[1];#--selectivity at ascZref
+    ascZ1   = params[2];#--size at which ascending limb hits 1
+  }
   ascZref = refZ;      #--size at which selectivity reaches ascSref
-  ascZ1   = params[2];#--size at which ascending limb hits 1
   ascN = exp(log(ascSref)*((z-ascZ1)/(ascZref-ascZ1))^2);
   ascJ = 1.0/(1.0+exp(slp*(z-(ascZ1))));
   s = ascJ*ascN+(1.0-ascJ);

@@ -1,12 +1,20 @@
+#--test estimability of asclogistic function parameters by fitting to
+#--simulated data using RTMB
+require(RTMB);
+require(ggplot2);
+source(file.path(here::here(),"R/SelectivityFunctions.R"));
+
 verbose=TRUE;
 z = seq(25,180,by=5);
 
 z50 = 100.00; #--size at which selectivity = 0.50 (logit-scale mean)
 slp =   0.05; #--slope at z50
 refZ  = 125;  #--reference *size*
-params = list(z50=z50,slp=slp);
+params = list(z50=z50,slp=slp);      #--individual parameters supplied as list objects
+params = list(p=c(z50=z50,slp=slp)); #--parameters supplied in a vector
 map_   = NULL;
 
+#--reference selectivity----
 selr = asclogistic(z,pZ50=z50,pSlp=slp,refZ=refZ,debug=verbose);
 
   #--create data to fit----
@@ -20,7 +28,16 @@ selr = asclogistic(z,pZ50=z50,pSlp=slp,refZ=refZ,debug=verbose);
     dZ = z[2]-z[1];
     obs<-OBS(data$obs);
 
-    prd_sel = asclogistic(z,pZ50=pars$z50,pSlp=pars$slp,refZ=data$refZ,debug=verbose);
+#    params = c(pars$z50,pars$slp);
+    params = pars$p;
+    cat("params = \n"); cat(str(params),"\n\n");
+    print(params);
+
+    prd_sel = asclogistic(z,params=params,refZ=data$refZ,debug=verbose);
+#    prd_sel = asclogistic(z,pZ50=pars$z50,pSlp=pars$slp,refZ=data$refZ,debug=verbose);
+    cat("prd_sel = \n"); cat(str(prd_sel),"\n\n");
+    print(prd);
+
     ADREPORT(pars$z50);
     ADREPORT(pars$slp);
     ADREPORT(pars$refZ);
@@ -46,9 +63,10 @@ selr = asclogistic(z,pZ50=z50,pSlp=slp,refZ=refZ,debug=verbose);
   if (verbose) {
     print(opt$par);
     print(RTMB::sdreport(mdl));
-    source(file.path(rstudioapi::getActiveProject(),"R/getFR_sdreport.R"))
+    source(file.path(here::here(),"R/getDFR_sdreport.R"))
     print(getDFR_sdreport(mdl));
   }
+  #----plot the model results
   dfr = dplyr::bind_cols(tibble::as_tibble(data),
                          `true R`  = selr,
                          `true AD` = selad,

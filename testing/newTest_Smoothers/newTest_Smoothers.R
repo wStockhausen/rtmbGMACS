@@ -69,53 +69,83 @@ ggplot(tmp |> tidyr::pivot_longer(c(v,p)) |> dplyr::filter(as.character(y)!="202
 View(tmp |> tidyr::pivot_longer(c(v,p)) |> dplyr::filter(as.character(y)=="2024"));
 
 #--fit using RTMB----
-require(Matrix);
-require(TMB);
 require(RTMB);
+dfrYZp = dfrYZ |> dplyr::mutate(y=as.character(y)) |>
+                  dplyr::filter(y %in% as.character(c(1972:1973))) |>
+                  dplyr::mutate(y=factor(y));
+sso = eval(parse(text="s(z,k=10,by=y)"));         #--smooth specification
+sc  = mgcv::smoothCon(sso,data=dfrYZp,knots=NULL);#--smooth construct
 Xf  = Matrix::Matrix(sc[[1]]$X);                  #--sparse model matrix for first smooth term
 i   = 2;
 while(i<=length(sc)){
   Xf = cbind(Xf,Matrix::Matrix(sc[[i]]$X));       #--create sparse model matrix by appending "by" model matrices
   i  = i+1;
 }
-data = list(dfrYZ=dfrYZ,
-            Xf=Xf);
+data = list(obs=as.vector(dfrYZp$v),
+            Xf=Matrix::Matrix(Xf,sparse=TRUE))#--make sure Xf is a Matrix::dgCMatrix sparse matrix object;
 #--create model/objective function----
 objfn<-function(pars){
-  p = pars$p;
-  cat("p = \n",p[1:10],"\n\n");
-  cat("pars$p = \n",pars$p[1:10],"\n\n");
-  cat("str(p) = \n");cat(str(p),"\n\n");
+  getAll(pars,warn=TRUE);                    #--`p` can be referenced directly
+  # cat("str(p) = \n");cat(str(p),"\n\n");
+  # if (class(p)=='advector'){
+  #   cat("print(p) = "); print(p[1:10]); cat("\n\n"); #--MakeADFun: use `print` rather than `cat` (or use `RTMB:::.adv2num(p)` to convert to numeric)
+  # } else {
+  #   cat("print(p) = ",p[1:10],"\n\n");               #--ordinary R: can use `cat`
+  # }
 
-  obs<-OBS(as.vector(data$dfrYZ$v));         #--observations
-  cat("obs = \n",head(obs),"\n\n");
-  cat("obs = \n"); cat(str(obs),"\n\n");
+  obs<-OBS(data$obs);         #--observations
+  # cat("obs = \n",head(obs),"\n\n");
+  # cat("obs = \n"); cat(str(obs),"\n\n");
 
-  Xf = AD(data$Xf);
+  Xf = data$Xf;
   #cat("Xf = \n",head(as.matrix(Xf),n=c(10,10)),"\n\n");
   #cat("str(Xf) = \n"); cat(str(Xf),"\n\n")
   #Xf = setAs(data$Xf,"adsparse");
   #cat("Xf = \n",head(as.matrix(Xf),n=c(10,10)),"\n\n");
-  cat("str(Xf) = \n"); cat(str(Xf),"\n\n")
+  # cat("str(Xf) = \n"); cat(str(Xf),"\n\n")
 
-  prd = Xf %*% p; #--predicted values
-  # prd = t(p) %*% t(Xf) ; #--predicted values
-  cat("str(prd) = \n"); cat(str(prd),"\n\n");
-
-  cat("prd = \n",head(as.vector(prd)),"\n\n")
-  ADREPORT(pars);
-
+  prd = as.vector(Xf %*% p); #--predicted values
+  # if (class(prd)=='advector'){
+  #   tmp = RTMB:::.adv2num(as.vector(prd));
+  # } else {
+  #   tmp = as.vector(prd);
+  # }
+  # cat("str(prd) = \n"); cat(str(prd),"\n\n");
+  # cat("prd = \n",head(as.vector(tmp)),"\n\n")
   REPORT(prd);
+  ADREPORT(prd);
 
   # obs %~% dnorm(as.vector(prd),AD(1),log=TRUE); #--adds -log-likelihood to hidden variable `.nll`
   nll = AD(0);
   nll = nll-sum(dnorm(obs,as.vector(prd),1,log=TRUE));
-  cat("nll = \n",nll,"\n\n");
+  # cat("str(nll) = \n"); cat(str(nll),"\n\n");
+  # if (class(nll)=='advector') {nllp = RTMB:::.adv2num((nll))} else {nllp = nll;}
+  # cat("nll = ",nllp,"\n\n");
   nll;
 }
-pars = list(p=as.double(rep(1,ncol(Xf))));
-objfn(pars);
+params = list(p=as.double(rep(1,ncol(Xf))));
+objfn(params);
 #--MakeADFun the model----
 #cat("MakeADFun'ing\n");
-mdl = RTMB::MakeADFun(objfn,parameters=pars);
+mdl = RTMB::MakeADFun(objfn,parameters=params);
+    print(mdl$par);
+    print(mdl$fn());
+    print(mdl$gr());
+opt = nlminb(mdl$par,mdl$fn,mdl$gr,hessian=mdl$he);
+sdr = sdreport(mdl);
+idx = stringr::str_starts(names(sdr$value),"prd");
+dfrYZp$prd = sdr$value[idx];
+dfrYZp$sd_prd = sdr$sd[idx];
+dfrYZp = dfrYZp |> dplyr::mutate(lci=qnorm(0.10,prd,sd=sd_prd),
+                                 uci=qnorm(0.90,prd,sd=sd_prd));
+p = ggplot(dfrYZp,aes(x=z,group=y)) +
+    geom_ribbon(aes(ymin=lci,ymax=uci),colour="green",fill="green",alpha=0.2) +
+    geom_path(aes(y=prd),colour="dark green") + geom_point(aes(y=prd),colour="dark green",shape=21) +
+    geom_point(aes(y=v),colour="blue",shape=23) +
+    labs(x="size (mm CW)",y="value"); print(p);
+p + facet_wrap(~y);
 
+# showMethods(classes="advector");
+# getClass("advector")
+# getClass("adsparse")
+# getClass("anysparse")
