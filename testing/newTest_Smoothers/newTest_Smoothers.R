@@ -18,7 +18,7 @@ str=paste(
   x <- c("male","female");                  #--sex classes
   m <- c("immature","mature");              #--maturity state classes
   p <- c("new_shell","old_shell");          #--post-molt ages
-  zc <- seq(24.5,184.5,5);                  #--size bin cutpoints
+  zc <- seq(24.5,184.5,5);                   #--size bin cutpoints
   z  <- 0.5*(zc[2:(length(zc))]+zc[1:(length(zc)-1)]); #--size bin midpoints
 END')
 strv = stringr::str_split_1(str,"\\n") |> extractLines("MODEL_DIMS","END");

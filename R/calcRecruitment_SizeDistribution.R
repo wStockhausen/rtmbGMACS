@@ -21,7 +21,7 @@
 #' #'              pgamma(zBs-dZ/2,shape=(mnZ^2)/(wdZ^2),scale=(wdZ^2)/mnZ)$$
 #' #' $$prZ(zBs) = prZ(zBs \le zMx)/(prZMx-prZmn)$$
 #' #'
-#' #' @examples
+#' #' @examplesIf FALSE
 #' #' # example code
 #' #' zBs = seq(25,100,5);
 #' #' dZ  = z[2]-z[1];

@@ -2,29 +2,35 @@
 % Please edit documentation in R/getDFR_sdreport.R
 \name{getDFR_sdreport}
 \alias{getDFR_sdreport}
-\title{Convert an sdreport object to a dataframe}
+\title{Extract sdreported infomation from an RTMB model as a dataframe}
 \usage{
-getDFR_sdreport(obj, report = TRUE, model = "")
+getDFR_sdreport(obj, adreport = FALSE, model = "")
 }
 \arguments{
 \item{obj}{\itemize{
-\item RTMB sdreport object
+\item optimised RTMB model object
 }}
 
-\item{report}{\itemize{
-\item flag (T/F) to ??
+\item{adreport}{\itemize{
+\item flag (TRUE/FALSE) to get ADREPORT'ed quantities
 }}
 
 \item{model}{\itemize{
-\item name of model
+\item name of model (optional: default is "")
 }}
 }
 \value{
-dataframe
+a dataframe
 }
 \description{
-Function to convert an sdreport object to a dataframe.
+Function to extract sdreported infomation from an RTMB model as a dataframe.
 }
 \details{
-TBD
+If \code{adreport=FALSE}, the parameter estimates and se's are output. If
+\code{adreport=TRUE}, ADREPORT'ed quantities (estimates and se's) are output. Note that
+setting \code{adreport=TRUE} for a model object with no ADREPORT'ed quantities results in an error.
+
+In addition to the model name, parameter/quantity names, estimates and SEs, columns in the
+output dataframe report the number of dimensions (\code{nDims}) and dimension indices (\code{i1},\code{i2}, etc)
+for extracted quantities.
 }

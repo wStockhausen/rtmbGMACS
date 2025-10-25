@@ -4,10 +4,10 @@
 \alias{expandDataframe}
 \title{Expand dataframe for expressions and "all" dimension levels}
 \usage{
-expandDataframe(dfr, lstAlls = NULL, verbose = TRUE)
+expandDataframe(dfrp, lstAlls = NULL, verbose = TRUE)
 }
 \arguments{
-\item{dfr}{\itemize{
+\item{dfrp}{\itemize{
 \item dataframe with expressions and dimensions to expand from "all" to levels
 }}
 

@@ -4,11 +4,15 @@
 \alias{createDenseDimsMap}
 \title{Create an index map using all (non-nested, fully-crossed) dimension levels}
 \usage{
-createDenseDimsMap(map, debug = FALSE)
+createDenseDimsMap(map, convertCharsToFactors = FALSE, debug = FALSE)
 }
 \arguments{
 \item{map}{\itemize{
 \item a DimsMap object created using \code{\link[=createSparseDimsMap]{createSparseDimsMap()}}
+}}
+
+\item{convertCharsToFactors}{\itemize{
+\item option to convert character dims to factors (default=FALSE)
 }}
 
 \item{debug}{\itemize{
@@ -16,9 +20,10 @@ createDenseDimsMap(map, debug = FALSE)
 }}
 }
 \value{
-a DimsMap object, which is atibble (see \code{\link[tibble:tibble]{tibble::tibble()}}) with class "DimsMap"
+a DimsMap object, which is a tibble (see \code{\link[tibble:tibble]{tibble::tibble()}}) with class "DimsMap"
 and attributes
 \itemize{
+\item{"dmtyp" - 'dense': indicates DimsMap type}
 \item{"dmnms" - vector of dimension names}
 \item{"dmlvs" - list with non-nested dimension levels, by dimension name}
 \item{"dmlns" - vector of dimension lengths, by dimension name}

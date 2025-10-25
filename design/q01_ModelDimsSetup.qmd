@@ -1,0 +1,344 @@
+---
+title: "rtmbGMACS: Model Dimensions File"
+author:
+- name: William T. Stockhausen
+  affiliations:
+    - id: afsc-refm
+      name: "Alaska Fisheries Science Center"
+      department: "Resource Ecology and Fisheries Management"
+      address: 
+        - "7600 Sand Point Way N.E."
+        - "Seattle, Washington 98115-6349"
+date: '`r format(Sys.time(), "%b %e, %Y")`'
+fontsize: 11pt 
+number-sections: true
+number-depth: 2
+reference-location: document
+bibliography: '`r path.expand("~/Work/Projects/Bibliography/AllRefs.bib")`'
+csl: '`r system.file("files/CJFAS.csl",package="wtsQMD")`'
+link-citations: true
+crossref:
+  chapters: false      # prepend label reference numbers by chater number?
+  fig-title: Figure    # for caption: default is "Figure")
+  tbl-title: Table     # for caption: default is "Table")
+  title-delim: "."     # for caption: default is ":")
+  fig-prefix: Figure   # for in-text (use [-@fig-ref] to drop prefix in text)
+  tbl-prefix: Table    # for in-text (use [-@tbl-ref] to drop prefix in text)
+  fig-labels: arabic    # options are arabic, roman, roman i, alpha x, alpha X; latter two starting from x/X
+  tbl-labels: arabic    # options are arabic, roman, roman i, alpha x, alpha X; latter two starting from x/X
+  subref-labels: alpha a # options are arabic, roman, roman i, alpha x, alpha X; latter two starting from x/X
+  ref-hyperlink: true    # references are hyperlinked if true
+format: 
+  html: 
+    df-print: paged
+    toc: true
+    toc-location: right
+    fig-width: 8
+    fig-asp: 0.4
+    fig-dpi: 100
+    embed-resources: true
+    include-in-header: 
+      - '`r system.file("files/in-line_math_mode.html",package="wtsQMD")`'
+  pdf:
+    documentclass: scrartcl
+    toc: false
+    fig_crop: false
+    keep-tex: false
+    geometry:
+      - left=1.0in
+      - right=1.0in
+      - top=1.0in
+      - bottom=1.0in
+      - textwidth=6.5in
+      - showframe=false
+    include-in-header: 
+       #include '\usepackage{nopageno}' below in header to turn off page numbering
+      - text: |
+          \usepackage{placeins}
+          \extrafloats{500}
+          \maxdeadcycles=10000
+          \usepackage{fontspec}
+          \usepackage{multicol}
+          \usepackage{hhline}
+          \newlength\Oldarrayrulewidth
+          \newlength\Oldtabcolsep
+          \usepackage{nopageno}
+      - file: '`r system.file("files/ltx_ExtraLatexIncludes.tex",package="wtsQMD")`'
+echo: false
+warning: false
+results: 'hide'
+keep-md: true
+keep-yaml: false
+editor: source
+editor_options: 
+  chunk_output_type: console
+concordance: true
+params:
+  setup: !expr 'system.file("files/qmd_setup.R",package="wtsQMD")'
+  testing: false
+  reorderTables: false   #--issue with finding "range" of table values  (don't use)
+  reorderFigures: false  #--issue with finding "range" of figure values (don't use)
+---
+<!-- IMPORTANT: if used as a child doc, all chunk labels must be unique within the overall document -->
+
+<!-- 
+  NOTEs: 
+     * child_path$peek() gives path to current script.
+     * before starting a child document, do 
+         "child_path$push(file.path(child_path$peek(),rel_path))" first, 
+         where rel_path is the relative path to the child
+     * after a child document has finished, do "child_path$pop()" to return to current path value
+-->
+
+<!-- if not child doc, set up required objects -->
+```{r}
+#| label: ModelDimsSetup_setup
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  testing = params$testing;
+  if (testing) cat(params$setup,"\n\n")
+  source(params$setup);
+  if (testing) cat("root = ",root,"\n\n")
+  reorderTables  = params$reorderTables;
+  reorderFigures = params$reorderFigures;
+```
+
+```{r}
+#| label: setup_ModelDimsSetup
+#| results: asis
+  require(rtmbGMACS);
+  require(ggplot2);
+  require(kableExtra);
+  require(tables);
+  thm = wtsPlots::getStdTheme();
+  options("readr.show_col_types"=FALSE);
+  if (testing) cat("dirThs =",child_path$peek(),"\n\n")
+  if (!exists("tblno")) tblno = 0;#--index in LETTERS for tables in text
+```
+
+## Setting up the model dimensions {#sec-ModelDimsSetup}
+
+Model dimensions can be set up in either a text file or in an R script. In either case, 
+the model dimensions need to be read in/created as the first step in running a `rtmbGMACS` model.
+
+The dimensions defining the population at any instant in time can consist of `a`, `x`, `r`, `m`, `p`, and `z`, where 
+
+ * `a` indicates post-settlement age (at this point, a placeholder that has the value "undetermined")
+ * `x` indicates a sex category (e.g., "male", "female")
+ * `r` indicates a model region (e.g., "EBS")
+ * `m` indicates a maturity state (e.g., 'immature', 'mature')
+ * `p` indicates a post-molt age (a substitute for shell condition)
+ * `z` indicates a crab size (e.g., mm CW or mm CL)
+
+The order above reflects an explicit order of nesting used in the setting up model dimensions: 
+sizes can be nested within a post-molt age, post-molt ages can be nested within a maturity state, maturity states can be nested 
+within a region, regions can be nested within a sex category. and sexes can be nested within a post-settlement age `a`. This ordering reflects a natural hierarchy of possible state changes: post-settlement age increments once a year; once recruitment is partitioned into sex, sex does not change; changing regions does not change post-settlement age, maturity state, post-molt age, or size; changing maturity state does not change post-molt age or size; changing post-molt age does not change size.
+
+Temporal dimensions consist of `y` and `s`, where
+
+ * `y` indicates a model year
+ * `s` indicates a season within a year
+
+Finally, the 'fleet' dimension is represented by `f`. 
+
+Dimensions are created using the `createSparseDimsMap` function, which takes a set of values for the desired dimensions (with some possibly nested as a list) and returns a `DimsMap` object, basically a tibble ([tibble::tibble()]) with each row specifying a unique combination of dimension values. The function is quite general and is not limited to the `rtmbGMACS` model dimensions defined above.
+
+### Script setup
+
+Model dimensions can be set up in an R script. In the following example, the population dimensions 
+are set up in a "crossed" fashion such that the levels of each dimension apply across all the dimensions:
+
+```{r ex-script1}
+#| results: asis
+#| echo: true
+  r <- "EBS";                               #--regions
+  x <- c("male","female");                  #--sex classes
+  m <- c("immature","mature");              #--maturity state classes
+  p <- c("new_shell","old_shell");          #--post-molt ages
+  zc <- seq(24.5,184.5,5);                  #--size bin cutpoints
+  z  <- 0.5*(zc[2:(length(zc))]+zc[1:(length(zc)-1)]); #--size bin midpoints
+  dmsC = createSparseDimsMap(x=x,r=r,m=m,p=p,z=z);#--the order of columns is determined by the order of the inputs
+```
+
+```{r}
+#| label: tbl-ExSparseDimsMap1
+#| tbl-cap: "Example sparse dimensions map with non-nested dimension values (first 20 rows shouwn)."
+#| eval: !expr '(require(kableExtra))'
+head(dmsC,n=20) |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
+```
+
+`dmsC` is a `tibble` of S3 class "DimsMap" with columns `sparse_idx`,`x`,`r`, `m`, `p`, and `z`. The first column, `sparse-idx`, is simply the row index associated with the unique combination of dimension levels reflected in the remaining columns of a given row. It can provide a simple "key" from a vector index back to the associated dimension levels. In addition to the standard `class`, `names` and `row.names` attributes, it has the additional attributes `dmtyp`, `dmnms`, `dmlvs`, and `dmlns`: 
+
+ * `dmtyp` is a length 1 character vector that indicates the `DimsMap` "type" ("sparse" here) 
+ * `dmnms` is a character vector that indicates the dimension names ("x", "r", "m", "p", and "z" here)
+ * `dmlvs` is a list with the dimension names as elements, and each element is a vector containing the unique values for the dimension
+ * `dmlns` is a named integer vector indicating the lengths of the vectors in `dmlvs` by the dimension name
+
+::: {.callout-note appearance="simple" title="str(dmsC)" icon=false}
+```{r}
+#| output: markdown
+  s = capture.output(str(dmsC));
+  cat(s,sep="\n");
+  rm(s);
+```
+:::
+
+It is also possible to define the population dimensions in a nested fashion. In the following example,
+different post-molt age categories are defined for different sex/maturity categories, as are different sizes, 
+in the form of a nested list (`vXs` below). It is necessary to specify the order of the dimensions in the nesting 
+of `vXs`, which is done by defining the a `dmnms` (i.e., "dimension names") attribute to the nested list.
+
+```{r ex-script2}
+#| results: asis
+#| echo: true
+  r = "EBS";
+  miz = as.character(seq(25,75,5)); #--size bin midpoints for immature males
+  mmz = as.character(seq(50,75,5)); #--size bin midpoints for mature males
+  fiz = as.character(seq(25,65,5)); #--size bin midpoints for immature females
+  fmz = as.character(seq(30,65,5)); #--size bin midpoints for mature females
+  vXs=list(male=list(imm=list(`new`=miz,
+                               `old`=miz),
+                      mat=list(`new`=mmz,
+                               `old`=mmz,
+                               `very`=mmz)
+                    ),
+            female=list(imm=list(`new`=fiz,
+                                 `old`=fiz),
+                        mat=list(`new`=fmz,
+                                 `old`=fmz)
+                       )
+           ); 
+  attr(vXs,"dmnms")<-c("x","m","p","z");#--define order of dimensions in nested list
+  dmsC = createSparseDimsMap(r=r,x=vXs);
+```
+
+```{r}
+#| label: tbl-ExSparseDimsMap2
+#| tbl-cap: "Example sparse dimensions map with nested dimension values (first 20 rows shouwn)."
+#| eval: !expr '(require(kableExtra))'
+head(dmsC,n=20) |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
+```
+
+::: {.callout-note appearance="simple" title="str(dmsC)" icon=false}
+```{r}
+#| output: markdown
+  s = capture.output(str(dmsC));
+  cat(s,sep="\n");
+  rm(s);
+```
+:::
+
+### Text file setup
+
+It is also possible to define model dimensions from a text file. In the following, the character vector `str` would be read in from a text file and the lines between "Model_DIMS" and "END" would be extracted and then parsed using the function `evalTextAsList`. `evalTextAsList` creates a list (`lstDims` in the example below) with elements identified by the lefthand side of each "<-" and values taken from the corresponding righthand side. This list can then be passed to `createSParseDimsMap` to create a `DimsMap` object. Note that, in the example below, 
+`zc` is a vector that defines the size bin cutpoints and is used to define the size bin midpoints `z` but is not included when creating the `DimsMap` object `dmsMdl`.
+
+```{r ex-file1}
+#| echo: true
+  str=paste(
+  'MODEL_DIMS
+    y <- 1948:2024;                           #--years
+    s <- 1;                                   #--seasons
+    r <- "EBS";                               #--regions
+    x <- c("male","female");                  #--sex classes
+    m <- c("immature","mature");              #--maturity state classes
+    p <- c("new_shell","old_shell");          #--post-molt ages
+    zc <- seq(24.5,184.5,5);                  #--size bin cutpoints
+    z  <- 0.5*(zc[2:(length(zc))]+zc[1:(length(zc)-1)]); #--size bin midpoints
+  END'
+  )
+  strv   = splitText(str) |> extractLines("MODEL_DIMS","END");
+  lstDms = evalTextAsList(strv);
+  dmsC   = createSparseDimsMap(!!!(lstDms[names(lstDms)!="zc"]));#--drop zc (size bin cutpoints)
+```
+
+
+```{r}
+#| label: tbl-ExSparseDimsMap3
+#| tbl-cap: "Example sparse dimensions map with non-nested dimension values created from text (first 20 rows shouwn)."
+#| eval: !expr '(require(kableExtra))'
+head(dmsC,n=20) |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
+```
+
+::: {.callout-note appearance="simple" title="str(dmsC)" icon=false}
+```{r}
+#| output: markdown
+  s = capture.output(str(dmsC));
+  cat(s,sep="\n");
+  rm(s);
+```
+:::
+
+It is also possible to define model dimensions using a text file with nested lists, as shown in the following example, which also features the use of vectors (`miz`, `mmz`,`fiz`, and `fmz`) that are not model dimensions to simplify defining the nested dimensions in `x`. As in the example above, all model dimensions are defined using the assignment operator "<-" (e.g., `r` below) or as part of a list defined using "<-" (e.g., `x` below). Assignments made using "=" outside a list (e.g., `miz`) are parsed in the local context of `parseAsLst` and are not included in the returned output list. Two wrinkles here are that the variable name for a nested list must be the same as the intended outer dimension and that the `dmnms` attribute for that nested list must be defined immediately after defining the nested list itself.
+
+```{r ex-file2}
+#| echo: true
+  str=paste(
+  'MODEL_DIMS
+    r <- "EBS";
+    miz = as.character(seq(25,75,5)); #--size bin midpoints for immature males
+    mmz = as.character(seq(50,75,5)); #--size bin midpoints for mature males
+    fiz = as.character(seq(25,65,5)); #--size bin midpoints for immature females
+    fmz = as.character(seq(30,65,5)); #--size bin midpoints for mature females
+    x<-list(male=list(imm=list(`new`=miz,
+                                 `old`=miz),
+                        mat=list(`new`=mmz,
+                                 `old`=mmz,
+                                 `very`=mmz)
+                      ),
+              female=list(imm=list(`new`=fiz,
+                                   `old`=fiz),
+                          mat=list(`new`=fmz,
+                                   `old`=fmz)
+                         )
+             ); 
+    attr(x,"dmnms") = c("x","m","p","z");#--define order of dimensions in nested list
+  END'
+  )
+  strv   = str |> splitText() |> extractLines("MODEL_DIMS","END");
+  lstDms = evalTextAsList(strv);
+  dmsC   = createSparseDimsMap(!!!lstDms);
+```
+
+```{r}
+#| label: tbl-ExSparseDimsMap4
+#| tbl-cap: "Example sparse dimensions map created from text (first 20 rows shouwn)."
+#| eval: !expr '(require(kableExtra))'
+head(dmsC,n=20) |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
+```
+
+::: {.callout-note appearance="simple" title="str(dmsC)" icon=false}
+```{r}
+#| output: markdown
+  s = capture.output(str(dmsC));
+  cat(s,sep="\n");
+  rm(s);
+```
+:::
+
+
+```{r}
+#| label: refs_ModelDimsSetup
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  cat("# References {-}\n")
+  cat("::: {#refs}\n")
+  cat(":::\n\n")
+```
+
+<!-- tables, if not child doc and lstTbls is not empty -->
+```{r}
+#| label: tables_ModelDimsSetup
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  source(system.file("files/printTablesSectionFromList.R",package="wtsQMD"));
+```
+
+<!-- figures, if not child doc and lstFigs is not empty -->
+```{r}
+#| label: figures_ModelDimsSetup
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  source(system.file("files/printFiguresSectionFromList.R",package="wtsQMD"));
+```
+

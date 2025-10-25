@@ -5,7 +5,7 @@
 #' @description Function to calculate catchability `Q` as a function of size.
 #' @param z - vector of sizes at which to calculate `Q`
 #' @param pLnQ - vector of ln-scale values of `Q`
-#' @para verbose - flag to print diagnostic info
+#' @param verbose - flag to print diagnostic info
 #' @return arithmetic-scale vector of catchabilities the same size as `z`
 #'
 #' @details This function simply exponentiates `pLnQ` and returns an arithmetic-scale vector.

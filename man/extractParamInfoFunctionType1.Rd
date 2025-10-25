@@ -8,6 +8,7 @@ extractParamInfoFunctionType1(
   lst,
   dms = NULL,
   process_type = "",
+  xtra_cols = character(0),
   verbose = TRUE
 )
 }
@@ -18,6 +19,18 @@ extractParamInfoFunctionType1(
 
 \item{dms}{\itemize{
 \item appropriate \code{dms...} DimsMap from \code{setupModelDims}
+}}
+
+\item{process_type}{\itemize{
+\item string describing process (for verbose output)
+}}
+
+\item{xtra_cols}{\itemize{
+\item character vector of "extra" columns in the "function" section
+}}
+
+\item{verbose}{\itemize{
+\item flag (TRUE/FALSE) to print diagnostic info
 }}
 }
 \value{
@@ -31,17 +44,17 @@ The output list has elements
 
 \itemize{
 \item{option - format option}
-\item{params - vector of weight-at-size values}
-\item{map - vector for the RTMB \code{map} list indicating the parameters are fixed; i.e. not to be estimated}
-\item{dfrIdx2Pars - dataframe with columns "pidx", dimension names (y,s,r,x,m,p,z), and parameter specs IV,LB,UB,phz,PriorType,Pr1,Pr2
-indicating the un-expanded mapping from \code{pidx} to the parameter input values ("IV"). \code{pidx} is the index into the parameter vector.
-The dimension columns are incidental and reflect the specification from the input text file.}
-\item{dfrDims2Pars - dataframe with columns "pidx" and the dimension names (y,s,r,x,m,p,z).
-The dimension levels are fully expanded such that each row corresponds to a single "multidimensional" level.
-The value of \code{pidx} for each row indicates the index of the associated weight-at-size value in the parameter vector.}
-}
-
-If \code{lst$option} is "function", the output list has elements
-\itemize{
+\item{Fcns - list with function-level info}
+\item{MPs - list with main parameters-level info}
+\item{OPs - list with offset parameters-level info}
+\item{DPs - list with devs (fixed) parameter vectors-level info}
+\item{REs - list with random effects-level info}
+\item{PECs - list with main parameter-level info}
+\item{FECs - list with main parameter-level info}
+\item{dfrFPs - dataframe with functional priors info}
+\item{dfrCmbs - dataframe with all parameter combinations in vertical format}
+\item{dfrUniqCmbs - dataframe with unique parameter combinations in vertical format}
+\item{dfrHCs - dataframe with all parameter combinations in "horizontal" format}
+\item{dfrUHCs - dataframe with unique parameter combinations in "horizontal" format}
 }
 }

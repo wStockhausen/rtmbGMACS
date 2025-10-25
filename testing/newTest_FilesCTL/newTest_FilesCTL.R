@@ -1,7 +1,7 @@
 #--test reading new CTL file format
 #--read in data file---
 dirPrj =  rstudioapi::getActiveProject();
-dirPrj= getwd();
+#dirPrj= getwd();
 source(file.path(dirPrj,"R","MiscFunctions_ReadParse.R"));
 source(file.path(dirPrj,"R","readADMB_DataFileFunctions.R"));
 fn = file.path(dirPrj,"testing/inputFiles",
@@ -23,7 +23,8 @@ str=paste(
   p <- c("new_shell","old_shell");          #--post-molt ages
   zc <- seq(24.5,184.5,5);                  #--size bin cutpoints
   z  <- 0.5*(zc[2:(length(zc))]+zc[1:(length(zc)-1)]); #--size bin midpoints
-END')
+END'
+)
 strv = stringr::str_split_1(str,"\\n") |> extractLines("MODEL_DIMS","END");
 lstDims = parseStrAsList(strv,verbose=TRUE);
 dimsMdl = createSparseDimsMap(!!!(lstDims[names(lstDims)!="zc"]));#--drop zc (size bin cutpoints)
@@ -74,14 +75,15 @@ for (nm in names(lstYBlks)){
 ##--selectivity functions----
 str=paste('
 FUNCTIONS
-fcn_idx  function     type          D    fcn_params  description
+fcn_idx  function     type          D    fcn_params  description                            #--What is "D"??
    1     selTCFF      ascnormal    TCFF    pZMd,pWd   size_at_mode,_width
    2     selTCM1      logistic     TCFM1   pZ50,pWd   size_at_50%_selected,_width
    4     selTCFM3     smooth       TCFM3     k=6      smooth_with_6_degrees_of_freedom
-  -4     selTFM4      smooth       TCFM4     k=6      mirrors_fcn_idx_4
+  -4     selTCFM4     smooth       TCFM4     k=6      mirrors_fcn_idx_4
    5     selSCM1      fxd_vector   SCFM1    values    vector_of_fixed_values
    6     selSCM2      fxd_matrix   SCFM2    values    matrix of fixed values
-END')  #--terminator for functions block
+END'  #--terminator for functions block
+);
 
 ### FUNCTION
 ### id - function id
@@ -108,9 +110,6 @@ END')  #--terminator for functions block
 ### linkREs - link function for random effects (add, mult, exp)
 ### description - parameter label label (no spaces)
 
-parseFunctionInfo<-function(str){
-
-}
 str=paste('
 FUNCTION  #--must start section with "FUNCTION"
    # a comment line
@@ -119,7 +118,7 @@ id           function      MF        pars     REs   dispREs  linkREs   descripti
 selNMFS      ascnormal   tbNMFS    pZMd,pWd   ~0      ~1       add     ascending_normal
 PARAMETERS
 id    IV   LB     UB    phz   PriorType   Pr1    Pr2    FEs         contrasts        linkFEs       REs         dispREs  linkREs   description
-pZMd  100   5    150     5    uniform      NA     NA    ~1          ident             ident       ~0            ~1     add     size_at_mode
+pZMd  100   5    150     5    uniform      NA     NA    ~yblk          ident          ident       ~0            ~1     add     size_at_mode
 pWd    20   5     50    -5    uniform      NA     NA    ~0+yblk+x   yblk=contr.sum    ident     ~(y|yblk)     ~yblk    add     width
 INITIAL_VALUES
 END')
@@ -136,7 +135,7 @@ for (rf in 1:nrow(dfrFcn)){
   dfrMF = eval(parse(text=MF));
   pars = stringr::str_split_1(dfrFcn[["pars"]][rf],",");
   for (rp in 1:length(pars)){
-    #--testing: rp = 2;
+    #--testing: rp = 1;
     par = dfrPars[["id"]][rp];
     ctrs = dfrPars[["contrasts"]][rp];
     Frmla = Formula::Formula(formula(dfrPars[["FEs"]][rp]));

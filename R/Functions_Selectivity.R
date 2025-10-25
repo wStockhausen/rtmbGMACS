@@ -190,10 +190,10 @@ asclogistic50D95<-function(z,
 #'@title Calculate a double logistic selectivity curve
 #'@description Function to calculate a double logistic selectivity curve.
 #'@param z - vector of sizes at which to compute selectivity curve
-#'@param pAscZ50   - ascending limb size at which selectivity = 0.5 (logit-scale mean)}
-#'@param pAscSlp - ascending limb slope at 50\%-selected}
-#'@param pDscZ50   - descending limb size at which selectivity = 0.5 (logit-scale mean)}
-#'@param pDscSlp - descending limb slope at 50\%-selected}
+#'@param pAscZ50   - ascending limb size at which selectivity = 0.5 (logit-scale mean)
+#'@param pAscSlp - ascending limb slope at 50\%-selected
+#'@param pDscZ50   - descending limb size at which selectivity = 0.5 (logit-scale mean)
+#'@param pDscSlp - descending limb slope at 50\%-selected
 #'@param pRefZ - reference size
 #'@param verbose - flag (T/F) to print debugging messages
 #'
@@ -277,8 +277,8 @@ dbllogistic5095<-function(z,
 #'@description Function to calculate an ascending normal selectivity curve.
 #'
 #'@param z      - vector of sizes at which to compute selectivity values
-#'@param pAscZ1 - AD size at which ascending limb hits 1 (mean of a normal distribution)}
-#'@param pAscWdZ - AD width of ascending limb (standard deviation of a normal distribution)}
+#'@param pAscZ1 - AD size at which ascending limb hits 1 (mean of a normal distribution)
+#'@param pAscWdZ - AD width of ascending limb (standard deviation of a normal distribution)
 #'@param dZ - bin size
 #'@param verbose - flag (T/F) to print debugging messages
 #'

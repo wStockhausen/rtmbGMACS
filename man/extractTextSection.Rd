@@ -4,7 +4,7 @@
 \alias{extractTextSection}
 \title{Extract a text section with only non-comment lines from a character vector}
 \usage{
-extractTextSection(txt, n, start, comment = "#")
+extractTextSection(txt, n = length(txt), start = 1, comment = "#")
 }
 \arguments{
 \item{txt}{\itemize{
@@ -12,11 +12,11 @@ extractTextSection(txt, n, start, comment = "#")
 }}
 
 \item{n}{\itemize{
-\item number of non-comment lines to extract
+\item number of non-comment lines to extract (default=length(txt))
 }}
 
 \item{start}{\itemize{
-\item index into \code{txt} to regard as the start of the search
+\item index into \code{txt} to regard as the start of the search (default=1)
 }}
 
 \item{comment}{\itemize{

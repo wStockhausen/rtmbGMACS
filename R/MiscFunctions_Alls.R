@@ -14,7 +14,7 @@ alls_GetLevels<-function(dfrDims,verbose=FALSE){
   for (lvl in names(lstLvls)){
     lst[[lvl]] = dplyr::bind_rows(
                    tidyr::expand_grid(value=lstLvls[[lvl]],level="all"),
-                   tibble::tibble(value=lstLvls[[lvl]],level=lstLvls[[lvl]])
+                   tibble::tibble(value=lstLvls[[lvl]],level=as.character(lstLvls[[lvl]]))
                  );
     names(lst[[lvl]])[2] = lvl;
   }

@@ -1,3 +1,36 @@
+
+#' @title Get model dimension names
+#' @description Function to get model dimension names.
+#' @return character vector with model dimension names
+#' @export
+getDimNames<-function(){
+  return(c("f","y","s","r","x","m","p","z"));
+}
+
+#' @title Get which model dimensions are identified in a character vector
+#' @description Function to get which model dimensions are identified in a character vector.
+#' @param char_vec - character vector to check for model dimension names
+#' @return character vector with identifed model dimension names
+#' @export
+whichDims<-function(char_vec){
+  return(char_vec[char_vec %in% getDimNames()]);
+}
+
+#'
+#' @title Split text string into a character vector
+#' @description Function to split text string to a character vector.
+#' @param txt - text string (1-elenent character vector) to split
+#' @param split - string used to split text (default="\\n)
+#' @return a character vector
+#' @details The text is plit into a character vector using [stringr::str_split_1()].
+#' @importFrom stringr str_split_1
+#' @md
+#' @export
+#'
+splitText<-function(txt,split="\\n"){
+  v = stringr::str_split_1(txt,split);
+  return(v);
+}
 #'
 #' @title Extract character vector from section of longer vector
 #' @description Function to extract character vector from section of longer vector.
@@ -12,9 +45,11 @@
 #' @export
 #'
 extractLines<-function(txt,start,end){
+  txt = stringr::str_trim(txt);
   s = stringr::str_which(txt,stringr::regex(paste0("^",start),ignore_case=TRUE));
   e = stringr::str_which(txt,stringr::regex(paste0("^",end),ignore_case=TRUE));
-  if ((s+1)<=(e-1)) return(txt[(s+1):(e-1)]);
+  if ((length(s)>0)&&(length(e)>0))
+    if ((s+1)<=(e-1)) return(txt[(s+1):(e-1)]);
   return(vector(mode="character"));
 }
 
@@ -81,17 +116,45 @@ extractTextSection<-function(txt,n=length(txt),start=1,comment="#"){
   return(list(txt=txtp,end=itxt[idxp]));
 }
 
-#' @title Extract a list from a character vector
-#' @description Function to extract a list from a character vector.
-#' @param strv - character vector to parse
+#'
+#' @title Evaluate text as lines of code
+#' @description Function to evaluate text as lines of code.
+#' @param strv - character vector with lines of code to evaluate.
+#' @return nothing
+#' @details The lines of `code` in strv are evaluated in the frame specified by
+#' `frame`. If `frame` is non-negative, it specifies the parent frame relative to the
+#' caller (so `frame=0`, the deault, is evaluated in the caller's frame). If `frame` is negative,
+#' the lines of code are evaluated in the environment specified by its absolute value.
+#' @examplesIf  FALSE
+#' str = "
+#'   v1  = 5;
+#'   v2 = 1:v1;
+#'   sum = list(x="contr.sum",m="contr.sum");
+#'       ";
+#' # example code
+#'
+#' @export
+evalTextAsCode<-function(strv,frame=0){
+  if (frame>=0){
+    eval.parent(parse(text=strv),n=frame+2);#--caller frame is up 2
+  } else {
+    eval(parse(text=strv),envir=abs(frame));
+  }
+}
+
+#' @title Evaluate a list from a character vector
+#' @description Function to evaluate a list from a character vector.
+#' @param strv - character vector to parse/evaluate
 #' @param split - character(s) to use to split lines into name and value (default="<-")
 #' @param verbose - flag to print diagnostic info
 #' @return list with named elements
-#' @details Each element in `strv` is an equation defining the
-#' elements of a dimension.
+#' @details Each quantity assigned using `<-` in `strv` is interpreted as an equation defining an element of the returned list.
+#' Quantities assigned using `=` outside a list structure are evaluated locally for use in constructing a list element of
+#' the returned list. Attributes for a list element of the returned list must be assigned (see example code 2) immediately after
+#' the list element.
 #'
 #' @examplesIf FALSE
-#' # example code
+#' # example code 1
 #' str=paste(
 #'   'MODEL_DIMS
 #'   y <- 2020:2024;                           #--years
@@ -103,18 +166,43 @@ extractTextSection<-function(txt,n=length(txt),start=1,comment="#"){
 #'   zc <- seq(55.5,104.5,5);                  #--size bin cutpoints
 #'   f <- c("TCF","SCF","NMFS");               #--fleets
 #'   END');
-#' strv = stringr::str_split_1(str,"\\n") |> extractLines("MODEL_DIMS","END");
-#' lstDims = parseStrAsList(strv);
+#' strv = str |> splitText() |> extractLines("MODEL_DIMS","END");
+#' lstDims = evalTextAsList(strv);
+#' # example code 2
+#'   str=paste(
+#'   'MODEL_DIMS
+#'     r <- "EBS";
+#'     miz = as.character(seq(25,75,5)); #--size bin midpoints for immature males
+#'     mmz = as.character(seq(50,75,5)); #--size bin midpoints for mature males
+#'     fiz = as.character(seq(25,65,5)); #--size bin midpoints for immature females
+#'     fmz = as.character(seq(30,65,5)); #--size bin midpoints for mature females
+#'     x<-list(male=list(imm=list(`new`=miz,
+#'                                  `old`=miz),
+#'                         mat=list(`new`=mmz,
+#'                                  `old`=mmz,
+#'                                  `very`=mmz)
+#'                       ),
+#'               female=list(imm=list(`new`=fiz,
+#'                                    `old`=fiz),
+#'                           mat=list(`new`=fmz,
+#'                                    `old`=fmz)
+#'                          )
+#'              );
+#'     attr(x,"dmnms") = c("x","m","p","z");#--define order of dimensions in nested list
+#'   END'
+#'   )
+#'   strv = str |> splitText() |> extractLines("MODEL_DIMS","END");
+#'   lstDms = evalTextAsList(strv);
 #' @import stringr
 #' @md
 #' @export
-parseStrAsList<-function(strv,split="<-",verbose=FALSE){
+evalTextAsList<-function(strv,split="<-",verbose=FALSE){
   strp = extractTextSection(strv)$txt;
   ns   = length(strp);
   lst = list();
   i = 1;
   while(i<=ns){
-    strpp = strp[i] |> stringr::str_remove_all(" ") |> stringr::str_split_1(split);
+    strpp = strp[i] |> stringr::str_remove_all(" ") |> stringr::str_split_1(split) |> stringr::str_trim();
     i = i+1;
     test = !any(strpp |> stringr::str_ends(";"));
     while((i<=ns)&&test){
@@ -124,8 +212,21 @@ parseStrAsList<-function(strv,split="<-",verbose=FALSE){
       test = !any(strpp |> stringr::str_ends(";"));
       if (verbose) cat(test,strpp,"\n")
     }
-    if (verbose) cat(strpp,"\n")
-    lst[[strpp[1]]] = eval(parse(text=strpp[2:length(strpp)]),envir=lst);
+    if (verbose) cat(strpp,"\n");
+    if (length(strpp)==1){
+      if (stringr::str_starts(strpp,"attr")){
+        #--apply attribute to "last" element in lst
+        txt = stringr::str_replace(strpp,last,paste0("lst[['",last,"']]"));
+        if (verbose) cat("Applying attributes:\n\t",txt,"\n");
+        eval(parse(text=txt));
+      } else {
+        eval(parse(text=strpp));
+      }
+    } else {
+      eval(parse(text=paste0(strpp[1],"=",paste0(strpp[2:length(strpp)],collapse=""))));
+      lst[[strpp[1]]] = eval(parse(text=paste0(strpp[2:length(strpp)],collapse="")));
+      last=strpp[1];
+    }
   }
   return(lst);
 }
@@ -143,28 +244,69 @@ parseStrAsList<-function(strv,split="<-",verbose=FALSE){
 #'   \item{txt - character vector of length `n` with comment lines removed (i.e., a subset of `txt`)}
 #'   \item{end - index of the last element extracted in the input `txt` vector}
 #' }
+#'
+#' This function differs from [evalTextAsDataframe()] in that
+#' the input character vector may be a much larger section of text than what defines the
+#' dataframe to be extracted, but the number of rows (`n`) to extract is known, as is the index of
+#' the element to begin with (`start`). In [evalTextAsDataframe()], after comments are removed are
+#' removed from the input character vector `char_vec`, the resulting
+#' character vector is regarded as defining the dataframe.
+#'
 #' @importFrom readr read_table
 #' @md
 #' @export
 extractDataframe<-function(txt,n,start,comment="#"){
-  idx = skipCommentLines(txt,start);
+  idx = skipCommentLines(txt,start,comment=comment);
   dfr = readr::read_table(txt[idx:(idx+n)],col_names=TRUE,comment=comment,skip_empty_rows=TRUE);
   return(dfr);
 }
 
-#' @title Parse strings in a character vector to digits
-#' @description Function to parse strings in a character vector to digits.
-#' @param x - character vector to parse
+#' @title Evaluate a character vector as a dataframe (a `tbl_df`)
+#' @description Function to evaluate a character vector as a dataframe (a `tbl_df`).
+#' @param char_vec - character vector to parse/evaluate as a dataframe
+#' @param comment - string indicating that what follows is a comment
+#' @return a dataframe (actually a `tbl_df`, see [tibble::tibble()])
+#' @details Each element in `char_vec` is regarded as a line of text (as in a text file).
+#' The dataframe structure and column types are determined by [readr::read_table()].
+#'
+#' This function differs from [extractDataframe()] in that, after comments are removed are
+#' removed from the input character vector `char_vec`, the resulting
+#' character vector is regarded as defining the dataframe. In [extractDataframe()],
+#' the input character vector may be a much larger section of text than what defines the
+#' dataframe to be extracted, but the number of rows (`n`) to extract is known as, is the index of
+#' the element to begin with (`start`).
+#'
+#' @examplesIf FALSE
+#' # example code
+#' str<-paste0('
+#'   id        function  frame   params              description
+#'   pwrLaw1   pwrLaw1   mfALL   pA,pB               w(z)_=_pA_*_(z^pB)
+#'   pwrLaw2   pwrLaw2   mf2024  pLnA,pLnS,pB,pZ0    w(z)_=_exp(pLnA+pLnS+pB*ln(z/pZ0))
+#' ')
+#' dfr = txt |> splitText() |> evalTextAsDataframe();
+#'
+#' @importFrom readr read_table
+#' @md
+#' @export
+evalTextAsDataframe<-function(char_vec,comment="#"){
+  txtp = (char_vec |> extractTextSection(comment=comment))$txt;
+  dfr = readr::read_table(txtp,col_names=TRUE,comment=comment,skip_empty_rows=TRUE);
+  return(dfr);
+}
+
+#' @title Evaluate strings in a character vector as digits
+#' @description Function to evaluate strings in a character vector as digits.
+#' @param x - character vector to parse/evaluate
 #' @return integer vector
 #' @details For each element in `x`, everything except for digits is removed and
 #' the resulting character value is converted to an integer.
 #' @examples
-#' parseToDigits(c("ab23","cd42","a42 b23"))
+#' evalTextAsDigits(c("ab23","cd42","a42 b23"))
 #'
 #' @importFrom stringr str_remove_all
 #' @md
 #' @export
-parseToDigits<-function(x){
+evalTextAsDigits<-function(x){
   str = stringr::str_remove_all(x,stringr::regex("[^[:digit:]]",ignore_case=TRUE));
   return(as.integer(str))
 }

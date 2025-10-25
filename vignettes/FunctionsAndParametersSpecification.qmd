@@ -17,7 +17,7 @@ keep-md: true
 keep-yaml: true
 vignette: >
   %\VignetteIndexEntry{Model functions and parameters}
-  %\VignetteEngine{rtmbGMACS::quarto}
+  %\VignetteEngine{quarto::format}
   %\VignetteEncoding{UTF-8}
 ---
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/DimensionsUtilities.R
 \name{createDimsFactors}
 \alias{createDimsFactors}
-\title{Convert dimension values to factor levels in a dimensions map}
+\title{Convert non-numeric dimension values to factor levels in a dimensions map}
 \usage{
 createDimsFactors(dfr)
 }
@@ -13,11 +13,11 @@ createDimsFactors(dfr)
 }
 \value{
 \itemize{
-\item dimensions map with dimension values converted to factors
+\item dimensions map with non-numeric dimension values converted to factors
 }
 }
 \description{
-Function to convert dimension values to factor levels in a dimensions map.
+Function to convert non-numeric dimension values to factor levels in a dimensions map.
 }
 \details{
 Dimension columns that are already factors are not converted.

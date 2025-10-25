@@ -26,7 +26,7 @@ createDimsFactors<-function(dfr){
 #' @description Function to convert dataframe values to factor levels in a dimensions map.
 #' @param dfr - dataframe to convert
 #' @param dfrDms - dimensions map dataframe/tibble (e.g. output from [createSparseDimsMap()])
-#' @param contrasts - character string, list, or NULL defining contrasts to apply to (eventual) factor columns
+#' @param contrasts - character string, list, FALSE, or NULL defining contrasts to apply to (eventual) factor columns
 #' @param all - flag (T/F) to convert all columns to factors (default=TRUE)
 #' @return - dataframe with values converted to factors
 #'
@@ -34,49 +34,74 @@ createDimsFactors<-function(dfr){
 #' factor or character columns are converted to a factor with the same levels as the dimension.
 #' This also occurs if the column is numeric and `all` is TRUE. Otherwise, the
 #' column is converted to a factor using `unique` to determine the levels
-#' if it is a character column or if it numeric and
-#' `all` is TRUE.
+#' if it is a character column or if it numeric and `all` is TRUE.
+#'
+#' If `contrasts` is `FALSE`, then no contrasts are applied are applied to any factor. If contrasts is NULL,
+#' then the default contrast given by options("contrast") is applied  to each factor.
+#' Otherwise, contrasts should be a list, with the contrast associated with each name in the list applied to
+#' the corresponding factor.
 #'
 #' @export
 #'
-convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=TRUE){
+convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=FALSE,verbose=FALSE){
     dmnms = attr(dfrDms,"dmnms");
     dmlvs = attr(dfrDms,"dmlvs");
-    print(dmnms);
-    print(dmlvs);
-    print(contrasts);
-    if (!is.null(contrasts)&&is.character(contrasts))
-      if (stringr::str_starts(contrasts,"ident")){
-        message("setting contrasts to NULL");
-        contrasts = NULL;
-      } else {
-        message("evaluating contrasts");
-        if (stringr::str_starts(contrasts,"list")){
-          eval(parse(text=paste0("contrasts=",contrasts)));
+    # if (verbose) print(dmnms);
+    # if (verbose) print(dmlvs);
+    # if (verbose) print(contrasts);
+    if (!is.null(contrasts)){
+      if (is.character(contrasts)){
+        if (tolower(contrasts)=="false") {
+          if (verbose) cat("setting all contrasts to FALSE\n");
+          contrasts = FALSE;
+        } else
+        if (stringr::str_starts(contrasts,"ident")){
+          if (verbose) cat("setting contrasts to NULL so using default:",options(contrasts)$contrasts["unordered"],"\n");
+          contrasts = NULL;
         } else {
-          eval(parse(text=paste0("contrasts=list(",contrasts,")")));
+          if (verbose) cat("evaluating lists of contrasts\n");
+          if (stringr::str_starts(contrasts,"list")){
+            eval(parse(text=paste0("contrasts=",contrasts)));
+          } else {
+            eval(parse(text=paste0("contrasts=list(",contrasts,")")));
+          }
+          if (verbose) cat("class(contrasts) = ",class(contrasts),"\n");
         }
-    }
-    print(contrasts);
+      } #--is.character(contrasts)
+    }#--!is.null(contrasts)
+    if (verbose) {cat("class(contrasts):",class(contrasts),"\n");}
+    if (verbose) {cat("contrasts:\n"); print(contrasts);}
+    if (verbose) cat("\napplying contrasts\n")
     for (colnm in names(dfr)){
-      cat(colnm,"\n");
+      if (verbose) cat("checking",colnm,"\n");
       if (colnm %in% dmnms){
         #--column name matches a dimension
         levs = dmlvs[[colnm]];
+        if (verbose) cat("\tcolumn name matches a dimension\n");
         if (all){
           # convert column to factor with same levels as dimension
+          if (verbose) cat("converting factor to same levels as dimension\n");
           dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
-          if ((!is.null(contrasts))){
-            if (colnm %in% names(contrasts))
-              dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+          if (is.list(contrasts)){
+            if (colnm %in% names(contrasts)){
+              if (!is.logical(contrasts[[colnm]])) {
+                dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+              }
+            }
           }
         } else {
           #--don't convert numeric columns
           if (!is.numeric(dfr[[colnm]])){
+            if (verbose) cat("converting",colnm,"to factor\n")
             dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
-            if ((!is.null(contrasts))){
-              if (colnm %in% names(contrasts))
-                dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            if (verbose) cat(class(dfr[[colnm]]),"\n");
+            if (is.list(contrasts)){
+              if (colnm %in% names(contrasts)){
+                if (!is.logical(contrasts[[colnm]])) {
+                  if (verbose) cat("setting",contrasts[[colnm]],"on",colnm,"\n")
+                  dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+                }
+              }
             }
           }
         }
@@ -86,18 +111,26 @@ convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=TRUE){
           #--convert column to factor if not already a factor
           levs = unique(as.character(dfr[[colnm]]));
           dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
-          if ((!is.null(contrasts))){
+          if (is.list(contrasts)){
             if (colnm %in% names(contrasts))
-              dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+              if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
           }
         } else {
+          if (is.factor(dfr[[colnm]])){
+            if (colnm %in% names(contrasts)){
+              #--add contrast
+              if (verbose) cat("Adding contrast",contrasts[[colnm]],"to",colnm,"\n");
+              if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            }
+          } else
           if (!(is.factor(dfr[[colnm]])||is.numeric(dfr[[colnm]]))){
             #--convert column to factor if not already a factor or numeric
             levs = unique(as.character(dfr[[colnm]]));
             dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
-            if ((!is.null(contrasts))){
-              if (colnm %in% names(contrasts))
-                dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            if (is.list(contrasts)){
+              if (colnm %in% names(contrasts)){
+                if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+              }
             }
           }
         }
@@ -132,7 +165,7 @@ dropDims<-function(dms,drop){
 #' @title Keep only selected dimensions from a dimensions map
 #' @description Function to keep only selected dimensions from a dimensions map.
 #' @param dms - dimensions map
-#' @param drop - vector (character or integer) with dimensions to keep
+#' @param keep - vector (character or integer) with dimensions to keep
 #' @return dimensions map with only kept dimensions
 #' @details If \code{keep} is an integer vector, the values
 #' specify the order of dimensions to keep.

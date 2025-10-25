@@ -4,10 +4,14 @@
 \alias{createDimsMaps}
 \title{Create maps between sparse and dense dimension indices}
 \usage{
-createDimsMaps(..., debug = FALSE)
+createDimsMaps(..., convertCharsToFactors = FALSE, debug = FALSE)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> name/value dimension pairs}
+
+\item{convertCharsToFactors}{\itemize{
+\item option to convert character dims to factors (default=FALSE)
+}}
 
 \item{debug}{\itemize{
 \item flag (T/F) to print debugging info

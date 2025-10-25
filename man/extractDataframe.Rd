@@ -36,4 +36,11 @@ The dataframe structure and column types are determined by \code{\link[readr:rea
 \item{txt - character vector of length \code{n} with comment lines removed (i.e., a subset of \code{txt})}
 \item{end - index of the last element extracted in the input \code{txt} vector}
 }
+
+This function differs from \code{\link[=evalTextAsDataframe]{evalTextAsDataframe()}} in that
+the input character vector may be a much larger section of text than what defines the
+dataframe to be extracted, but the number of rows (\code{n}) to extract is known, as is the index of
+the element to begin with (\code{start}). In \code{\link[=evalTextAsDataframe]{evalTextAsDataframe()}}, after comments are removed are
+removed from the input character vector \code{char_vec}, the resulting
+character vector is regarded as defining the dataframe.
 }

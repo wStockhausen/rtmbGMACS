@@ -20,7 +20,7 @@ Function to create the intrinsic model dimensions from the user model dimension.
 \details{
 The user dimensions defined by \code{udfr} are expanded to the full set of
 intrinsic model dimensions ("y","s","r","x","m","a","p","z"), with default values
-("all") added for intrinsic dimensions undefined in the user dimensions.
+("undetermined") added for intrinsic dimensions undefined in the user dimensions.
 \itemize{
 \item \code{y} - year index
 \item \code{s} - season index

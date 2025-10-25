@@ -104,6 +104,7 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 #' @return a `DimsMap` object, which is a tibble (see [tibble::tibble()]) with
 #' class "DimsMap" and attributes
 #' \itemize{
+#' \item{"dmtyp" - 'sparse': indicates DimsMap type}
 #' \item{"dmnms" - vector of dimension names}
 #' \item{"dmlvs" - list with non-nested dimension levels, by dimension name}
 #' \item{"dmlns" - vector of dimension lengths, by dimension name}
@@ -133,19 +134,14 @@ traverseDimsList<-function(lst0,name,level=0,debug=FALSE){
 createSparseDimsMap<-function(...,convertCharsToFactors=FALSE,debug=FALSE){
     dfr = NULL;
     dots = rlang::list2(...);
-    for (nm in names(dots)){
+    dotnms = names(dots);
+    for (nm in dotnms){
         #--testing: nm = names(dots)[1];
         dfrp = traverseDimsList(dots[[nm]],nm,debug=debug);
         if (is.null(dfr)) {
             dfr = dfrp;
-            # if(convertCharsToFactors){
-            #   #--convert all non-numeric dimensions to factors
-            #   for (nm in names(dfr)) {
-            #     if (!(is.factor(dfr[[nm]])||any(is.numeric(as.numeric(dfr[[nm]])))))
-            #       dfr[[nm]] = factor(dfr[[nm]]);
-            #   }
-            # }
         } else {
+            if (debug) cat(names(dfrp),"\n");
             dfr = dfr |> dplyr::cross_join(dfrp,suffix=c("LFT","RGT"));
             nmsL = stringr::str_sub(stringr::str_subset(names(dfr),"LFT$"),end=-4);
             if (length(nmsL)>0){
@@ -162,12 +158,6 @@ createSparseDimsMap<-function(...,convertCharsToFactors=FALSE,debug=FALSE){
                               stringr::str_sub(nmsA,end=-4),nmsA);
                 names(dfr) = nmsA;
             }
-            # if(convertCharsToFactors){
-            #   #--convert all  non-numeric dimensions to factors
-            #   for (nm in names(dfr))
-            #     if (!(is.factor(dfr[[nm]])||any(is.numeric(as.numeric(dfr[[nm]])))))
-            #       dfr[[nm]] = factor(dfr[[nm]]);
-            # }
         }#--!is.null(dfr);
     }#--nm
     dmsn = names(dfr);
@@ -217,9 +207,10 @@ createSparseDimsMap<-function(...,convertCharsToFactors=FALSE,debug=FALSE){
 #' @param convertCharsToFactors - option to convert character dims to factors (default=FALSE)
 #' @param debug - flag (T/F) to print debugging info
 #'
-#' @return a DimsMap object, which is atibble (see [tibble::tibble()]) with class "DimsMap"
+#' @return a DimsMap object, which is a tibble (see [tibble::tibble()]) with class "DimsMap"
 #' and attributes
 #' \itemize{
+#' \item{"dmtyp" - 'dense': indicates DimsMap type}
 #' \item{"dmnms" - vector of dimension names}
 #' \item{"dmlvs" - list with non-nested dimension levels, by dimension name}
 #' \item{"dmlns" - vector of dimension lengths, by dimension name}
@@ -251,7 +242,7 @@ createDenseDimsMap<-function(map,convertCharsToFactors=FALSE,debug=FALSE){
             dfr  = dfr |> dplyr::cross_join(dfrp);
         }
     }
-    attr(dfr,"dmtyp") <-"full";           #--dim type
+    attr(dfr,"dmtyp") <-"dense";          #--dim type
     attr(dfr,"dmnms") <-attr(map,"dmnms");#--dim names
     attr(dfr,"dmlvs") <-dmlvs;            #--dim levels
     attr(dfr,"dmlns") <-attr(map,"dmlns");#--dim lengths
@@ -418,7 +409,7 @@ createDimsMaps<-function(...,convertCharsToFactors=FALSE,debug=FALSE){
 #'
 #' @details The user dimensions defined by `udfr` are expanded to the full set of
 #' intrinsic model dimensions ("y","s","r","x","m","a","p","z"), with default values
-#' ("all") added for intrinsic dimensions undefined in the user dimensions.
+#' ("undetermined") added for intrinsic dimensions undefined in the user dimensions.
 #'    * `y` - year index
 #'    * `s` - season index
 #'    * `r` - region index
@@ -435,15 +426,15 @@ createDimsMaps<-function(...,convertCharsToFactors=FALSE,debug=FALSE){
 #'
 createIntrinsicDims<-function(udfr){
   #--intrinsic dimensions info
-  idmnms = c("y","s","r","x","m","a","p","z");
-  idefs  = c(y="all",
-             s="all",
-             r="all",
-             x="all",
-             m="all",
-             a="all",
-             p="all",
-             z="all");
+  idmnms = c("y","s","x","r","m","a","p","z");
+  idefs  = c(y="undetermined",
+             s="undetermined",
+             r="undetermined",
+             x="undetermined",
+             m="undetermined",
+             a="undetermined",
+             p="undetermined",
+             z="undetermined");
 
   #--user dimensions info
   utype  = attr(udfr,"dmtyp");  #--user dimensions type (sparse or dense)

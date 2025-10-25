@@ -4,8 +4,8 @@
 #' @param conn - connection (or filename) to read from
 #' @param verbose - flag to print extra info
 #' @return nested list with elements (see **Details**)
-#' @details
-#' @examples
+#' @details TBD.
+#' @examplesIf FALSE
 #' # example code
 #' if (FALSE){
 #'   conn="inputSpecs_FisheriesRates.txt";

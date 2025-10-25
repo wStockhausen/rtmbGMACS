@@ -4,10 +4,14 @@
 \alias{createSparseDimsMap}
 \title{Create a sparse index map (a tibble) for a set of (possibly nested) dimension levels}
 \usage{
-createSparseDimsMap(..., debug = FALSE)
+createSparseDimsMap(..., convertCharsToFactors = FALSE, debug = FALSE)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> name/value dimension pairs}
+
+\item{convertCharsToFactors}{\itemize{
+\item option to convert character dims to factors (default=FALSE)
+}}
 
 \item{debug}{\itemize{
 \item flag (T/F) to print debugging info
@@ -17,6 +21,7 @@ createSparseDimsMap(..., debug = FALSE)
 a \code{DimsMap} object, which is a tibble (see \code{\link[tibble:tibble]{tibble::tibble()}}) with
 class "DimsMap" and attributes
 \itemize{
+\item{"dmtyp" - 'sparse': indicates DimsMap type}
 \item{"dmnms" - vector of dimension names}
 \item{"dmlvs" - list with non-nested dimension levels, by dimension name}
 \item{"dmlns" - vector of dimension lengths, by dimension name}
@@ -35,6 +40,11 @@ associated value is transformed to a tibble using \code{\link[=traverseDimsList]
 tibbles are crossed to create a tibble with only the desired combinations of
 actual dimension levels. The first column ("i") contains the 1-d index associated
 with each combination of actual dimension levels.
+
+Alternatively, the \code{...} can be given by splicing a list:\n
+dimsMap = createSparseDimsMap(!!!lst)\n
+where \code{lst} is a named list of the inputs to the function.
+This requires the \code{rlang} package be loaded.
 }
 \examples{
 #--create some example dimensions

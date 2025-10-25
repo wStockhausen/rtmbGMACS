@@ -102,8 +102,8 @@ const_sel<-function(z, params,ref=0,debug=FALSE){
 #'@details The parameter values are
 #'
 #'\itemize{
-#' \item{params\[1\] - `pZ50`: size at 50\% selectivity}
-#' \item{params\[2\] - `pSlp`: slope at `pZ50`}
+#' \item{params[1] - `pZ50`: size at 50\% selectivity}
+#' \item{params[2] - `pSlp`: slope at `pZ50`}
 #'}
 #'
 #'If `refZ`>0, `refZ`=fully-selected size.

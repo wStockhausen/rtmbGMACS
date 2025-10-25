@@ -50,7 +50,7 @@ of the population is represented by $\mathbf{n}_t$, a vector representing the ab
 $$ \frac{d\mathbf{n}_t}{dt} = \left[ \mathbf{T}_t-(\mathbf{M}_t+\mathbf{F}_t) \right]*\mathbf{n}_t $$ {#eq-1}
 
 
-where $\mathbf{T}_t$ is a $c$ x $c$ matrix representing transition rates between population categories (e.g., growth or movement) at time $t$, $\mathbf{M}_t$ is a similarly-sized diagonal matrix representing natural mortality at time $t$, and $\mathbf{M}_t$ is a similarly-sized diagonal matrix representing fishing mortality at time $t$. For gmacs, individual time steps represent seasons within a year and rates within a time step are assumed to be constant. Thus, eq. [-@eq-1] can be integrated to obtain
+where $\mathbf{T}_t$ is a $c$ x $c$ matrix representing transition rates between population categories (e.g., growth or movement) at time $t$, $\mathbf{M}_t$ is a similarly-sized diagonal matrix representing natural mortality at time $t$, and $\mathbf{F}_t$ is a similarly-sized diagonal matrix representing fishing mortality at time $t$. For gmacs, individual time steps represent seasons within a year and rates within a time step are assumed to be constant. Thus, eq. [-@eq-1] can be integrated to obtain
 
 $$\mathbf{n}_{n+1} = e^{\mathbf{A}_t \delta t_s}*\mathbf{n}_t$$ {#eq-2}
  

@@ -66,7 +66,7 @@ If \code{option} = "function", the returned list has elements
 }
 }
 
-If \code{option} = "data", a list with the following elements is returned:
+If \code{option} = "pre-specified", a list with the following elements is returned:
 \itemize{
 \item{option}
 \item{transform - name of function to transform input values to kg}
@@ -74,13 +74,13 @@ If \code{option} = "data", a list with the following elements is returned:
 }
 }
 \examples{
-# example code reading "vertical" data format
+# example code reading "vertical" pre-specified format
 if (FALSE){
   conn="inputSpecs_Allometry.data_vertical.txt";
   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);
 }
 
-# example code reading "horizontal" data format
+# example code reading "horizontal" pre-specified format
 if (FALSE){
   conn="inputSpecs_Allometry.data_horizontal.txt";
   lstResults = readParamInfo_Allometry(conn,verbose=TRUE);

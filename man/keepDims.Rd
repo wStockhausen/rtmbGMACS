@@ -11,7 +11,7 @@ keepDims(dms, keep)
 \item dimensions map
 }}
 
-\item{drop}{\itemize{
+\item{keep}{\itemize{
 \item vector (character or integer) with dimensions to keep
 }}
 }
