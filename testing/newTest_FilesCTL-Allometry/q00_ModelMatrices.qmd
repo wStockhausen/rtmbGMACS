@@ -1,0 +1,518 @@
+---
+title: "Formulas and Model Matrices"
+author:
+- name: William T. Stockhausen
+  affiliations:
+    - id: afsc-refm
+      name: "Alaska Fisheries Science Center"
+      department: "Resource Ecology and Fisheries Management"
+      address: 
+        - "7600 Sand Point Way N.E."
+        - "Seattle, Washington 98115-6349"
+date: '`r format(Sys.time(), "%b %e, %Y")`'
+fontsize: 11pt 
+number-sections: true
+number-depth: 2
+reference-location: document
+bibliography: '`r path.expand("~/Work/Projects/Bibliography/AllRefs.bib")`'
+csl: '`r system.file("files/CJFAS.csl",package="wtsQMD")`'
+link-citations: true
+crossref:
+  chapters: false      # prepend label reference numbers by chater number?
+  fig-title: Figure    # for caption: default is "Figure")
+  tbl-title: Table     # for caption: default is "Table")
+  title-delim: "."     # for caption: default is ":")
+  fig-prefix: Figure   # for in-text (use [-@fig-ref] to drop prefix in text)
+  tbl-prefix: Table    # for in-text (use [-@tbl-ref] to drop prefix in text)
+  fig-labels: arabic    # options are arabic, roman, roman i, alpha x, alpha X; latter two starting from x/X
+  tbl-labels: arabic    # options are arabic, roman, roman i, alpha x, alpha X; latter two starting from x/X
+  subref-labels: alpha a # options are arabic, roman, roman i, alpha x, alpha X; latter two starting from x/X
+  ref-hyperlink: true    # references are hyperlinked if true
+format: 
+  html: 
+    df-print: paged
+    toc: true
+    toc-location: right
+    fig-width: 8
+    fig-asp: 0.4
+    fig-dpi: 100
+    embed-resources: true
+    include-in-header: 
+      - '`r system.file("files/in-line_math_mode.html",package="wtsQMD")`'
+  pdf:
+    documentclass: scrartcl
+    toc: false
+    fig_crop: false
+    keep-tex: false
+    geometry:
+      - left=1.0in
+      - right=1.0in
+      - top=1.0in
+      - bottom=1.0in
+      - textwidth=6.5in
+      - showframe=false
+    include-in-header: 
+       #include '\usepackage{nopageno}' below in header to turn off page numbering
+      - text: |
+          \usepackage{placeins}
+          \extrafloats{500}
+          \maxdeadcycles=10000
+          \usepackage{fontspec}
+          \usepackage{multicol}
+          \usepackage{hhline}
+          \newlength\Oldarrayrulewidth
+          \newlength\Oldtabcolsep
+          \usepackage{nopageno}
+      - file: '`r system.file("files/ltx_ExtraLatexIncludes.tex",package="wtsQMD")`'
+echo: false
+warning: false
+results: 'hide'
+keep-md: false
+keep-yaml: false
+editor: source
+editor_options: 
+  chunk_output_type: console
+concordance: true
+params:
+  setup: !expr 'system.file("files/qmd_setup.R",package="wtsQMD")'
+  testing: false
+  reorderTables: false   #--issue with finding "range" of table values  (don't use)
+  reorderFigures: false  #--issue with finding "range" of figure values (don't use)
+---
+<!-- IMPORTANT: if used as a child doc, all chunk labels must be unique within the overall document -->
+
+<!-- 
+  NOTEs: 
+     * child_path$peek() gives path to current script.
+     * before starting a child document, do 
+         "child_path$push(file.path(child_path$peek(),rel_path))" first, 
+         where rel_path is the relative path to the child
+     * after a child document has finished, do "child_path$pop()" to return to current path value
+-->
+
+<!-- if not child doc, set up required objects -->
+```{r}
+#| label: CTL-Allometry_setup
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  testing = params$testing;
+  if (testing) cat(params$setup,"\n\n")
+  source(params$setup);
+  if (testing) cat("root = ",root,"\n\n")
+  reorderTables  = params$reorderTables;
+  reorderFigures = params$reorderFigures;
+```
+
+```{r}
+#| label: setup_CTL-Allometry
+#| results: asis
+  require(rtmbGMACS);
+  require(ggplot2);
+  require(kableExtra);
+  require(tables);
+  thm = wtsPlots::getStdTheme();
+  options("readr.show_col_types"=FALSE);
+  if (testing) cat("dirThs =",child_path$peek(),"\n\n")
+  if (!exists("tblno")) tblno = 0;#--index in LETTERS for tables in text
+```
+
+## Set up model dimensions
+
+```{r}
+#| label: CTL-Allometry-ModelDimensions
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| echo: true
+vRs="EBS";
+miz = as.character(seq(25,75,5));
+mmz = as.character(seq(50,75,5));
+fiz = as.character(seq(25,65,5));
+fmz = as.character(seq(30,65,5));
+vXs=list(male=list(imm=list(`new`=miz,
+                             `old`=miz),
+                    mat=list(`new`=mmz,
+                             `old`=mmz,
+                             `very`=mmz)
+                  ),
+          female=list(imm=list(`new`=fiz,
+                               `old`=fiz),
+                      mat=list(`new`=fmz,
+                               `old`=fmz)
+                     )
+         ); attr(vXs,"dmnms")<-c("x","m","p","z");
+ys = as.character(2015:2024); names(ys) = ys;
+ss = as.character(1:2);       names(ss) = ss;
+
+#--DimsMap for stock categories
+dmsC    = createSparseDimsMap(r=vRs,x=vXs);
+str(dmsC);
+
+#--DimsMap for years and seasons
+dmsYS   = createSparseDimsMap(y=ys,s=ss);              
+#--DimsMap for combination
+dmsYSC  = createSparseDimsMap(y=ys,s=ss,r=vRs,x=vXs);   
+#--DimsMap with size bin cutpoints
+dimsZBC = dmsC |> dplyr::mutate(lft=as.numeric(z)-2.5,mid=as.numeric(z),rgt=as.numeric(z)+2.5);
+fleets = c("Directed","Bycatch","Survey"); #--fishery and survey fleets
+
+str(dmsYSC);
+```
+
+Types of contrasts:
+
+  *  contr.helmert(n, contrasts = TRUE, sparse = FALSE)
+  *  contr.poly(n, scores = 1:n, contrasts = TRUE, sparse = FALSE)
+  *  contr.sum(n, contrasts = TRUE, sparse = FALSE)
+  *  contr.treatment(n, base = 1, contrasts = TRUE, sparse = FALSE)
+  *  contr.SAS(n, contrasts = TRUE, sparse = FALSE)
+
+## f = ~1 (intercept only)
+
+```{r}
+#| label: eq1
+#| eval: true
+#| echo: true
+#| results: markup
+f = ~1;
+mf = model.frame(formula=f,data=dmsC,subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+mm = model.matrix(f,data=mf,contrasts.arg=NULL);
+str(f);
+terms(f);
+attributes(f);
+
+str(mf);
+head(mf);
+
+str(mm);
+head(mm);
+
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,mm,dfrMM);
+```
+
+## f = ~1+x, default contrasts
+
+`x` has two unique values in the dataframe used to create the model frame.
+
+```{r}
+#| label: eq2
+#| eval: true
+#| echo: true
+#| results: markup
+f = ~1+x;
+mf = model.frame(formula=f,data=dmsC,subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+mm = model.matrix(f,data=mf,contrasts.arg=NULL);
+str(f);
+terms(f);
+attributes(f);
+
+str(mf);
+head(mf);
+
+str(mm);
+head(mm);
+
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,mm,dfrMM);
+```
+
+## f = ~0+x, default contrasts
+
+`x` has two unique values in the dataframe used to create the model frame.
+
+```{r}
+#| label: eq3
+#| eval: true
+#| echo: true
+#| results: markup
+f = ~0+x;
+mf = model.frame(formula=f,data=dmsC,subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+mm = model.matrix(f,data=mf,contrasts.arg=NULL);
+str(f);
+terms(f);
+attributes(f);
+
+str(mf);
+head(mf);
+
+str(mm);
+head(mm);
+
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,mm,dfrMM);
+```
+
+## f = ~0+x, sum contrasts on x
+
+`x` has two unique values in the dataframe used to create the model frame.
+
+```{r}
+#| label: eq4
+#| eval: true
+#| echo: true
+#| results: markup
+f = ~0+x;
+mf = model.frame(formula=f,data=dmsC,subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+mm = model.matrix(f,data=mf,contrasts.arg=list(x=contr.sum));
+str(f);
+terms(f);
+attributes(f);
+
+str(mf);
+head(mf);
+
+str(mm);
+head(mm);
+
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,mm,dfrMM);
+```
+
+## f = ~1+x, sum contrasts on x
+
+`x` has two unique values in the dataframe used to create the model frame.
+
+```{r}
+#| label: eq5
+#| eval: true
+#| echo: true
+#| results: markup
+f = ~1+x;
+mf = model.frame(formula=f,data=dmsC,subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+mm = model.matrix(f,data=mf,contrasts.arg=list(x=contr.sum));
+str(f);
+terms(f);
+attributes(f);
+
+str(mf);
+head(mf);
+
+str(mm);
+head(mm);
+
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,mm,dfrMM);
+```
+
+## f = ~1+x*m, default contrasts on x, m
+
+Both `x` and `m` have two unique values in the dataframe used to create the model frame.
+
+```{r}
+#| label: eq6
+#| eval: true
+#| echo: true
+#| results: markup
+f = ~1+x*m;
+mf = model.frame(formula=f,data=dmsC,subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+mm = model.matrix(f,data=mf,contrasts.arg=NULL);
+str(f);
+terms(f);
+attributes(f);
+
+str(mf);
+head(mf);
+
+str(mm);
+head(mm);
+
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,mm,dfrMM);
+```
+
+## f = ~1+x*m, x=="male", default contrasts
+
+`m` has two unique values in the dataframe used to create the model frame, but `x` only has one. Formula variables 
+with only one unique value generate an eror when creating a model matrix because `R` does not have a method 
+for calculating contrasts for 1-value variables in a formula.
+
+```{r}
+#| label: eq7
+#| eval: true
+#| echo: true
+#| results: markup
+##--create formula
+f = ~1+x*m;
+str(f);
+terms(f);
+attributes(f);
+
+##--create model frame with `x` having 1 value
+mf = model.frame(formula=f,data=dmsC |> dplyr::filter(x=="male"),subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+str(mf);
+head(mf);
+mf |> dplyr::distinct();
+
+##--create model matrix 
+###--Should throw error (hence the catch) because a variable (`x`) has only one unique value in the model frame.
+###--Error is thrown because contrasts can't be created on a 1-value variable (apparently).
+cnd = rlang::catch_cnd(
+  {
+    mm = model.matrix(f,data=mf,contrasts.arg=NULL);
+    str(mm);
+    head(mm);
+  });
+if (!is.null(cnd)) cat(as.character(cnd),"\n\n");
+
+##--revise formula to remove 1-value variables (i.e., `x`)
+fp = reviseFormula(f,mf);
+getFormulaAsText(fp);
+
+#--create model matrix
+mm = model.matrix(fp,data=mf,contrasts.arg=NULL);
+str(mm);
+head(mm);
+
+#--join "original" model frame to model matrix and keep distinct combinations
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,fp,mm,dfrMM,cnd);
+```
+
+## f = ~0+x, x=="male", default contrasts
+
+`x` has one unique value in the dataframe used to create the model frame and the formula is not specified with an 
+intercept. It is actually possible to create a model "matrix" from the revised formula, but it has no columns so 
+`reviseFormula` throws an error in this case.
+
+```{r}
+#| label: eq8
+#| eval: true
+#| echo: true
+#| results: markup
+##--create formula
+f = ~0+x;
+str(f);
+terms(f);
+attributes(f);
+
+##--create model frame with `x` having 1 value
+mf = model.frame(formula=f,data=dmsC |> dplyr::filter(x=="male"),subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+str(mf);
+head(mf);
+mf |> dplyr::distinct();
+
+##--create model matrix 
+###--Should throw error (hence the catch) because a variable (`x`) has only one unique value in the model frame.
+###--Error is thrown because contrasts can't be created on a 1-value variable (apparently).
+cnd = rlang::catch_cnd(
+  {
+    mm = model.matrix(f,data=mf,contrasts.arg=NULL);
+    str(mm);
+    head(mm);
+  });
+if (!is.null(cnd)) cat(as.character(cnd),"\n\n");
+
+##--revise formula to remove 1-value variables.
+###--will throw an error from `getFormulaAsText` because all variables are removed 
+###--but the formula has no intercept.
+cnd = rlang::catch_cnd(
+  {
+    fp = reviseFormula(f,mf);
+    getFormulaAsText(fp);
+    #--
+    
+    #--create model matrix
+    mm = model.matrix(fp,data=mf,contrasts.arg=NULL);
+    str(mm);
+    head(mm);
+    #--
+    
+    #--join "original" model frame to model matrix and keep distinct combinations
+    dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+    dfrMM;
+  }
+);
+if (!is.null(cnd)) cat(as.character(cnd),"\n\n")
+
+
+rm(f,mf,fp,mm,dfrMM,cnd);
+```
+
+## f = ~1+x, x=="male", default contrasts
+
+`x` has one unique value in the dataframe used to create the model frame, but the formula is specified with an 
+intercept so dropping `x` is ok.
+
+```{r}
+#| label: eq9
+#| eval: true
+#| echo: true
+#| results: markup
+##--create formula
+f = ~1+x;
+str(f);
+terms(f);
+attributes(f);
+
+##--create model frame with `x` having 1 value
+mf = model.frame(formula=f,data=dmsC |> dplyr::filter(x=="male"),subset=NULL,drop.unused.levels=FALSE,xlev=NULL);
+str(mf);
+head(mf);
+mf |> dplyr::distinct();
+
+##--create model matrix 
+###--Should throw error (hence the catch) because a variable (`x`) has only one unique value in the model frame.
+###--Error is thrown because contrasts can't be created on a 1-value variable (apparently).
+cnd = rlang::catch_cnd(
+  {
+    mm = model.matrix(f,data=mf,contrasts.arg=NULL);
+    str(mm);
+    head(mm);
+  });
+if (!is.null(cnd)) cat(as.character(cnd),"\n\n")
+
+##--revise formula to remove 1-value variables
+fp = reviseFormula(f,mf);
+getFormulaAsText(fp);
+##--
+
+##--create model matrix
+mm = model.matrix(fp,data=mf,contrasts.arg=NULL);
+str(mm);
+head(mm);
+
+##--join "original" model frame to model matrix and keep distinct combinations
+dfrMM = dplyr::distinct(dplyr::bind_cols(mf,mm));
+dfrMM;
+
+rm(f,mf,fp,mm,dfrMM,cnd);
+```
+
+```{r}
+#| label: refs_CTL-Allometry
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  cat("# References {-}\n")
+  cat("::: {#refs}\n")
+  cat(":::\n\n")
+```
+
+<!-- tables, if not child doc and lstTbls is not empty -->
+```{r}
+#| label: tables_CTL-Allometry
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  source(system.file("files/printTablesSectionFromList.R",package="wtsQMD"));
+```
+
+<!-- figures, if not child doc and lstFigs is not empty -->
+```{r}
+#| label: figures_CTL-Allometry
+#| eval: !expr '!knitr::opts_knit$get("child")'
+#| results: asis
+  source(system.file("files/printFiguresSectionFromList.R",package="wtsQMD"));
+```
+

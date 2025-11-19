@@ -1,0 +1,64 @@
+  #--rtmbGMACS growth specifications----
+  ##--grwPwrLaw1<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs_from,zBs_to,dZ)
+  ###'  mnZs = pGrA\*exp(log(pGrB/pGrA)/log(zGrB/zGrA)\*log(zBs/zGrA));
+  ##--grwPwrLaw2<-function(pGrA,pGrB,pGrBeta,zBs_from,zBs_to,dZ)
+  ###'  mnZs = exp(grA+grB*log(zBs));
+  PROCESS_GROWTH
+  CODE
+  mfX  = dmsYSC |> dplyr::select(y,x) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y),
+                            yblk=ifelse(yn<2019,"<2019",
+                                        ifelse(yn<2022,"<2022",">=2022")));
+  contr_none = "contr.none";
+  contr_sum  = list(x="contr.sum");
+  END_CODE
+  FUNCTIONS
+  fcn_idx  fcn_id     function  frame    params                         vars    eqsRE covTypeRE linkRE    description
+    1     grwPwrLaw1  grwPwrLaw1   mfX   pGrA,zGrA,pGrB,zGrB,pGrBeta     z       NA      NA       NA      pre/postmolt_growth_power_law
+  END_FUNCTIONS
+  PARAM_EQS
+  par_idx  fcn_idx  par_id  link_fcn  feEQs   feContrasts    ecEQs            reEQs  reCovType
+  1         1       pGrA     ident     ~x-1    contr_none   ~yn-1              NA     NA      #--by sex, annual covar
+  2         1       zGrA     ident     ~1      contr_none    NA                NA     NA      #--applies to both sexes
+  3         1       pGrB     ident     ~x-1    contr_sum    ~yn-1              NA     NA      #--by sex, annual covar
+  4         1       zGrB     ident     ~x-1    contr_sum     NA                NA     NA      #--by sex, no covar
+  5         1       pGrBeta  ident     ~1      contr_sum     NA                NA     NA      #--applies to both sexes
+  END_PARAM_EQS
+  FE_VALS
+  pGrA
+  pv_idx  par_idx  x        mirror  phase    units     IV       LB     UB   prior       p1        p2
+   1      1        male       0       1     grams     32.329    25     40   NA          NA        NA
+   2      1        female     0       1     grams     33.691    25     40   NA          NA        NA
+  END_pGrA
+  zGrA
+  pv_idx  par_idx  mirror  phase    units     IV       prior       p1        p2
+   1      2          0      -1     mm_CW      25        NA         NA        NA
+  END_zGrA
+  pGrB
+  pv_idx  par_idx  x        mirror  phase    units     IV       LB     UB    prior       p1        p2
+   1      3        male       0       1     grams     166.0     130    180   NA          NA        NA
+   2      3        female     0       1     grams     114.8     105    130   NA          NA        NA
+  END_pGrB
+  zGrB
+  pv_idx  par_idx  x     mirror  phase    units     IV       prior       p1        p2
+   1      4       male    0      -1     mm_CW       125        NA         NA        NA
+   2      4       female  0      -1     mm_CW       100        NA         NA        NA
+  END_zGrB
+  pGrBeta
+  pv_idx  par_idx  mirror  phase    units     IV     LB   UB   prior       p1        p2
+   1      5          0      -1     none     0.8167   0.5  2.0   NA         NA        NA
+  END_pGrBeta
+  END_FE_VALS
+  EC_VALS
+  pGrA
+  pv_idx  par_idx  x         mirror  phase    units     IV     prior    p1    p2
+   1      1        male      0        1       none      0.0   normal    0.0   1.0
+   2      1        female    0        1       none      0.0     NA      NA    NA
+  END_pGrA
+  pGrA
+  pv_idx  par_idx  x         mirror  phase    units     IV     prior    p1    p2
+   1      1        male      0        1       none      0.0   normal    0.0   1.0
+   2      1        female    0        1       none      0.0     NA      NA    NA
+  END_pGrA
+  END_EC_VALS
+  END_GROWTH

@@ -1,0 +1,46 @@
+  #--rtmbGMACS allometry specifications----
+  PROCESS_ALLOMETRY
+  CODE
+  mfXMYx  = dmsYSC |> dplyr::filter(x=="male")   |> dplyr::select(y,x,p) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y),
+                            yblk=ifelse(yn<2019,"<2019",
+                                        ifelse(yn<2022,"<2022",">=2022")));
+  mfXMYf  = dmsYSC |> dplyr::filter(x=="female") |> dplyr::select(y,x,m) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y));
+  contr_none = "contr.none";
+  contr_sum  = list(x="contr.sum",m="contr.sum");
+  END_CODE
+  FUNCTIONS
+  fcn_idx  fcn_id     function  frame    params   vars    eqsRE covTypeRE linkRE    description
+    1      pwrLaw1     pwrLaw1   mfXMYx   pA,pB1     z       NA      NA     NA       males:_w(z)_=_pA_*_(z^pB1)
+    2      pwrLaw1     pwrLaw1   mfXMYf   pA,pB1     z       NA      NA     NA       females:_w(z)_=_pA_*_(z^pB1)
+  END_FUNCTIONS
+  PARAM_EQS
+  par_idx  fcn_idx  par_id  link_fcn  feEQs   feContrasts  ecEQs             reEQs  reCovType
+  1         1       pA      ident     ~1      contr_none   ~yn:(yblk*p)-1     NA     NA      #--males, covar by yblk
+  2         1       pB1     ident     ~1      contr_none    NA                NA     NA      #--males, no covar
+  3         2       pA      ident     ~0+m    contr_sum    ~yn-1              NA     NA      #--females by maturity state, covar
+  4         2       pB1     ident     ~0+m    contr_sum     NA                NA     NA      #--females by maturity state
+  END_PARAM_EQS
+  FE_VALS
+  pA
+  pv_idx  par_idx  x        m     mirror  phase    units     IV       prior       p1        p2
+   1      1        male     NA      0       1     grams     0.00027   lognormal   0.00027   1.0
+   2      3        female   imm     0      -1     grams     0.000562  NA          NA        NA
+   3      3        female   mat     0      -1     grams     0.000441  NA          NA        NA
+  END_pA
+  pB1
+  pv_idx  par_idx  x        m     mirror   phase    units     IV
+   1      2        male     NA      0       -1     none      3.022134
+   2      4        female   imm     0       -1     none      2.816928
+   3      4        female   mat     0       -1     none      2.898686
+  END_pB1
+  END_FE_VALS
+  EC_VALS
+  pA
+  pv_idx  par_idx  x         yblk     p     mirror  phase    units     IV     prior    p1    p2
+   1      1        male       all    all      0       1     grams      0.0   normal    0.0   1.0
+   2      3        female     NA     NA       0       1     grams      0.0     NA      NA    NA
+  END_pA
+  END_EC_VALS
+  END_ALLOMETRY

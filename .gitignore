@@ -9,3 +9,15 @@ WTS_Ideas-ModelConfigurationFile.docx
 /_site/
 /site_libs/
 ~*.docx
+**/.DS_Store
+**/*.RData
+**/*.pdf
+**/*.pdf.md
+**/*.tex
+**/*.html
+**/*.html.md
+**/*.png
+**/*.gif
+**/csv_ListForFiguresInfo.csv
+**/csv_ListForTablesInfo.csv
+
