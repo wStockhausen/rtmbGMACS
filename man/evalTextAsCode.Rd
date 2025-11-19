@@ -24,7 +24,7 @@ caller (so \code{frame=0}, the deault, is evaluated in the caller's frame). If \
 the lines of code are evaluated in the environment specified by its absolute value.
 }
 \examples{
-\dontshow{if ( FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if ( FALSE) withAutoprint(\{ # examplesIf}
 str = "
   v1  = 5;
   v2 = 1:v1;

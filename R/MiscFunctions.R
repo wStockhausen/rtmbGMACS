@@ -1,11 +1,47 @@
 #--miscellaneuos functions, including ADMB replacements
 
 #'
-#' @title Calculate variable on logit scale
-#' @description Function to calculate variable on logit scale.
-#' @param x - variable
-#' @return vector log(x/(1-x)) with same names as x
-#' @details inverse of logisitc function
+#' @title Return the input with no changes
+#' @description A pass-through transformation function (doesn't change values of input).
+#' @param x - vector of values to "convert"
+#' @return vector of "transformed" values
+#' @details This constitutes a function that simply returns the input.
+#' @export
+#'
+getLinkFcn<-function(txt){
+  if (tolower(txt) %in% c("ident","identity","add","none"))
+    return(list(link=identity,link_inv=identity));
+  if (tolower(txt) %in% c("log"))
+    return(list(link=log,link_inv=exp));
+  if (tolower(txt) %in% c("logit"))
+    return(list(link=logit,link_inv=logistic));
+}
+
+#' @title Zero function
+#' @description Function that simply returns the input object multiplied by zero.
+#' @param x - a numeric object to "convert"
+#' @return a numeric object of the same class and shape as the input filled with zeros
+#' @details This function simply returns a numeric object of the same class and shape as the input filled with zeros.
+#' @export
+#'
+zero<-function(x){return(0.0*x)}
+
+#' @title Identity function
+#' @description Function that simply returns the input object
+#' @param x - object to "convert"
+#' @return the input object
+#' @details This function that simply returns the input.
+#' @export
+#'
+identity<-function(x){return(x);}
+
+#'
+#' @title Convert values to the logit scale
+#' @description Function to convert values to the logit scale.
+#' @param x - numeric object
+#' @return log(x/(1-x)), with same names and class as `x`
+#' @details inverse of logistic function. Values of `x` outside the
+#' (0,1) range generate NaNs.
 #' @export
 #'
 logit<-function(x){
@@ -13,6 +49,7 @@ logit<-function(x){
   names(y) = names(x);
   return(y);
 }
+
 #'
 #' @title Square a variable
 #' @description ADMB-equivalent function to square a variable.
@@ -26,6 +63,7 @@ square<-function(x){
   names(y) = names(x);
   return(y);
 }
+
 #'
 #' @title Exponentiate a variable
 #' @description ADMB-equivalent  to exponentiate a variable.
@@ -39,6 +77,7 @@ mfexp<-function(x){
   names(y) = names(x);
   return(y);
 }
+
 #'
 #' @title Calculate the element-wise product of two variables
 #' @description ADMB-equivalent to calculate the element-wise product of two variables.
@@ -53,6 +92,7 @@ elem_prod<-function(x,y){
   z = x * y;
   return(z);
 }
+
 #'
 #' @title Calculate the element-wise division of two variables
 #' @description ADMB-equivalent to calculate the element-wise division of two variables.
@@ -98,6 +138,7 @@ squarewave_right<-function(z0,zs,dz=1,shftfac=2,sclfac=20){
   # cat("sqw_R:",w,"\n");
   return(w);
 }
+
 #'
 #' @title Create a "square wave" opened to the left
 #' @description Function to create a "square wave" opened to the left.

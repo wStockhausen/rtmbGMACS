@@ -24,7 +24,7 @@ calcModelMatrixREs(txt, dfrMF, cov_type, verbose = FALSE)
 }}
 }
 \value{
-list with model matrix and other information, or NULL if not \code{txt} is not a formula
+list with number of parameters (\code{npars}) and, if \code{npars}>0, the model matrix and other information.
 }
 \description{
 Function to calculate a random effects model matrix (and associated information)

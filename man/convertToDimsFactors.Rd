@@ -40,12 +40,20 @@ Function to convert dataframe values to factor levels in a dimensions map.
 \details{
 If a column name in \code{dfr} matches a dimension name,
 factor or character columns are converted to a factor with the same levels as the dimension.
-This also occurs if the column is numeric and \code{all} is TRUE. Otherwise, the
+This also occurs if the column is numeric and \code{all} is TRUE. If the column name does not match
+a dimension name, the
 column is converted to a factor using \code{unique} to determine the levels
 if it is a character column or if it numeric and \code{all} is TRUE.
 
 If \code{contrasts} is \code{FALSE}, then no contrasts are applied are applied to any factor. If contrasts is NULL,
 then the default contrast given by options("contrast") is applied  to each factor.
 Otherwise, contrasts should be a list, with the contrast associated with each name in the list applied to
-the corresponding factor.
+the corresponding factor. Valid contrasts are:
+\itemize{
+\item{'contr_none' - no contrast}
+\item{'contr_treatment' - treatment contrasts}
+\item{'contr_sum' - sum-to-zero contrasts}
+\item{'contr_helmert' - helmert contrasts}
+\item{'contr_poly' - orthogonal polynomial contrasts}
+}
 }

@@ -135,10 +135,16 @@ extractTextSection<-function(txt,n=length(txt),start=1,comment="#"){
 #'
 #' @export
 evalTextAsCode<-function(strv,frame=0){
-  if (frame>=0){
-    eval.parent(parse(text=strv),n=frame+2);#--caller frame is up 2
-  } else {
-    eval(parse(text=strv),envir=abs(frame));
+  if (is.environment(frame)){
+    eval(parse(text=strv),envir=frame);
+  } else if (is.numeric(frame)){
+    if (frame>=0){
+      eval.parent(parse(text=strv),n=frame+2);#--caller frame is up 2
+    } else {
+      eval(parse(text=strv),envir=abs(frame));
+    }
+  } else if (is.character(frame)){
+    eval(parse(text=strv),envir=frame);
   }
 }
 

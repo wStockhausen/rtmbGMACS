@@ -23,7 +23,7 @@ This function is used when processing a formula (as text) to remove any
 handled separately in terms of creating a model matrix from a formula and a model frame.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # example code
 txt = "~1 + yblk + s(z,k=10) + s(m,k=20,by='yblk') +ti(z)";
 res = removeSmoothsFromFormulaText(txt); #--res == "~1+yblk";

@@ -12,7 +12,7 @@ doGrowth(n_mpz, lst)
 }}
 
 \item{lst}{\itemize{
-\item growth info for crab in y,s,r,x (i.e., lstGrw[\link{y}][\link{s}][\link{r}][\link{x}])
+\item growth info for crab in y,s,r,x (i.e., lstGrw[\link[ggplot2:aes_position]{ggplot2::y}][\link{s}][\link{r}][\link[ggplot2:aes_position]{ggplot2::x}])
 }}
 
 \item{dims}{\itemize{

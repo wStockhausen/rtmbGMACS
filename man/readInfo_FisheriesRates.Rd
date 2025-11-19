@@ -25,7 +25,7 @@ Function to read fisheries rates info.
 TBD.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # example code
 if (FALSE){
   conn="inputSpecs_FisheriesRates.txt";

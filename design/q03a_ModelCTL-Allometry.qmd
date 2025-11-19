@@ -164,12 +164,12 @@ str<-paste0('
   contr_sum  = list(x="contr.sum",m="contr.sum");
   END_CODE
   FUNCTIONS
-  fcn_idx  fcn_id     function  frame    params              vars    description 
-    1      pwrLaw1     pwrLaw1   mfAll   pA,pB1                z      w(z)_=_pA_*_(z^pB1)
-    2      pwrLaw2     pwrLaw2   mf2024  pLnA,pLnS,pB2,pZ0     z      w(z)_=_exp(pLnA+pLnS+pB2*ln(z/pZ0))
+  fcn_idx  fcn_id     function  frame    params              vars    reEQs reCovType reLink    description 
+    1      pwrLaw1     pwrLaw1   mfAll   pA,pB1                z       NA      NA     NA       w(z)_=_pA_*_(z^pB1)
+    2      pwrLaw2     pwrLaw2   mf2024  pLnA,pLnS,pB2,pZ0     z       NA      NA     NA       w(z)_=_exp(pLnA+pLnS+pB2*ln(z/pZ0))
   END_FUNCTIONS
   PARAM_EQS
-  par_idx  fcn_idx par_id  feEQs   feCons       feLink   reEQs reCovType reLink   ecEQs  ecLink
+  par_idx  fcn_idx par_id  feEQs   feCons       feLink    ecEQs  ecLink   reEQs reCovType reLink   
    1         1      pA     ~1+x*m  contr_sum     add      NA       NA       NA      NA     NA
    2         1      pB1    ~0+x:m  contr_none    add      NA       NA       NA      NA     NA
    3         2      pLnA   ~0+x    contr_none    add      NA       NA       NA      NA     NA
@@ -180,7 +180,7 @@ str<-paste0('
   FE_VALS
   pA
   pv_idx  par_idx  x        m     mirror  phase    units     IV
-   1      1        male     imm     0      -1     grams     0.00027
+   1      1        male     imm     0       1     grams     0.00027
    2      1        male     mat     1
    3      1        female   imm     0      -1     grams     0.000562
    4      1        female   mat     0      -1     grams     0.000441
@@ -215,58 +215,106 @@ strv = str |> splitText() |> extractLines("PROCESS_ALLOMETRY","END_ALLOMETRY");
 strv |> extractLines("CODE","END_CODE") |> evalTextAsCode();
 dfrFcns = strv |> extractLines("FUNCTIONS","END_FUNCTIONS")   |> evalTextAsDataframe();
 dfrPEQs = strv |> extractLines("PARAM_EQS","END_PARAM_EQS")   |> evalTextAsDataframe();
-par_ids = dfrPEQs$id;
+par_ids = dfrPEQs$par_id;
 ##--fixed effects parameter values
 strFEVs = strv |> extractLines("FE_VALS","END_FE_VALS");
 lstFEVs = list();
 if (length(strFEVs)>0){
   for (par_id in par_ids){
     strp = strFEVs |> extractLines(par_id,paste0("END_",par_id));
-    lstFEVs[[par_id]]  = strp |> evalTextAsDataframe();
+    lstFEVs[[par_id]]  = strp |> evalTextAsDataframe() |> dplyr::mutate(par_id=par_id,.before=1) |> expand_mirrors();
   }
 }#--FEVs
-##--random effects parameter values
-strREVs = strv |> extractLines("RE_VALS","END_RE_VALS");
-lstREVs = list();
-if (length(strREVs)>0){
-  for (par_id in par_ids){
-    strp = strREVs |> extractLines(par_id,paste0("END_",par_id));
-    lstREVs[[par_id]]  = strp |> evalTextAsDataframe();
-  }
-}#--REVs
 ##--environmental covariates parameter values
 strECVs = strv |> extractLines("EC_VALS","END_EC_VALS");
 lstECVs = list();
 if (length(strECVs)>0){
   for (par_id in par_ids){
     strp = strECVs |> extractLines(par_id,paste0("END_",par_id));
-    lstECVs[[par_id]]  = strp |> evalTextAsDataframe();
+    lstECVs[[par_id]]  = strp |> evalTextAsDataframe() |> dplyr::mutate(par_id=par_id,.before=1) |> expand_mirrors();
   }
 }#--ECVs
+##--random effects parameter values
+strREVs = strv |> extractLines("RE_VALS","END_RE_VALS");
+lstREVs = list();
+if (length(strREVs)>0){
+  for (par_id in par_ids){
+    strp = strREVs |> extractLines(par_id,paste0("END_",par_id));
+    lstREVs[[par_id]]  = strp |> evalTextAsDataframe() |> dplyr::mutate(par_id=par_id,.before=1) |> expand_mirrors();
+  }
+}#--REVs
 
 #--determine model matrices
 tbl = dfrFcns |> dplyr::full_join(dfrPEQs,by="fcn_idx");
-idxFE = idxEC = idxRE = 0;
+idxFEs = idxECs = idxREs = 0;
 lstModMtx = list();
 for (par_idx_ in tbl$par_idx){
   #--testing: par_idx_ = 1;
   rw = tbl |> dplyr::filter(par_idx==par_idx_);
   #--fixed effects
   lstModMtxFEs = calcModelMatrixFEs(rw$feEQs,dfrMF=get(rw$frame),ctrs=get(rw$feCons));
-  idxFE = idxFE + lstModMtxFEs$npars;
+  idxFEs = idxFEs + lstModMtxFEs$npars;
   lstModMtxFEs$idx_end = idxFEs;
   #--env. covariates
   lstModMtxECs = calcModelMatrixFEs(rw$ecEQs,dfrMF=get(rw$frame));
-  idxEC = idxEC + lstModMtxECs$npars;
+  idxECs = idxECs + lstModMtxECs$npars;
   lstModMtxECs$idx_end = idxECs;
   #--random effects
   lstModMtxREs = calcModelMatrixREs(rw$reEQs,dfrMF=get(rw$frame),cov_type=rw$reCovType);
-  idxRE = idxRE + lstModMtxREs$npars;
+  idxREs = idxREs + lstModMtxREs$npars;
   lstModMtxREs$idx_end = idxREs;
   #--combine lists into one object
   lstModMtx[[rw$par_id]] = list(FEs=lstModMtxFEs,ECs=lstModMtxECs,REs=lstModMtxREs);
 }
-lstAllom = list(lstModMtx=lstModMtx, nparFEs=idxFE, nparECs=idxEC, nparREs=idxRE);
+lstAllom = list(lstModMtx=lstModMtx, nparsFEs=idxFEs, nparsECs=idxECs, nparsREs=idxREs);
+
+#--create parameter vectors and parameter map from parameter values dataframes
+lst_params = list();
+lst_map    = list();
+vec_REs    = character(0);
+if (length(lstFEVs)>0){
+  for (par_id_ in names(lstFEVs)){
+    #--testing: par_id_ = names(lstFEVs)[1];
+    parname = paste0("allom_FE_",par_id_);
+    dfr = lstFEVs[[par_id_]];
+    lst_params[[parname]] = dfr$IV;#--initial values
+    lst_map    = c(lst_map,createParamsMap(dfr));
+  }
+}
+if (length(lstECVs)>0){
+  for (par_id_ in names(lstECVs)){
+    #--testing: par_id_ = names(lstECVs)[1];
+    parname = paste0("allom_EC_",par_id_);
+    dfr = lstECVs[[par_id_]];
+    lst_map    = c(lst_map,createParamsMap(dfr));
+    lst_map[[parname]]    = createParamsMap(dfr);
+  }
+}
+if (length(lstREVs)>0){
+  for (par_id_ in names(lstREVs)){
+    #--testing: par_id_ = names(lstREVs)[1];
+    parname = paste0("allom_RE_",par_id_);
+    dfr = lstREVs[[par_id_]];
+    lst_params[[parname]] = dfr$IV;#--initial values
+    lst_map    = c(lst_map,createParamsMap(dfr));
+    vec_REs = c(vec_REs,parname);
+  }
+}
+
+#--test svd approach
+if (length(lstFEVs)>0){
+  for (par_id_ in names(lstFEVs)){
+    #--testing: par_id_ = names(lstFEVs)[1];
+    parname = paste0("allom_FE_",par_id_);
+    dfrIV = lstFEVs[[par_id_]];
+    vIVs = dfrIV$IV;#--initial values
+    T = as.matrix(lstModMtx$pA$FEs$ModMtx);
+    lst = svd(as.matrix(T,nu=nrow(T),nv=ncol(T)));
+    vP = (lst$v %*% diag(1/lst$d) %*% t(lst$u)) %*% vIVs;
+    vpIVs = T %*% vP;
+  }
+}
+
 ```
 
 ```{r}
@@ -280,12 +328,12 @@ str<-paste0('
   {mf2024 = dmsYSC |> dplyr::filter(y=="2024");}
   END_FRAMES
   FUNCTIONS
-  fcn_idx  id        function  frame   params              vars  description 
-    1    pwrLaw1   pwrLaw1   mfAll   pA,pB1                z   w(z)_=_pA_*_(z^pB)
-    2    pwrLaw2   pwrLaw2   mf2024  pLnA,pLnS,pB2,pZ0     z   w(z)_=_exp(pLnA+pLnS+pB*ln(z/pZ0))
+  fcn_idx  id        function  frame   params             vars  reEQs reCovType reLink    description 
+    1    pwrLaw1   pwrLaw1   mfAll   pA,pB1                z      NA      NA     NA       w(z)_=_pA_*_(z^pB)
+    2    pwrLaw2   pwrLaw2   mf2024  pLnA,pLnS,pB2,pZ0     z      NA      NA     NA       w(z)_=_exp(pLnA+pLnS+pB*ln(z/pZ0))
   END_FUNCTIONS
   PARAM_EQS
-  par_idx  fcn_idx  id    eEQs    feCons        feLink   reEQs reCovType reLink   ecEQs  ecLink
+  par_idx  fcn_idx  id    eEQs    feCons        feLink   ecEQs  ecLink   reEQs reCovType reLink  
    1         1     pA     ~0+x:m  contr_none    add      NA       NA      NA      NA     NA
    2         1     pB1    ~0+x:m  contr_none    add      NA       NA      NA      NA     NA
    3         2     pLnA   ~0+x    contr_none    add      NA       NA      NA      NA     NA
@@ -337,27 +385,27 @@ lstFEVs = list();
 if (length(strFEVs)>0){
   for (par_id in par_ids){
     strp = strFEVs |> extractLines(par_id,paste0("END_",par_id));
-    lstFEVs[[par_id]]  = strp |> evalTextAsDataframe();
+    lstFEVs[[par_id]]  = strp |> evalTextAsDataframe() |> dplyr::mutate(par_id=par_id,.before=1) |> expand_mirrors();
   }
 }#--FEVs
-##--random effects parameter values
-strREVs = strv |> extractLines("RE_VALS","END_RE_VALS");
-lstREVs = list();
-if (length(strREVs)>0){
-  for (par_id in par_ids){
-    strp = strREVs |> extractLines(par_id,paste0("END_",par_id));
-    lstREVs[[par_id]]  = strp |> evalTextAsDataframe();
-  }
-}#--REVs
 ##--environmental covariates parameter values
 strECVs = strv |> extractLines("EC_VALS","END_EC_VALS");
 lstECVs = list();
 if (length(strECVs)>0){
   for (par_id in par_ids){
     strp = strECVs |> extractLines(par_id,paste0("END_",par_id));
-    lstECVs[[par_id]]  = strp |> evalTextAsDataframe();
+    lstECVs[[par_id]]  = strp |> evalTextAsDataframe() |> dplyr::mutate(par_id=par_id,.before=1) |> expand_mirrors();
   }
 }#--ECVs
+##--random effects parameter values
+strREVs = strv |> extractLines("RE_VALS","END_RE_VALS");
+lstREVs = list();
+if (length(strREVs)>0){
+  for (par_id in par_ids){
+    strp = strREVs |> extractLines(par_id,paste0("END_",par_id));
+    lstREVs[[par_id]]  = strp |> evalTextAsDataframe() |> dplyr::mutate(par_id=par_id,.before=1) |> expand_mirrors();
+  }
+}#--REVs
 ```
 
 ```{r}

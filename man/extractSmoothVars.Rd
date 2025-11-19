@@ -26,7 +26,7 @@ where the first variable is numeric and any other (optional) variable must be a 
 is the number of knots followed by any other (comma-delimited) inputs to the smooth function.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # example code: smooth specification with "by" variable
 txt = "s(x,k=10,by='r')"; #--x is numeric
 res = extractSmoothVar(txt); # res == "x"

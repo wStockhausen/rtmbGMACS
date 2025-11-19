@@ -2,21 +2,22 @@
 % Please edit documentation in R/MiscFunctions.R
 \name{logit}
 \alias{logit}
-\title{Calculate variable on logit scale}
+\title{Convert values to the logit scale}
 \usage{
 logit(x)
 }
 \arguments{
 \item{x}{\itemize{
-\item variable
+\item numeric object
 }}
 }
 \value{
-vector log(x/(1-x)) with same names as x
+log(x/(1-x)), with same names and class as \code{x}
 }
 \description{
-Function to calculate variable on logit scale.
+Function to convert values to the logit scale.
 }
 \details{
-inverse of logisitc function
+inverse of logistic function. Values of \code{x} outside the
+(0,1) range generate NaNs.
 }

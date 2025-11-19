@@ -32,14 +32,22 @@ createDimsFactors<-function(dfr){
 #'
 #' @details If a column name in `dfr` matches a dimension name,
 #' factor or character columns are converted to a factor with the same levels as the dimension.
-#' This also occurs if the column is numeric and `all` is TRUE. Otherwise, the
+#' This also occurs if the column is numeric and `all` is TRUE. If the column name does not match
+#' a dimension name, the
 #' column is converted to a factor using `unique` to determine the levels
 #' if it is a character column or if it numeric and `all` is TRUE.
 #'
 #' If `contrasts` is `FALSE`, then no contrasts are applied are applied to any factor. If contrasts is NULL,
 #' then the default contrast given by options("contrast") is applied  to each factor.
 #' Otherwise, contrasts should be a list, with the contrast associated with each name in the list applied to
-#' the corresponding factor.
+#' the corresponding factor. Valid contrasts are:
+#' \itemize{
+#'  \item{'contr_none' - no contrast}
+#'  \item{'contr_treatment' - treatment contrasts}
+#'  \item{'contr_sum' - sum-to-zero contrasts}
+#'  \item{'contr_helmert' - helmert contrasts}
+#'  \item{'contr_poly' - orthogonal polynomial contrasts}
+#' }
 #'
 #' @export
 #'
@@ -51,11 +59,11 @@ convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=FALSE,verbose=FALSE
     # if (verbose) print(contrasts);
     if (!is.null(contrasts)){
       if (is.character(contrasts)){
-        if (tolower(contrasts)=="false") {
-          if (verbose) cat("setting all contrasts to FALSE\n");
+        if ((tolower(contrasts)=="false")||(tolower(contrasts)=="contr.none")) {
+          if (verbose) cat("no contrasts set\n");
           contrasts = FALSE;
         } else
-        if (stringr::str_starts(contrasts,"ident")){
+        if (tolower(contrasts)=="default"){
           if (verbose) cat("setting contrasts to NULL so using default:",options(contrasts)$contrasts["unordered"],"\n");
           contrasts = NULL;
         } else {
@@ -84,7 +92,9 @@ convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=FALSE,verbose=FALSE
           dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
           if (is.list(contrasts)){
             if (colnm %in% names(contrasts)){
-              if (!is.logical(contrasts[[colnm]])) {
+              if ((length(unique(dfr[[colnm]])))&&
+                  (!is.logical(contrasts[[colnm]]))&&
+                  (tolower(contrasts[[colnm]])!="contr.none")) {
                 dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
               }
             }
@@ -95,14 +105,16 @@ convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=FALSE,verbose=FALSE
             if (verbose) cat("converting",colnm,"to factor\n")
             dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
             if (verbose) cat(class(dfr[[colnm]]),"\n");
-            if (is.list(contrasts)){
-              if (colnm %in% names(contrasts)){
-                if (!is.logical(contrasts[[colnm]])) {
-                  if (verbose) cat("setting",contrasts[[colnm]],"on",colnm,"\n")
-                  dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            if (length(levs)>1){#--can only set contrasts when n(levels) > 1
+              if (is.list(contrasts)){
+                if (colnm %in% names(contrasts)){
+                  if ((!is.logical(contrasts[[colnm]]))&&(tolower(contrasts[[colnm]])!="contr_none")) {
+                    if (verbose) cat("setting",contrasts[[colnm]],"on",colnm,"\n")
+                    dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+                  }
                 }
-              }
-            }
+              }#--is.list(contrasts)
+            } #--length(levs)>1
           }
         }
       } else {
@@ -111,28 +123,34 @@ convertToDimsFactors<-function(dfr,dfrDms,contrasts=NULL,all=FALSE,verbose=FALSE
           #--convert column to factor if not already a factor
           levs = unique(as.character(dfr[[colnm]]));
           dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
-          if (is.list(contrasts)){
-            if (colnm %in% names(contrasts))
-              if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+          if (length(levs)>1){
+            if (is.list(contrasts)){
+              if (colnm %in% names(contrasts))
+                if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            }
           }
         } else {
           if (is.factor(dfr[[colnm]])){
-            if (colnm %in% names(contrasts)){
-              #--add contrast
-              if (verbose) cat("Adding contrast",contrasts[[colnm]],"to",colnm,"\n");
-              if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            if (length(levels(dfr[[colnm]]))>1){
+              if (colnm %in% names(contrasts)){
+                #--add contrast
+                if (verbose) cat("Adding contrast",contrasts[[colnm]],"to",colnm,"\n");
+                if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+              }
             }
           } else
           if (!(is.factor(dfr[[colnm]])||is.numeric(dfr[[colnm]]))){
             #--convert column to factor if not already a factor or numeric
             levs = unique(as.character(dfr[[colnm]]));
             dfr[[colnm]] = factor(as.character(dfr[[colnm]]),levels=levs);
-            if (is.list(contrasts)){
-              if (colnm %in% names(contrasts)){
-                if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+            if (length(levs)>1){
+              if (is.list(contrasts)){
+                if (colnm %in% names(contrasts)){
+                  if (!is.logical(contrasts[[colnm]])) dfr[[colnm]] = C(dfr[[colnm]],contrasts[[colnm]]);
+                }
               }
-            }
-          }
+            }#--length(levs)>1
+          }#--if column not numeric or already a factor
         }
       }
     }

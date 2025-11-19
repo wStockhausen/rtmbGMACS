@@ -33,7 +33,7 @@ dataframe to be extracted, but the number of rows (\code{n}) to extract is known
 the element to begin with (\code{start}).
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # example code
 str<-paste0('
   id        function  frame   params              description

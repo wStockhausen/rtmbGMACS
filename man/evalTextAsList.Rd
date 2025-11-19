@@ -32,7 +32,7 @@ the returned list. Attributes for a list element of the returned list must be as
 the list element.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # example code 1
 str=paste(
   'MODEL_DIMS

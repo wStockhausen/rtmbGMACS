@@ -77,3 +77,29 @@ convertColsToNum<-function(dfr,cols){
   }
   return(dfrp);
 }
+
+#' @title Get the classes (types) of columns in a dataframe
+#' @description Function to get the classes (types) of columns in a dataframe.
+#' @return a named character vector with values indicating the column class and names indicating the column
+#' @export
+getColumnTypes<-function(dfr){
+  types = sapply(dfr, class);
+  return(types);
+}
+
+#' @title Get the names of the columns with a given type from a dataframe
+#' @description Function to get the names of the columns with a given type from a dataframe.
+#' @param dfr - the dataframe
+#' @type - the class (as character) of the columns to identify
+#' @return character vector of names for columns with class matching `type`
+#' @export
+getColumnsByType<-function(dfr,type="all"){
+  types = sapply(dfr, class);
+  if (tolower(type)!="all"){
+    types = types[types %in% tolower(type)];
+  }
+  return(names(types));
+}
+
+
+
