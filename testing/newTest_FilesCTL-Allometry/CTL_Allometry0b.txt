@@ -1,0 +1,42 @@
+  #--rtmbGMACS allometry specifications----
+  ##--uses "pwrLaw2" parameterization
+  PROCESS_ALLOMETRY
+  CODE
+  mfXMY  = dmsYSC |>
+              dplyr::select(y,x,m) |>
+              dplyr::mutate(m=ifelse(x=="male",NA,m)) |>
+              dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y),
+                            yblk=ifelse(yn<2019,"<2019",
+                                        ifelse(yn<2022,"<2022",">=2022")));
+  contr_none = "contr.none";
+  END_CODE
+  FUNCTIONS
+  fcn_idx  fcn_id     fcn_nm    frame    params     vars    eqsRE covTypeRE linkRE    description
+    1      pwrLaw2    pwrLaw2   mfXMY   pLnA,pB,pZ0  z       NA       NA      NA      w(z)_=_exp(pLnA+pB*ln(AD(z)/pZ0))
+  END_FUNCTIONS
+  PARAM_EQS
+  par_idx  fcn_idx  par_id  link_fcn  feEQs   feContrasts  ecEQs  reEQs  reCovType
+  1         1       pLnA    log       ~x+m-1    contr_none    NA     NA     NA      #--by sex and maturity state
+  2         1       pB      ident     ~x+m-1    contr_none    NA     NA     NA      #--by sex and maturity state
+  3         1       pZ0     ident     ~1        contr_none    NA     NA     NA      #--all
+  END_PARAM_EQS
+  FE_VALS
+  pLnA
+  pv_idx  par_idx  x        m     mirror  phase    units    tform    IV        prior       p1        p2
+   1      1        male     NA      0       1     grams      log    152.3199    NA         NA        NA  #--male weight at pZ0, applies across maturity states
+   2      1        female   imm     0       1     grams      log    129.0043    NA         NA        NA  #--immature female weight at pZ0
+   3      1        female   mat     0       1     grams      log    144.8435    NA         NA        NA  #--mature female weight at pZ0
+  END_pLnA
+  pB
+  pv_idx  par_idx  x        m     mirror   phase    units     IV
+   1      2        male     NA      0        1     none      3.022134
+   2      2        female   imm     0        1     none      2.816928
+   3      2        female   mat     0        1     none      2.898686
+  END_pB
+  pZ0
+  pv_idx  par_idx     mirror   phase    units     IV
+   1      3             0       -1      mm_CW      80.0
+  END_pB
+  END_FE_VALS
+  END_ALLOMETRY

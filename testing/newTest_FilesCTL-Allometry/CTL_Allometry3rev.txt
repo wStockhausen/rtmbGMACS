@@ -1,0 +1,49 @@
+#--rtmbGMACS allometry specifications----
+##--pLnA = log(pA)  + pB*log(pZ0)
+##--pA   = exp(pLnA - pB*log(pZ0))
+PROCESS_ALLOMETRY
+  #--OPTIONS
+  # pwrLaw1: w(z|pA,pB)       = pA*z^pB
+  # pwrLaw2: w(z|pLnA,pB,pZ0) = exp(pLnA+pB*log(z/pZ0))
+  #--
+  CODE
+  mfYXPx  = dmsYSC |> dplyr::filter(x=="male")   |> dplyr::select(y,x,p) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y),
+                            yblk=ifelse(yn<2019,"<2019",
+                                        ifelse(yn<2022,"<2022",">=2022")));
+  mfYXMf  = dmsYSC |> dplyr::filter(x=="female") |> dplyr::select(y,x,m) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y));
+  mfY     = dmsYSC |> dplyr::select(y) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y));
+  contr_none  = "contr.none";
+  contr_sum   = list(x="contr.sum",m="contr.sum");
+  END_CODE
+  PARAM_EQS
+  par_id   par_idx  frame  link_fcn  feEQs   feContrasts  ecEQs             reEQs  reCovType
+  pLnA       1      mfYXPx  ident     ~1      contr_none    NA                NA     NA      #--males, no covar
+  pB         1      mfYXPx  ident     ~1      contr_none    NA                NA     NA      #--males, no covar
+  pZ0        1      mfY     ident     ~1      contr_none    NA                NA     NA      #--all sexes, no covar
+  pLnA       2      mfYXMf  ident     ~0+m    contr_sum     NA                NA     NA      #--females by maturity state, no covar
+  pB         2      mfYXMf  ident     ~0+m    contr_sum     NA                NA     NA      #--females by maturity state, no covar
+  END_PARAM_EQS
+  FE_VALS
+  par_id  par_idx  pv_idx    x        m     mirror  phase    units    tform  IV         LB      UB    prior       p1        p2
+   pLnA     1        1      male     NA      0       1     grams     log   152.3199    NA      NA    lognormal   152.3199  1.0
+   pB       1        1      male     NA      0       1     none      ident   3.022134  NA      NA    NA          NA        NA
+   pZ0      1        1      NA       NA      0      -1     mm_CW     ident  80.0       NA      NA    NA          NA        NA
+   pLnA     2        1      female   imm     0       1     grams     ident 129.0042    NA      NA    NA          NA        NA
+   pLnA     2        2      female   mat     0       1     grams     ident 144.8435    NA      NA    NA          NA        NA
+   pB       2        1      female   imm     0       1     none      ident   2.816928  NA      NA    NA          NA        NA
+   pB       2        2      female   mat     0       1     none      ident   2.898686  NA      NA    NA          NA        NA
+  END_FE_VALS
+#  EC_VALS
+#  par_id  par_idx  pv_idx   x         yblk     p     mirror  phase    units     IV     prior    p1    p2
+#   pLnA     1        1      male      all     all      0       1     grams      0.0   normal    0.0   1.0
+#   pLnA     2        1      female    NA      NA       0       1     grams      0.0     NA      NA    NA
+#  END_EC_VALS
+  FUNCTIONS
+  fcn_idx  fcn_id      fcn_nm    frame    vars    eqsRE covTypeRE linkRE   par_idxs               description
+    1      males       pwrLaw2   mfYXPx    z       NA      NA     NA       c(pLnA=1,pB=1,pZ0=1)   males:_w(z)_=_exp(pLnA+pB*log(z/pZ0))
+    2      females     pwrLaw2   mfYXMf    z       NA      NA     NA       c(pLnA=2,pB=2,pZ0=1)   females:_w(z)_=_exp(pLnA+pB*log(z/pZ0))
+  END_FUNCTIONS
+END_ALLOMETRY

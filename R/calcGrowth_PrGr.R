@@ -1,5 +1,31 @@
 #'
-#' @title Calculate growth
+#' @title Calculate mean growth (postmolt size given premolt size)
+#' @description Function to calculate mean growth.
+#' @param pGrA - mean post-molt size at zGrA
+#' @param zGrA - pre-molt size at yielding pGrA as mean post-molt size
+#' @param pGrB - mean post-molt size at zGrB
+#' @param zGrB - pre-molt size at yielding pGrB as mean post-molt size
+#' @param zBs - pre-molt sizes at which to calculate values
+#' @return mean growth vector
+#'
+#' @details The formula used for mean postmolt size (`mnZs`) is
+#'
+#' mnZs = pGrA\*exp(log(pGrB/pGrA)/log(zGrB/zGrA)\*log(zBs/zGrA));
+#'
+#' @examplesIf FALSE
+#' # example code
+#' grMn = grwMeanPostMoltZ1(33,25,150,125,1,seq(25,180,5),seq(25,180,5));
+#'
+#' @md
+#' @export
+#'
+grwMeanPostMoltZ1<-function(pGrA,zGrA,pGrB,zGrB,zBs){
+  mnZs = pGrA*exp(log(pGrB/pGrA)/log(zGrB/zGrA)*log(zBs/zGrA));
+  return(mnZs);
+}
+
+#'
+#' @title Calculate probability of growth (postmolt size given premolt size)
 #' @description Function to calculate growth.
 #' @param pGrA - mean post-molt size at zSclGrA
 #' @param zGrA - pre-molt size at yielding pGrA as mean post-molt size
@@ -10,9 +36,9 @@
 #' @param zBs_to - post-molt sizes at which to calculate values
 #' @return growth matrix
 #'
-#' @details The formula used is
+#' @details Mean postmolt size uses [grwMeanPostMoltZ1()]:
 #'
-#' mnZs = pGrA\*exp(log(pGrB/pGrA)/log(zGrB/zGrA)\*log(zBs/zGrA));
+#' mnZs = grwMeanPostMoltZ1(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs_from);
 #'
 #' @examples
 #' # example code
@@ -23,7 +49,7 @@
 #'
 grwPwrLaw1<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs_from,zBs_to,dZ){
   #--mean post-molt sizes
-  mnZs = pGrA*exp(log(pGrB/pGrA)/log(zGrB/zGrA)*log(zBs_from/zGrA));
+  mnZs = grwMeanPostMoltZ1(pGrA,zGrA,pGrB,zGrB,zBs_from)
   #--mean molt increments
   mnMIs = mnZs - zBs_from;
   #--actual molt increments
@@ -39,31 +65,57 @@ grwPwrLaw1<-function(pGrA,zGrA,pGrB,zGrB,pGrBeta,zBs_from,zBs_to,dZ){
   # print(tbl,n=Inf)
   return(prGrs);
 }
+
 #'
-#' @title Calculate size-dependent growth
-#' @description Function to calculate size-dependent growth.
-#' @param pLnM - log-scale base mortality
-#' @param pZ0 - reference size (fixed parameter)
-#' @param zBs - pre-molt sizes at which to calculate growth
-#' @return object with same dimensions as `z`.
+#' @title Calculate mean growth (molt increment or postmolt size given premolt size)
+#' @description Function to calculate mean growth.
+#' @param pGrA - ln-scale intercept
+#' @param pGrB - ln-scale slope
+#' @param zBs - pre-molt sizes at which to calculate values
+#' @return mean growth vector
 #'
-#' @details
+#' @details The formula used for mean molt increment/postmolt size (`mnZs`) is
 #'
-#' The formula for mean growth used is
+#' mnZs = exp(pGrA+pGrB*log(zBs));
 #'
-#' mnZs = exp(grA+grB*log(zBs));
+#' @examplesIf FALSE
+#' # example code
+#'
+#' # example code
+#' grM = grwMeanPostMoltZ2(33,150,seq(25,180,5));
+#'
+#' @md
+#' @export
+#'
+grwMeanPostMoltZ2<-function(pGrA,pGrB,zBs){
+  mnZs = exp(pGrA+pGrB*log(zBs));
+  return(mnZs);
+}
+
+#'
+#' @title Calculate probability of growth (postmolt size given premolt size)
+#' @description Function to calculate probability of postmomlt size given premolt size.
+#' @param pGrA - ln-scale intercept
+#' @param pGrB - ln-scale slope
+#' @param pGrBeta - gamma distribution scale parameter for post-molt variability
+#' @param zBs_from - pre-molt sizes at which to calculate values
+#' @param zBs_to - post-molt sizes at which to calculate values
+#' @return growth matrix
+#'
+#' @details Mean postmolt size uses [grwMeanPostMoltZ2()]:
+#'
+#' mnZs = grwMeanPostMoltZ2(pGrA,pGrB,pGrBeta,zBs_from);
 #'
 #' @examples
 #' # example code
-#' z = seq(25,100,5);
-#' M = natMortZ(log(0.2),100,z);
+#' mtxPrGrw = grwPwrLaw1(33,25,150,125,1,seq(25,180,5),seq(25,180,5));
 #'
 #' @md
 #' @export
 #'
 grwPwrLaw2<-function(pGrA,pGrB,pGrBeta,zBs_from,zBs_to,dZ){
   #--mean post-molt size
-  mnZs = exp(grA+grB*log(zBs_from));
+  mnZs = grwMeanPostMoltZ2(pGrA,pGrB,zBs_from);
   #--mean molt increments
   mnMIs = mnZs - zBs_from;
   #--actual molt increments

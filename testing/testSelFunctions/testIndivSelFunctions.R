@@ -22,7 +22,7 @@ params = c(100.00,  #--size at which selectivity = 0.50 (logit-scale mean)
              0.05); #--width (1/slope) at z50
 refZ  = 125;        #--reference *size*
 #--set `f` to function in global environment to be tested
-compareSelFun(asclogistic,z,params,refZ,title="asclogistic(z,p,refZ)");
+compareSelFun(asclogistic,z,params,refZ,title="asclogistic(z,p,refZ)",verbose=TRUE);
 
 #--sel function: asclogistic1(z,p,refZ)----
 params = c(100,   #--size at which selectivity = 0.50 (logit-scale mean)

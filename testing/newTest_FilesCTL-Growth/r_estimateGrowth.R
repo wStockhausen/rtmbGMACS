@@ -1,34 +1,23 @@
-#--estimate allometry
+#--estimate growth
 require(ggplot2);
 dirThs = dirname(rstudioapi::getSourceEditorContext()$path);
 
-#--get allometric data----
-dfrZW  = wtsUtilities::getObj(file.path(dirThs,"rda_AllometryData.RData")) |>
-           dplyr::rename(obs=w) |> tibble::rownames_to_column(var="obs_id") |>
+#--get growth data data----
+dfrZ2Z  = wtsUtilities::getObj(file.path(dirThs,"rda_GrowthData.RData")) |>
            dplyr::mutate(dplyr::across(dplyr::everything(),as.character));
-plt = ggplot(dfrZW,aes(x=as.numeric(z),y=as.numeric(obs),colour=x)) + geom_point();
+plt = ggplot(dfrZ2Z,aes(x=as.numeric(z),y=as.numeric(obs),colour=x)) + geom_point();
 print(plt);
-##--remove some clearly bad values
-dfrZWp = dfrZW |>
-          dplyr::filter(!((as.numeric(z)>125)&(as.numeric(obs)<100))) |>
-          dplyr::filter(!((as.numeric(z)<100)&(as.numeric(obs)>400))) |>
-          dplyr::filter(!((as.numeric(z)< 40)&(as.numeric(obs)> 75))) |>
-          dplyr::filter(as.numeric(obs)>0);
-plt = ggplot(dfrZWp,aes(x=as.numeric(z),y=as.numeric(obs),colour=x)) + geom_point() +
-        coord_cartesian(xlim=c(0,60),ylim=c(0,100))
-print(plt);
-dfrZW = dfrZWp;
 
 #--set up model dimensions----
 require(rtmbGMACS);
 source(file.path(dirThs,"r01_SetupDims.R"));
 
 #--read in CTL file----
-str = readr::read_lines(file.path(dirThs,"CTL_Allometry1.txt")) |>
+str = readr::read_lines(file.path(dirThs,"CTL_Growth1.txt")) |>
       paste("\n",collapse=""); #--need this as a single string
 
 #--process CTL file----
-strv = str |> splitText() |> extractLines("PROCESS_ALLOMETRY","END_ALLOMETRY");
+strv = str |> splitText() |> extractLines("PROCESS_GROWTH","END_GROWTH");
 strv |> extractLines("CODE","END_CODE") |> evalTextAsCode(frame=.GlobalEnv);#--change to 0 in objfun
 
 ##--process function information----

@@ -1,28 +1,14 @@
 #'
 #' @title Calculate the objective function for a gmacs model
 #' @description Function to calculate the objective function for a gmacs model.
-#' @param params - named list of parameter values (p=1 for now)
+#' @param params - named list of parameter values
 #'
 #' @return The objective function (negative log-likelihood) value given the data and parameters
 #'
-#' @details Input data and options should be organized in the calling environment as a list of lists
-#' with the name "inputs". `inputs` should have the structure
-#' \itemize{
-#'   \item{dims - a list with model dimensions maps}
-#'   \item{data - a named list with data-related entries}
-#'   \item{priorsInfo - list with information on parameter-related priors}
-#'   \item{testing - a logical to indicate the function is run in a testing environment}
-#'   \item{testing - a logical to print intermediate results}
-#' }
+#' @details TODO!!
+#' @examplesIf FALSE
+#' # example code: TODO
 #'
-#' Example
-#' ```{r, eval=FALSE}
-#' inputs = list(dims=NULL,data=NULL,priorInfo=NULL,testing=TRUE,testing=TRUE);
-#' params = list(dummy=0.0);
-#' obj = MakeADFun(objfun,params,silent=TRUE);
-#' opt = nlminb(obj$par, obj$fn, obj$gr);
-#' sdreport(obj);
-#' ````
 #'
 #' @import RTMB
 #'
@@ -45,8 +31,8 @@ objfun_EstimateAllometry<-function(params){
     return(w);
   }
 
-  pwrlaw2<-function(z,pLnA,pLnS,pB,pZ0,pR,link="none"){
-    w = exp(pLnA+pLnS+pB*ln(AD(z)/pZ0));
+  pwrlaw2<-function(z,pLnA,pB,pZ0,pR,link="none"){
+    w = exp(pLnA+pB*ln(AD(z)/pZ0));
     if (link!="none"){
       if (link=="add") {w = w + pR;} else
       if (link=="mlt") {w = w * pR;};
@@ -57,7 +43,7 @@ objfun_EstimateAllometry<-function(params){
   if (testing) {
     cat("RTMB params: \n")
     for (nm in names(params)){
-      cat("\t",nm,": ",params[[nm]],"\n",sep="");
+      cat("\t",nm,": ",paste(params[[nm]],collapse=" "),"\n",sep="");
     }
   }
 
@@ -65,10 +51,10 @@ objfun_EstimateAllometry<-function(params){
   ##--calculate current model parameter values
   if (testing) cat("calculating current model parameter values.\n",sep="");
   lst_modparams = list();
-  for (nm in names(inputs$lstAllom$lstModMtx)){
-    #--testing: nm = names(inputs$lstAllom$lstModMtx)[1];
+  for (nm in names(inputs$lstModMtx)){
+    #--testing: nm = names(inputs$stModMtx)[1];
     if (testing) cat("\tmodel parameter values for ",nm,".\n",sep="");
-    lstModMtx = inputs$lstAllom$lstModMtx[[nm]];
+    lstModMtx = inputs$lstModMtx[[nm]];
     ##--FEs
     if (lstModMtx$FEs$npars>0){
       rtmbPars = params[[paste0(nm,"_FEs")]];
@@ -106,47 +92,55 @@ objfun_EstimateAllometry<-function(params){
 
   ##--predict individual weight-at-size based on model parameter values
   nll = RTMB::AD(0.0)
-  for (r in 1:nrow(dfrZWppp)){
+  for (r in 1:nrow(inputs$lstAllom$dataDFR)){
     #testing: r = 2;
-    rw = dfrZWppp[r,];
-    if (rw$`function`=="pwrLaw1"){
+    rw = inputs$lstAllom$dataDFR[r,];
+    if (rw$fcn_nm=="pwrLaw1"){
       #--evaluate pA
       lst_pA = rw$pA[[1]];
       pA = RTMB::AD(0.0);
-      nm = paste0("allom_pA-",lst_pA$par_idx);
-#      link_inv = inputs$lstAllom$lstModMtx[[nm]]$links$link_inv;#TODO: is this an AD function at this point?
-      # if (!is.na(lst_pA$FEs)) pA = pA + (inputs$lstAllom$lstModMtx[[nm]]$FEs$mtxRedMM %*% params[[paste0(nm,"_FEs")]])[lst_pA$FEs];
-      # if (!is.na(lst_pA$ECs)) pA = pA + (inputs$lstAllom$lstModMtx[[nm]]$ECs$mtxRedMM %*% params[[paste0(nm,"_ECs")]])[lst_pA$ECs];
+      nm = paste0("allom_",rw$fcn_id,"_",rw$fcn_idx,"_pA_",lst_pA$par_idx);
       if (!is.na(lst_pA$FEs)) pA = pA + (lst_modparams[[paste0(nm,"_FEs")]])[lst_pA$FEs];
       if (!is.na(lst_pA$ECs)) pA = pA + (lst_modparams[[paste0(nm,"_ECs")]])[lst_pA$ECs];
       if (!is.na(lst_pA$REs)) stop("not yet implemented!");
-#      pA = link_inv(pA);
+#      pA = link_inv(pA);#--TODO!!
       #--evaluate pB1
       lst_pB1 = rw$pB1[[1]];
       pB1 = RTMB::AD(0.0);
-      nm = paste0("allom_pB1-",lst_pB1$par_idx);
-      # if (!is.na(lst_pB1$FEs)) pB1 = pB1 + (inputs$lstAllom$lstModMtx[[nm]]$FEs$mtxRedMM %*% params[[paste0(nm,"_FEs")]])[lst_pB1$FEs];
-      # if (!is.na(lst_pB1$ECs)) pB1 = pB1 + (inputs$lstAllom$lstModMtx[[nm]]$ECs$mtxRedMM %*% params[[paste0(nm,"_ECs")]])[lst_pB1$ECs];
+      nm = paste0("allom_",rw$fcn_id,"_",rw$fcn_idx,"_pB1_",lst_pB1$par_idx);
       if (!is.na(lst_pB1$FEs)) pB1 = pB1 + (lst_modparams[[paste0(nm,"_FEs")]])[lst_pB1$FEs];
       if (!is.na(lst_pB1$ECs)) pB1 = pB1 + (lst_modparams[[paste0(nm,"_ECs")]])[lst_pB1$ECs];
       if (!is.na(lst_pB1$REs)) stop("not yet implemented!");
-#      pB1 = link_inv(pB1);
+#      pB1 = link_inv(pB1);#--TODO!!
       prd = pwrlaw1(RTMB::AD(as.numeric(rw$z)),pA=pA,pB=pB1,pR=RTMB::AD(0.0));
-      if (rw$obs>0) nll = nll - dlnorm(as.numeric(rw$obs),log(prd),1,log=TRUE);
-      dfrZWppp$pars[r] = list(list(pA=as.numeric(pA),pB1=as.numeric(pB1)));
-      dfrZWppp$prd[r]  = as.numeric(prd);
-    }#--if: rw$`function`=="pwrLaw1"
+      if (rw$obs>0) nll = nll - dlnorm(as.numeric(rw$obs),log(prd),1,log=TRUE);  #--should depend on "family"
+      if (testing){
+        #--keep as numeric values
+        inputs$lstAllom$dataDFR$pars[r] = list(list(pA=pA,pB1=pB1));#--no conversion necessary
+        inputs$lstAllom$dataDFR$prd[r]  = prd;                      #--no conversion necessary
+      } else {
+        #--convert to numeric values
+        inputs$lstAllom$dataDFR$pars[r] = list(list(pA=RTMB:::getValues(pA),pB1=RTMB:::getValues(pB1)));
+        inputs$lstAllom$dataDFR$prd[r]  = RTMB:::getValues(prd);
+      }
+    }#--if: rw$fcn_id=="pwrLaw1"
   }#--loop: r
-  obs = as.numeric(dfrZWppp$obs);
+  #--calculate numeric values of individual nll's
+  obs = inputs$lstAllom$dataDFR$obs;#--
+  prd = inputs$lstAllom$dataDFR$prd;
   idx = obs>0;
-  dfrZWppp$nll[idx] = -dlnorm(obs[idx],log(dfrZWppp$prd[idx]),1,log=TRUE);
+  inputs$lstAllom$dataDFR$nll[idx] = -stats::dlnorm(obs[idx],log(prd[idx]),1.0,log=TRUE);#--should depend on "family"
 
   REPORT(lst_modparams)
-  dfrZWs = dfrZWppp |> dplyr::select(obs_id,y,x,m,p,z,obs,prd,nll) |>
+  dfrZWs = inputs$lstAllom$dataDFR |>
+             dplyr::select(obs_id,y,x,m,p,z,obs,prd,nll) |>
              dplyr::mutate(z=as.numeric(z),obs=as.numeric(obs));
   REPORT(dfrZWs)
 
-  if (testing) cat("end objective function\n");
+  if (testing) {
+    cat("end objective function\n");
+    return(list(nll=nll,dfrZWs=dfrZWs))
+  }
   return(nll);
 }
 

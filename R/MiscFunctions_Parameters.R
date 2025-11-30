@@ -149,10 +149,30 @@ createParamsMap<-function(dfr){
 }
 #createParamsMap(dfr);
 
+#' @title Create TMB `map` for parameters from a parameter values dataframe
+#' @export
+createParamsMapRev<-function(dfr){
+  dfrUPs = dfr |> dplyr::distinct(par_key);
+  map = list();
+  if (nrow(dfrUPs)>1) stop("Error in createParamsMapRev. More than 1 row in dfrUPs.")
+  for (r in 1:nrow(dfrUPs)){
+    #--testing: r = 1;
+    rw = dfrUPs[r,];
+    dfrp = dfr |> dplyr::inner_join(rw);
+    fac = factor(as.character(dfrp$pv_idx));
+    fac = ifelse(dfr$mirror>0,dfrp$mirror,fac);
+    fac = ifelse(dfrp$phase<1, NA,fac);
+    #map[[rw$par_key]] = fac;
+  }
+  #return(map);
+  return(factor(fac));
+}
+#createParamsMapRev(dfr);
+
 #' @title Create dataframe with priors info for parameters from a parameter values dataframe
 #' @export
 getParametersPriorInfo<-function(dfr){
-  prior = ifelse(is.null(dfr$prior),rep(NA,nrow(dfr)),"zero");
+  prior = ifelse(is.null(dfr$prior),rep(NA,nrow(dfr)),dfr$prior);
   p1    = ifelse(is.null(dfr$p1),   rep(NA,nrow(dfr)),as.numeric(dfr$p1));
   p2    = ifelse(is.null(dfr$p2),   rep(NA,nrow(dfr)),as.numeric(dfr$p2));
   dfrp = tibble::tibble(par_id=dfr$par_id,par_idx=dfr$par_idx,prior=prior,p1=p1,p2=p2);
@@ -195,11 +215,19 @@ getParametersInitialValues<-function(lst,dfrIVsp,links=NULL,verbose=FALSE){
 
   ##--calculate reduced model matrix corresponding to model parameter factor levels
   colnms=colnames(lst$mtxRedMM);
-  dfrRedT = lst$dfrMF |>
-              #dplyr::bind_cols(as.matrix(lst$mtxRedMM)) |>
-              dplyr::inner_join(lst$dfrModMtx,by=c(facnms,varnms)) |>
-              dplyr::group_by(dplyr::pick(dplyr::any_of(facnms))) |>
-              dplyr::summarize(dplyr::across(dplyr::all_of(c(colnms,varnms)),mean)) |> dplyr::ungroup();
+  if (length(c(facnms,varnms))>0){
+    dfrRedT = lst$dfrMF |>
+                dplyr::inner_join(lst$dfrModMtx,by=c(facnms,varnms)) |>
+                dplyr::group_by(dplyr::pick(dplyr::any_of(facnms))) |>
+                dplyr::summarize(dplyr::across(dplyr::all_of(c(colnms,varnms)),mean)) |>
+                dplyr::ungroup();
+  } else {
+    dfrRedT = lst$dfrMF |>
+                dplyr::cross_join(lst$dfrModMtx) |>
+                dplyr::group_by(dplyr::pick(dplyr::any_of(facnms))) |>
+                dplyr::summarize(dplyr::across(dplyr::all_of(c(colnms,varnms)),mean)) |>
+                dplyr::ungroup();
+  }
   mtxRedT = as.matrix(dfrRedT |> dplyr::select(!dplyr::any_of(c(facnms))));
   ##--get SVD of the reduced model matrix
   lstSVD = svd(mtxRedT);

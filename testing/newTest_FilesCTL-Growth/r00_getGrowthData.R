@@ -6,7 +6,7 @@ dirThs = dirname(rstudioapi::getSourceEditorContext()$path);
 fn = "~/Work/StockAssessments-Crab/Data/MoltIncrementData/CurrentData/TannerCrab.AllGrowthData.csv";
 dfrMID = readr::read_csv(fn) |>
            dplyr::filter(region=="EBS") |>
-           dplyr::select(x=sex,y=year,TM=`TM?`,z=premolt,obs=postmolt) |>
+           dplyr::select(y=year,x=sex,TM=`TM?`,z=premolt,obs=postmolt) |>
            dplyr::mutate(y=as.character(y),
                          x=ifelse(x==1,"male",ifelse(x==2,"female",NA_character_)));
 

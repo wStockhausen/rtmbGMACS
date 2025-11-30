@@ -11,9 +11,9 @@
   contr_sum  = list(x="contr.sum",m="contr.sum");
   END_CODE
   FUNCTIONS
-  fcn_idx  fcn_id     function  frame    params   vars    eqsRE covTypeRE linkRE    description
-    1      pwrLaw1     pwrLaw1   mfXMYx   pA,pB1     z       NA      NA     NA       males:_w(z)_=_pA_*_(z^pB1)
-    2      pwrLaw1     pwrLaw1   mfXMYf   pA,pB1     z       NA      NA     NA       females:_w(z)_=_pA_*_(z^pB1)
+  fcn_idx  fcn_id      fcn_nm    frame    params   vars    eqsRE covTypeRE linkRE    description
+    1      males       pwrLaw1   mfXMYx   pA,pB1     z       NA      NA     NA       males:_w(z)_=_pA_*_(z^pB1)
+    2      females     pwrLaw1   mfXMYf   pA,pB1     z       NA      NA     NA       females:_w(z)_=_pA_*_(z^pB1)
   END_FUNCTIONS
   PARAM_EQS
   par_idx  fcn_idx  par_id  link_fcn  feEQs   feContrasts  ecEQs             reEQs  reCovType
