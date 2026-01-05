@@ -58,8 +58,12 @@ dfrZWppp = dfrZW1  |>
 ##--define statistical family to use for fits to allometric data----
 family = gaussian(link="log");
 
+##--define dataframe for "standard" weight-at-size prediction
+dfrPrd = dfrMapPIsToFcns |> dplyr::cross_join(tibble::tibble(z=seq(25,180,5)));
+
 ##--collect allometric information----
 lstAllom = list(dataDFR=dfrZWppp,
+                dfrPrd=dfrPrd,
                 dfrMapPIsToFcns=dfrMapPIsToFcns,
                 family=family);
 rm(dfrZWppp,dfrMapPIsToFcns,family);
@@ -98,7 +102,7 @@ if (FALSE) {
 }
 
 #--run in RTMB environment----
-if (FALSE){
+if (TRUE){
   require(RTMB);
   testing=FALSE;
   objfun<-MakeADFun(objfun_EstimateAllometryRev,
@@ -113,6 +117,17 @@ if (FALSE){
   opt <- nlminb(objfun$par, objfun$fn, objfun$gr,objfun$he);
   sdrep <- sdreport(objfun);
   print(sdrep);
+  mPrd = summary(sdrep,"report");
+  dfrPrdRes = inputs$lstAllom$dfrPrd |>
+                dplyr::bind_cols(tibble::as_tibble(mPrd[rownames(mPrd)=="prd_allom",])) |>
+                dplyr::mutate(ymin=Estimate-1.96*`Std. Error`,ymax=Estimate+1.96*`Std. Error`);
+  ggplot(dfrPrdRes |> dplyr::filter(x=="male",yn==2015),aes(x=as.numeric(z),y=Estimate,colour=m,group=as.factor(yn))) +
+    geom_line() + geom_ribbon(aes(ymin=ymin,ymax=ymax),alpha=0.3) +
+    scale_y_log10() + labs(x="size (mm CW)",y="predicted weight (gm)");
+  ggplot(dfrPrdRes |> dplyr::filter(x=="female",yn==2015),aes(x=as.numeric(z),y=Estimate,group=as.factor(yn))) +
+    geom_line() + geom_ribbon(aes(ymin=ymin,ymax=ymax),alpha=0.3) +
+    facet_grid(~m) +
+    scale_y_log10() + labs(x="size (mm CW)",y="predicted weight (gm)");
 
   par_best = objfun$env$last.par.best;
   objfun$fn(par_best);

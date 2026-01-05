@@ -1,5 +1,17 @@
-ident<-function(x){return(x)}
-
+#'
+#' @title Determine initial parameter values (revised)
+#' @description Function (revised) to determine initial parameter values from the CTL list
+#' and the model matrix list.
+#' @param lstCTL - list created reading the CTL file
+#' @param lstModMtx - list of model matrices created using [createParamsMapRev()]
+#' @return list with elements `lst_pinfo`, `lst_priors`, `lst_map`, and `params`, which are in turn
+#' named lists with information associated with each RTMB parameter.
+#' @details
+#' Additional details...
+#'
+#' @import dplyr
+#' @export
+#'
 determineInitialValuesRev<-function(lstCTL,lstModMtx){
   #--determine RTMB parameters and initial values----
   dfrPEQs = lstCTL$dfrPEQs;

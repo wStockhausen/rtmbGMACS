@@ -30,10 +30,33 @@ zero<-function(x){return(0.0*x)}
 #' @description Function that simply returns the input object
 #' @param x - object to "convert"
 #' @return the input object
-#' @details This function that simply returns the input.
+#' @details This function simply returns the input.
 #' @export
 #'
 identity<-function(x){return(x);}
+
+#' @title Identity function
+#' @description Function that simply returns the input object
+#' @param x - object to "convert"
+#' @return the input object
+#' @details This function simply returns the input.
+#' @export
+#'
+ident<-function(x){return(identity(x));}
+
+#'
+#' @title Convert values to the logistic scale
+#' @description Function to convert values to the logistic scale.
+#' @param x - numeric object
+#' @return 1.0/(1.0+exp(-x)), with same names and class as `x`
+#' @details inverse of logit function.
+#' @export
+#'
+logistic<-function(x){
+  y = 1.0/(1.0+exp(-x));
+  names(y) = names(x);
+  return(y);
+}
 
 #'
 #' @title Convert values to the logit scale

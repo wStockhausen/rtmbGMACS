@@ -1,4 +1,3 @@
-
 getParamInfo<-function(strv,process_name="allom"){
   lstPI = list(); #--list for param info output
 

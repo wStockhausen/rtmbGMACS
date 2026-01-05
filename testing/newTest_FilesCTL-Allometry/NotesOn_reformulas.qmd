@@ -1,0 +1,194 @@
+---
+title: "Notes on reformulas package"
+author: "William Stockhausen"
+echo: true
+results: asis
+---
+
+```{r}
+#| echo: false
+  require(ggplot2);
+  require(rtmbGMACS);
+```
+
+# Introduction 
+
+The `reformulas` package includes functions to simplify identifying and extracting random effects (REs) in formulas such as those used to define statistical models in `lme4` and `glmmTMB`. In these packages, random effects are specified in a formula object by terms of the form $(re|gr)$, where $re$ is a (sub)formula describing a set of random effects and $gr$ is a (sub)formula describing any grouping variables applied to the random effects. In this notation, multiple terms within $re$ such as $(re_1+re_2|gr_1)$ are correlated whereas random effects defined using separate terms, $(re_1|gr)+(re_2|gr)+...$, are uncorrelated. The "double vert" notation $(re_1+re_2||gr)$ provides an abbreviated form to specify the latter uncorrelated relationship.
+
+```{r}
+  require(reformulas); ##--uses "reformulas" R package
+```
+
+##  Example formulas with random effects
+
+The following are examples of formulas specifying one random effect (with `x` as a fixed effect):
+
+  * v ~ x + (1|1)   [random intercepts with no grouping factor]
+  * v ~ x + (0+z|1) [`z` numeric: random slopes with no grouping factor]
+  * v ~ x + (0+f|1) [`f` factor: random intercepts with no grouping factor]
+  * v ~ x + (1|m)   [random intercepts grouped within factor `m`]
+  * v ~ x + (0+z|m) [`z` numeric: random slopes grouped within factor `m`]
+  * v ~ x + (0+f|m) [`f` factor: random intercept grouped within factor `m`]
+
+Note that both fixed effects and random effects formulas implicitly include an intercept: it is probably safer to add the intercept(s) explicitly (the fixed effects above implicitly include an intercept while the random effects explicitly include or exclude them). 
+
+The following are examples of formulas specifying more than one random effect (with `x` as a fixed effect):
+
+  * v ~ x + (1+z|1)   [random intercepts with no grouping factor]
+  * v ~ x + (0+z|1) [`z` numeric: random slopes with no grouping factor]
+  * v ~ x + (0+f|1) [`f` factor: random intercepts with no grouping factor]
+  * v ~ x + (1|m)   [random intercepts grouped within factor `m`]
+  * v ~ x + (0+z|m) [`z` numeric: random slopes grouped within factor `m`]
+  * v ~ x + (0+f|m) [`f` factor: random intercept grouped within factor `m`]
+
+
+## `findbars`
+
+`findbars(f)` returns a list, each element of which is a single RE term from the formula `f`. `findbars` expands the "double verts" notation (see @secExpandDoubleVerts) as necessary to yield independent terms.
+
+```{r}
+f1<-v~x+(1+z|m);  #--function with single vertical bar:  `m`--grouping variable
+reformulas::findbars(f1);
+
+f2<-v~x+(1+z||m); #--function with double vertical bars: `m`--grouping variable
+reformulas::findbars(f2);
+```
+
+## `expandDoubleVerts`
+
+The `expandDoubleVerts(f)` function expands the random effects (RE) terms in a formula with double vertical bars into separate, *indepndent* RE terms:
+
+```{r}
+f1<-v~x+(1+y|m);  #--function with single vertical bar:  `m`--grouping variable
+f2<-v~x+(1+y||m); #--function with double vertical bars: `m`--grouping variable
+
+reformulas::expandDoubleVerts(f1); #--yields: v ~ x + (1 + y | m) (no change)
+reformulas::expandDoubleVerts(f2); #--yields: v ~ x + ((1 | m) + (0 + y | m))
+```
+
+## `subbars` 
+
+`subbars` recursively replaces `|` and `||` operators with `+` on individual terms, which provides a formula suitable for using with `model.frame`: 
+
+```{r}
+subbars(f1); #--yields: v ~ x + (1 + y + m)
+subbars(f2); #--yields: v ~ x + (1 + y + m)
+```
+
+## `nobars` 
+
+`nobars` removes random effects terms from a mixed effects formula, which provides a formula with fixed effects only: 
+
+```{r}
+nobars(f1); #--yields: v ~ x
+nobars(f2); #--yields: v ~ x
+```
+
+## `RHSForm` 
+
+`RHSForm` extracts the righthand side of a formula as a language object: 
+
+```{r}
+res = reformulas::RHSForm(f1,as.form=FALSE); #--yields a language object
+str(res);
+```
+
+or a formula object:
+
+```{r}
+res = reformulas::RHSForm(f1,as.form=TRUE);  #--yields a formula object
+str(res);
+```
+
+## `splitForm` 
+
+`splitForm` splits a mixed model formula into a list with the following elements: 
+  * fixedFormula, a formula object
+  * reTrmFormulas, a list object
+  * reTrmAddArgs, a list object
+  * reTrmClasses, a vector
+
+```{r}
+splitForm(f1); #--note that reTrmClasses[1] = "us" (unstructured?)
+```
+
+```{r}
+#--extract righthand side, expand double verts
+splitForm(expandDoubleVerts(RHSForm(f1))); #--no change from above
+```
+
+```{r}
+splitForm(f2); #--note that reTrmClasses[1] = "diag" (diagonal, so independent)
+```
+
+Expanding the double verts yields two terms in the `reTrm` objects: 
+
+```{r}
+#--extract righthand side, expand double verts
+splitForm(expandDoubleVerts(RHSForm(f2))); #--note now 2 reTrmAddArgs elements, reTrmClasses are now = c("us","us")
+```
+
+## `mkReTrms` 
+
+`mkReTrms` creates the model matrix, etc. associated with random-effects terms.
+
+```{r}
+  # mkReTrms(
+  #   bars,  :a list of parsed random-effects terms
+  #   fr,    :a model frame in which to evaluate these terms
+  #   drop.unused.levels = TRUE,
+  #   reorder.terms = TRUE,     :arrange random effects terms in decreasing order of number of groups (factor levels)
+  #   reorder.vars = FALSE,     :arrange columns of individual random effects terms in alphabetical order?
+  #   calc.lambdat = TRUE,      :compute Lambdat and Lind components? (see Bates et al. 2015)
+  #   sparse = NULL             :create sparse model matrices
+  # )
+  # Value: a list with components:
+  #   Zt      - transpose of the sparse model matrix for the random effects
+  #   Ztlist  - list of components of the transpose of the random-effects model matrix, separated by random-effects term
+  #   Lambdat - transpose of the sparse relative covariance factor
+  #   Lind    - an integer vector of indices determining the mapping of the elements of the theta to the "x" slot of Lambdat
+  #   theta   - initial values of the covariance parameters
+  #   lower   - lower bounds on the covariance parameters
+  #   flist   - list of grouping factors used in the random-effects terms
+  #   cnms    - a list of column names of the random effects according to the grouping factors
+  #   Gp      - a vector indexing the association of elements of the conditional mode vector with random-effect terms;
+  #               if nb is the vector of numbers of conditional modes per term (i.e. number of groups times number of effects per group),
+  #               Gp is c(0,cumsum(nb)) (and conversely nb is diff(Gp))
+  #   nl      - names of the terms (in the same order as Zt, i.e. reflecting the reorder.terms argument)
+  #   ord     - an integer vector giving the relationship between the order of the terms in the formula
+  #               and the terms in the final object (which are ordered by the number of levels in the grouping variable, if reorder.terms is TRUE)
+```
+
+To demonstrate `mkReTrms`, one needs a model frame in which to evaluate the RE terms:
+
+```{r}
+  #--set up model dimensions----
+  dirPrj = rstudioapi::getActiveProject();
+  source(file.path(dirPrj,"testing/newTest_FilesCTL-Allometry","r01_SetupDims.R"));
+  head(dmsYSC);
+  str(dmsYSC);
+  str(ys);
+  str(ss);
+  str(vXs);
+```
+
+```{r}
+  #--RE terms for f1 based on dmsYSC
+  f1 = ~0 + x + (y|m);
+  subbars(f1);                                  #--removes vertical bars from formula, returns a formula
+  fr = model.frame(subbars(f1), data = dmsYSC); #--model frame encompassing both fixed and random effects
+
+  reTrms = reformulas::mkReTrms(reformulas::findbars(f1),dmsYSC); #<-this works
+  sf1 = splitForm(f1);
+  sf1
+  mfFEs = model.frame(sf1$fixedFormula,data=dmsYSC);
+  mfRE1 = model.frame(quote(as.formula((reformulas::subbars(sf1$reTrmFormulas[[1]])))),data=dmsYSC);
+  View(t(as.matrix(reTrms$Zt))); #--Zt is a sparse matrix version of the transposed Z matrix (the RE model matrix)
+  str(reTrms);
+  dim(reTrms$Zt);
+  length(reTrms$theta);
+  length(reTrms$Lind);
+  length(reTrms$Gp);
+  length(reTrms$lower);
+  
+```

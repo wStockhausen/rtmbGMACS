@@ -1,9 +1,6 @@
 mapFunctionsToData_Allometry<-function(dfrZW1,dfrFcnsExp,lstModMtx){
   ##--map functions/parameters to data----
-  # dfrZW1 = dfrZW |>
-  #            dplyr::filter(dplyr::between(as.numeric(y),2015,2024)) |>  #--keep only data w/in model time frames
-  #            dplyr::mutate(m=ifelse(m=="all",NA,m),     #--convert maturity state "all" to NA
-  #                          p=ifelse(x=="female",NA,p));#--convert post-molt age for females to NA
+  #--testing: dfrFcnsExp=lstCTL$dfrFcnsExp;
   dfrZWp = dfrZW1  |>
              dplyr::left_join(dfrFcnsExp) |>
              dplyr::arrange(obs_id);
