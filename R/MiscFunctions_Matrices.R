@@ -151,13 +151,13 @@ mkPrecMat.ar1 <- function(n, sigma=1, rho=0, sdX=0, sparse=TRUE, force=FALSE){
 }
 
 mkPrecMat<-function(n,pars,type,sparse=TRUE,force=FALSE){
-  print(pars);
+  if (!RTMB:::ad_context()) print(pars);
   Q = NULL;
   if (type %in% c("diag")) {
-    Q = mkPrecMat.ar1(n,exp(pars[1]),0.0,sparse=sparse,force=force);
+    Q = mkPrecMat.ar1(n,sigma=exp(pars[1]),sparse=sparse,force=force);
   } else
   if (type %in% c("ar1")) {
-    Q = mkPrecMat.ar1(n,exp(pars[1]),invlogit(pars[2]),sparse=sparse,force=force);
+    Q = mkPrecMat.ar1(n,sigma=exp(pars[1]),rho=syminvlogit(pars[2]),sparse=sparse,force=force);
   }
   return(Q);
 }
@@ -220,7 +220,7 @@ buildBlockDiagonalMat<-function(...,force=FALSE){
   #--start processing
   if (RTMB:::ad_context()||force){
     #--RTMB context: can't use Matrix::.M2C or Matrix::.bdiag
-    if ((n <- ...length()) == 0L) {
+      if ((n <- ...length()) == 0L) {
       #--empty input
       M = RTMB::AD(new("dgCMatrix"),force=force);
     } else {
@@ -234,17 +234,51 @@ buildBlockDiagonalMat<-function(...,force=FALSE){
       trw = sum(sapply(lst,nrow));
       rws = getBlockDiagStarts(lst); #--zero-based
       M = RTMB::AD(Matrix::Matrix(0,trw,trw),force=force);
-      start=0;
+      Mx = M@x;#--0-length (numeric or ad)vector
+      Mi = M@i;#--0-length integer vector
+      rowstart=0;
+      diffp = integer();#--0-length integer vector from which to compute M@p
       for (l in 1:length(lst)){
+        #--l=1;
         Mp = RTMB::AD(lst[[l]],force=force);#--lth (sub) matrix
-        n = nrow(Mp);
-        i = (1:n);
-        cs = as.matrix(tidyr::expand_grid(i,i)); #--2-column matrix of locations in M corresponding to locations in Mp
-        M[cs+start] = Mp[cs];
-        start = start + n;
+        Mpx = RTMB::AD(Mp@x,force=force);
+        Mpi = Mp@i; #--row indices
+        Mpp = Mp@p;
+        Mx = c(Mx,Mpx);
+        Mi = c(Mi,rowstart+Mpi);
+        rowstart = rowstart + nrow(Mp);
+        diffp=c(diffp,diff(Mpp));
       }
+      M@x = Mx;
+      M@i = as.integer(Mi);
+      M@p = as.integer(c(0,cumsum(diffp)));
       attr(M,"block_start") = rws;
     }
+    # if ((n <- ...length()) == 0L) {
+    #   #--empty input
+    #   M = RTMB::AD(new("dgCMatrix"),force=force);
+    # } else {
+    #   if (n > 1L) {
+    #     lst = list(...); #--list of block diagonal matrices
+    #   } else {
+    #     lst <- ..1;
+    #     if (!is.list(lst)) lst = list(lst); #--`lst` is a single matrix, wrap it in a list
+    #   }
+    #   #--`lst` should be a list of matrices
+    #   trw = sum(sapply(lst,nrow));
+    #   rws = getBlockDiagStarts(lst); #--zero-based
+    #   M = RTMB::AD(Matrix::Matrix(0,trw,trw),force=force);
+    #   start=0;
+    #   for (l in 1:length(lst)){
+    #     Mp = RTMB::AD(lst[[l]],force=force);#--lth (sub) matrix
+    #     n = nrow(Mp);
+    #     i = (1:n);
+    #     cs = as.matrix(tidyr::expand_grid(i,i)); #--2-column matrix of locations in M corresponding to locations in Mp
+    #     M[cs+start] = Mp[cs];
+    #     start = start + n;
+    #   }
+    #   attr(M,"block_start") = rws;
+    # }
   } else {
     #--Matrix context
     M = NULL;
