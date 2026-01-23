@@ -47,123 +47,12 @@ createModelFrame <- function(formula,data){
 #' bars = reformulas::findbars_x(f,target="s",default.special=NULL);
 #' makeRHSFormula(bars);
 #'
-#' @importFrom reformulas makeOp sumTerms
-#'
 makeRHSFormula<-function(terms){
   if (is.list(terms))
     terms = reformulas::sumTerms(terms);
   return(as.formula(reformulas::makeOp(terms,as.symbol("~"))))
 }
 
-#' @title Test if formula includes fixed effects
-#' @description Function to test if formula includes fixed effects.
-#' @param formula - formula to test
-#' @return logical (T/F)
-#' @examplesIf FALSE
-#' # example code
-#' hasFEs(~1+a:b+(r|x)+s(x));
-#' hasFEs(~a:b);
-#' hasFEs(~(r|x)+s(x));   #--has implied intercept
-#' hasFEs(~0+(r|x)+s(x)); #--explicitly has no intercept
-#'
-#' @export
-#'
-hasFEs<-function(formula){
-  fixedform <- getFEs(formula);
-  if (is.language(fixedform[[2]])) return(TRUE);
-  return(fixedform[[2]]!=0);
-}
-
-#' @title Get terms in a fixed effects formula
-#' @description Function to get terms in a fixed effects formula.
-#' @param formula - formula to extract terms from
-#' @param spc - spacer for debug printing
-#' @param debug - flag to print debugging info
-#' @return list of terms from fixed effects formula in REVERSE order
-#' @examplesIf FALSE
-#' # example code
-#' getTermsFEs(~a*b+1);
-#' getTermsFEs(~1);
-#' getTermsFEs(~0+a:b+x);
-#' getTermsFEs(~a:b + x + 0);
-#'
-#' @export
-#'
-getTermsFEs<-function(trm,spc="",debug=TRUE){
-    nt = length(trm);
-    if (debug) {cat(spc,"length(term) =",nt,"\n");}
-    if (is.symbol(trm)) {
-      if (debug) cat(spc,"term: '",deparse(trm),"' is a symbol\n",sep="");
-      return(trm);
-    }
-    if (debug) cat(spc,"term 1: '",deparse(trm[[1]]),"'\n",sep="");
-    if (deparse(trm[[1]]) %in% c("*",":","/")){
-      if (debug) cat(spc,"term 1: '",deparse(trm[[1]]),"'\n",sep="");
-      return(trm);
-    } else
-    if (deparse(trm[[1]]) %in% c(0,1)){
-      if (debug) cat(spc,"term 1: '",deparse(trm[[1]]),"'\n",sep="");
-      return(trm);
-    } else
-    if (deparse(trm[[1]])=="~") {
-      return(getTermsFEs(trm[[2]],spc=paste0(spc," "),debug=debug));
-    } else
-    if (deparse(trm[[1]])=="+") {
-      lst = list();
-      if (debug) {
-        cat(spc,"term ",2,": '",deparse(trm[[2]]),"'\n",sep="");
-        cat(spc,"keeping term ",3,": '",deparse(trm[[3]]),"'\n",sep="");
-      }
-      lst = c(lst,trm[[3]]);
-      f2 = getTermsFEs(trm[[2]],spc=paste0(spc," "));
-      lst = c(lst,f2);
-      return(lst);
-    }
-    return(NULL);
-}
-
-#' @title Get fixed effects portion of formula
-#' @description Function to get fixed effects portion of formula.
-#' @param formula - formula to extract fixed effects from
-#' @return fixed effects formula
-#' @examplesIf FALSE
-#' # example code
-#' getFEs(~1+a:b+(r|x)+s(x));
-#' getFEs(~a:b);
-#' getFEs(~(r|x)+s(x));   #--has implied intercept
-#' getFEs(~0+(r|x)+s(x)); #--explicitly has no intercept
-#' getFEs(~1+a:b+(r|x)+s(x),returnTerms=TRUE);
-#'
-#' @importFrom reformulas nobars noSpecials RHSForm
-#'
-#' @export
-#'
-getFEs<-function(formula,returnTerms=FALSE,debug=FALSE){
-  fixedform <- formula;
-  ###--*remove* RE terms
-  reformulas::RHSForm(fixedform) <- reformulas::nobars(reformulas::RHSForm(fixedform));
-  ###--*remove* s() terms from fixed formula-
-  fixedform <- reformulas::noSpecials(fixedform, specials = .valid_smooths);
-  if (returnTerms && !is.null(fixedform)) return(rev(getTermsFEs(fixedform,debug=debug)));
-  return(fixedform);
-}
-
-#' @title Test if formula includes random effects
-#' @description Function to test if formula includes random effects.
-#' @param formula - formula to test
-#' @return logical (T/F)
-#'
-#' @examplesIf FALSE
-#' # example code
-#' hasREs(~1+a:b+(r|x)+s(x));
-#' hasREs(~a:b);          #--FEs only
-#' hasREs(~(r|x)+s(x));   #--REs plus smooth
-#' hasREs(~s(x));         #--smooth only
-#'
-#'@importFrom reformulas findbars_x
-#'
-#' @export
-#'
 hasREs<-function(formula){
   return(!is.null(reformulas::findbars_x(formula)));
 }
@@ -171,219 +60,178 @@ hasREs<-function(formula){
 #' @title Extract RE terms from a formula
 #' @description Function to extract RE terms from a formula
 #' @param term - formula or term to extract from
-#' @param pass - counter for debugging
-#' @param termno - counter for debugging
-#' @param debug - flag to print debugginh info
-#' @return a formula, list, or NULL
-#'
-#' @examplesIf FALSE
-#' # example code
-#' res = getTermsREs(~1+a:b+(r|x)+s(x));#--FEs + "ordinary" REs + a smooth
-#' res = getTermsREs(~a:b);             #--FEs only
-#' res = getTermsREs(~ar1(r|x)+s(x));   #--"special" REs + a smooth
-#' res = getTermsREs(~s(x));            #--smooth only
-#'
-#' @importFrom reformulas RHSForm sumTerms
-#'
-#' @export
-#'
-getTermsREs <- function(term,
-                        specials=.valid_covstruct,
-                        pass=0,termno=0,debug=FALSE) {
-  bar = '|';
-  dbl = '||';
-  if (debug) {
-    cat("pass:",pass," termno:",termno,"\n");
-    cat(deparse(term),"\n");
-  }
-    if (is.name(term) || !is.language(term)) {
-      if (debug) cat("first check: returning NULL\n\n");
-      return(NULL);
-    }
-    if (list(term[[1]]) %in% lapply(specials,as.name)) {
-        if (debug) cat("special: ",deparse(term),"\n");
-        return(term);
-    }
-    if (term[[1]] == as.name(bar)) {  ## found x | g
-        if (debug) cat(sprintf("%s term: %s\n", "bar", deparse(term)));
-        return(term);
-    }
-    if (term[[1]] == as.name(dbl)) {
-        if (debug) cat(sprintf("%s term: %s\n", "double-bar", deparse(term)));
-        return(term);
-    }
-    if (term[[1]] == as.name("(")) {  ## found (...)
-        if (debug) cat("paren term:",deparse(term),"\n");
-        #return(getTermsREs(term[[2]],specials=specials,pass=pass+1,termno=2,debug=debug));  #--recursion here
-        return(term);
-    }
-    stopifnot(is.call(term))
-    if (length(term) == 2) {
-        ## unary operator, decompose argument
-        if (debug) cat("unary operator:",deparse(term[[1]]),",",deparse(term[[2]]),"\n")
-        return(getTermsREs(term[[2]],specials=specials,pass=pass+1,termno=2,debug=debug));  #--recursion here
-    }
-    ## binary operator, decompose both arguments
-    f2 <- getTermsREs(term[[2]],specials=specials,pass=pass+1,termno=2,debug=debug); #--recursion
-    f3 <- getTermsREs(term[[3]],specials=specials,pass=pass+1,termno=3,debug=debug); #--recursion
-
-    if (debug) { cat("binary operator:",
-                     deparse(term[[1]]),",",
-                     deparse(term[[2]]),",",
-                     deparse(term[[3]]),"\n")
-                     cat("term 2: ", deparse(f2), "\n")
-                     cat("term 3: ", deparse(f3), "\n")
-                     cat("\n");
-    }
-    c(f2, f3);
-}#--getTermsREs
-
-#' @title Extract RE terms from a formula
-#' @description Function to extract RE terms from a formula
-#' @param term - formula or term to extract from
 #' @param specials - character vector of text strings to consider "special"
-#' @param returnTerms - flag to return a list of terms rather than a formula
 #' @param debug - flag to print debugginh info
-#' @return a formula, list, or NULL
-#'
-#' @examplesIf FALSE
-#' # example code
-#' res = getREs(~1+a:b+(r|x)+s(x));#--FEs+"ordinary" REs+a smooth
-#' res = getREs(~a:b);             #--FEs only
-#' res = getREs(~ar1(r|x)+s(x));   #--"special" REs plus smooth
-#' res = getREs(~s(x));            #--smooth only
-#'
-#' @importFrom reformulas RHSForm sumTerms
-#'
-#' @export
+#' @return a call (TODO: want RHS formula with only RE terms??, not a "call")
 #'
 getREs <- function(term,
                    specials=names(.valid_covstruct),
-                   returnTerms=FALSE,
-                   debug=FALSE) {
+                   debug=TRUE) {
 
-  ## drop LHS from two-sided formula
-  if (length(term) == 3 && identical(term[[1]], quote(`~`))) {
-      term <- reformulas::RHSForm(term, as.form = TRUE)
-  }
+    ## drop LHS from two-sided formula
+    if (length(term) == 3 && identical(term[[1]], quote(`~`))) {
+        term <- reformulas::RHSForm(term, as.form = TRUE)
+    }
 
-  fbx_terms <- getTermsREs(term,specials=specials,debug=debug);
-  if (debug) cat("fbx(term): ", deparse(fbx_terms),"\n\n");
-  if (!is.null(fbx_terms)) {
-    if (returnTerms) return(fbx_terms);
-    fbx_terms = reformulas::sumTerms(c(0,fbx_terms));#--add in zero intercept
-    return(makeRHSFormula(fbx_terms))
-  }
-  return(NULL);
+    ## base function
+    ## defining internally in this way makes debugging slightly
+    ## harder, but (1) allows easy propagation of the top-level
+    ## arguments down the recursive chain; (2) allows the top-level
+    ## expandAllGrpVar() operation (which also handles cases where
+    ## a naked term rather than a list is returned)
+
+    fbx <- function(term,pass=0,termno=0) {
+      bar = '|';
+      dbl = '||';
+      if (debug) {
+        cat("pass:",pass," termno:",termno,"\n");
+        cat(deparse(term),"\n");
+      }
+        if (is.name(term) || !is.language(term)) {
+          if (debug) cat("first check: returning NULL\n\n")
+          return(NULL)
+        }
+        if (list(term[[1]]) %in% lapply(specials,as.name)) {
+            if (debug) cat("special: ",deparse(term),"\n")
+            return(term)
+        }
+        if (term[[1]] == as.name(bar)) {  ## found x | g
+            if (debug) cat(sprintf("%s term: %s\n", "bar", deparse(term)))
+            return(term)
+        }
+        if (term[[1]] == as.name(dbl)) {
+            if (debug) cat(sprintf("%s term: %s\n", "double-bar", deparse(term)))
+            return(term)
+        }
+        if (term[[1]] == as.name("(")) {  ## found (...)
+            if (debug) cat("paren term:",deparse(term),"\n")
+            return(fbx(term[[2]],pass=pass+1,termno=2))  #--recursion here
+        }
+        stopifnot(is.call(term))
+        if (length(term) == 2) {
+            ## unary operator, decompose argument
+            if (debug) cat("unary operator:",deparse(term[[1]]),",",deparse(term[[2]]),"\n")
+            return(fbx(term[[2]],pass=pass+1,termno=2))  #--recursion here
+        }
+        ## binary operator, decompose both arguments
+        f2 <- fbx(term[[2]],pass=pass+1,termno=2) #--recursion
+        f3 <- fbx(term[[3]],pass=pass+1,termno=3) #--recursion
+
+        if (debug) { cat("binary operator:",
+                         deparse(term[[1]]),",",
+                         deparse(term[[2]]),",",
+                         deparse(term[[3]]),"\n")
+                         cat("term 2: ", deparse(f2), "\n")
+                         cat("term 3: ", deparse(f3), "\n")
+                         cat("\n")
+        }
+        c(f2, f3)
+    }#--fbx
+
+    fbx_terms <- fbx(term);
+    if (debug) cat("fbx(term): ", deparse(fbx_terms),"\n\n");
+    if (!is.null(fbx_terms)) fbx_terms = reformulas::sumTerms(c(0,fbx_terms));#--add in zero intercept
+    return(fbx_terms);
 }#--getREs
 
-#' @title Test if formula includes `mgcv`-type smooths
-#' @description Function to test if formula includes `mgcv`-type smooths.
-#' @param formula - formula to test
-#' @return logical (T/F)
-#'
-#' @examplesIf FALSE
-#' # example code
-#' hasSMs(~1+a:b+(r|x)+s(x));
-#' hasSMs(~a:b+s:x);      #--FEs only
-#' hasSMs(~(r|x)+s(x));   #--REs plus smooth
-#' hasSms(~s(x));         #--smooth only
-#' hasSMs(~ar1(r|x));     #--"special" REs
-#'
-#'@importFrom reformulas anySpecial
-#'
-#' @export
-#'
-hasSMs<-function(formula){
+hasSmooths<-function(formula){
   return(reformulas::anySpecial(formula, specials=.valid_smooths));
 }
 
 #' @title Extract smooth terms from a formula
-#' @param formula - formula (or term) from which to extract smooth terms
-#' @param targets - character vector of smooth function names (default=.valid_smooths)
-#' @param debug - flag to print debugging info
-#' @return formula with only smooth terms, or list of smooth terms, or NULL if no smooths
+#' @param term - formula or term from which to extract smooth terms
+#' @return list of smooth terms
 #' @details Valid smooths are found in rtmbGMACS:::.valid_smooths.
+#' Based on [reformulas::findbars_x()].
 #'
 #' @examplesIf FALSE
 #' # example code
-#' f = ~ s(z) + s:x;
-#' sms = getTermsSMs(f,debug=TRUE);
-#'
-#' f = ~ s:x;            #--no smooths
-#' sms = getTermsSMs(f);
-#'
-#' f = ~ 1 + s:x + s(x, bs = "tp") + s(y, bs = "gp") + ti(z) + (g|p)
-#' sms = getTermsSMs(f);
-#' sms = getTermsSMs(f,targets="ti");
-#'
-#' f = ~ ti(x,y, bs = "gp") + s(z) + (g|p)
-#' sms = getTermsSMs(f);
-#'
+#' f = ~ 1 + x + s(x, bs = "tp") + s(y, bs = "gp") + s(z) + (g|p)
+#' sms = getSmoothTerms(f);
+#' @importFrom reformulas makeOp
 #' @export
 #'
-getTermsSMs<-function(trm,targets=.valid_smooths,spc="",debug=FALSE){
-  nt = length(trm);
-  if (debug) {cat(spc,"length(term) =",nt,"\n");}
-  if (nt>1){
-    if (debug) cat(spc,"term 1: '",deparse(trm[[1]]),"'\n",sep="");
-    spc=paste0(spc," ");
-    if (deparse(trm[[1]]) %in% targets) {
-      if (debug) cat(spc,"!!found match in term 1: '",deparse(trm[[1]]),"'\n",sep="");
-      return(trm);
+getSmoothTerms <- function(term,
+                            targets = .valid_smooths,
+                            debug=FALSE) {
+
+  specials=character(0);
+  default.special=NULL;
+
+    ## drop RHS from two-sided formula
+    if (length(term) == 3 && identical(term[[1]], quote(`~`))) {
+        term <- RHSForm(term, as.form = TRUE)
+    }
+    ds <- NULL;
+
+    ## base function
+    ## defining internally in this way makes debugging slightly
+    ## harder, but allows easy propagation of the top-level
+    ## arguments down the recursive chain
+
+    fbx <- function(term,target) {
+        if (is.name(term) || !is.language(term)) return(NULL)
+        if (list(term[[1]]) %in% lapply(specials,as.name)) {
+            if (debug) cat("special: ",deparse(term),"\n")
+            return(term)
+        }
+        if (head(term) == as.name(target)) {  ## found s(x)
+            if (debug) {
+                tt <- sprintf('"%s"', target)
+                cat(sprintf("%s term: %s\n", tt, deparse(term)))
+            }
+            if (is.null(ds)) return(term)
+            return(makeOp(term, ds))
+        }
+        # if (head(term) == as.name("||")) {
+        #     if (expand_doublevert_method == "diag_special") {
+        #         return(makeOp(makeOp(term[[2]], term[[3]],
+        #                              op = quote(`|`)),
+        #                       as.name("diag")))
+        #     }
+        #     ## expand_double_vert_method == "split" if we get here
+        #     return(lapply(expandDoubleVert(term), fbx))
+        # }
+        if (head(term) == as.name("(")) {  ## found (...)
+            if (debug) cat("paren term:",deparse(term),"\n")
+            return(fbx(term[[2]]))
+        }
+        stopifnot(is.call(term))
+        if (length(term) == 2) {
+            ## unary operator, decompose argument
+            if (debug) cat("unary operator, target ",target,":",deparse(term[[2]]),"\n")
+            return(fbx(term[[2]],target));
+        }
+        ## binary operator, decompose both arguments
+        f2 <- fbx(term[[2]],target=target);
+        f3 <- fbx(term[[3]],target=target);
+
+        if (debug) { cat("binary operator, target ",target,":",deparse(term[[2]]),",",
+                         deparse(term[[3]]),"\n")
+                         cat("term 2: ", deparse(f2), "\n")
+                         cat("term 3: ", deparse(f3), "\n")
+        }
+        c(f2, f3)
     }
 
-    lst = list();
-    if (debug) cat(spc,"no match for term 1\n",sep="");
-    for (i in 2:nt){
-      if (debug) cat(spc,"checking term ",i,": '",deparse(trm[[i]]),"'\n",sep="");
-      f2 = getTermsSMs(trm[[i]],targets=targets,spc=paste0(spc," "),debug=debug);
-      lst = c(lst,f2);
+    fbx_terms <- list(); k=0;
+    for (i in seq_along(targets)){
+      if (debug) cat("checking target",i,"'",targets[i],"'\n")
+      fbx_res <- fbx(term,targets[i]); j=0;
+      for (j in seq_along(fbx_res)) {
+        fbx_terms[k+j] = fbx_res[j];
+        if (debug) {
+          if (!is.null(fbx_terms[k+j])) {
+            cat("fbx(term,",targets[i],"): ", deparse(fbx_terms[k+j]),"\n\n");
+          } else {
+            cat("fbx(term,",targets[k+j],"): is NULL\n\n")
+          }
+        }
+      }
+      k = k+j;
     }
-    if (length(lst)==0) lst=NULL;
-    return(lst);
-  }
-  return(NULL);
-}
-
-#' @title Extract a formula for smooth terms from a formula
-#' @param formula - formula (or term) from which to extract smooth terms
-#' @param targets - character vector of smooth function names (default=.valid_smooths)
-#' @param returnTerms - flag to return a list of individual terms rather than a formula
-#' @param debug - flag to print debugging info
-#' @return formula with only smooth terms, or list of smooth terms, or NULL if no smooths
-#' @details Valid smooths are found in rtmbGMACS:::.valid_smooths.
-#'
-#' @examplesIf FALSE
-#' # example code
-#' f = ~ s(z) + s:x;
-#' sms = getSMs(f,targets="s",debug=TRUE);
-#'
-#' f = ~ s:x;
-#' sms = getSMs(f);
-#'
-#' f = ~ 1 + s:x + s(x, bs = "tp") + ti(y, bs = "gp") + s(z) + (g|p)
-#' sms = getSMs(f,returnTerms=TRUE);
-#'
-#' f = ~ s(x,y, bs = "gp") + ti(z) + (g|p)
-#' sms = getSMs(f,"s");
-#'
-#' @importFrom reformulas sumTerms
-#' @export
-#'
-getSMs <- function(formula,
-                    targets = .valid_smooths,
-                    returnTerms=FALSE,
-                    debug=FALSE) {
-  #--get individual smooth terms as list
-  lst = getTermsSMs(formula,targets=targets,spc="",debug=debug);
-
-  if (!is.null(lst)) {
-    if (returnTerms) return(lst);
-    frmla = reformulas::sumTerms(c(0,lst));#--add in zero intercept
-    return(makeRHSFormula(frmla))
-  }
-  return(NULL);
+    #expandAllGrpVar(fbx_term)
+  return(fbx_terms);
 }
 
 #' @title: Create "better" names for fixed effects parameters.
@@ -428,29 +276,6 @@ createParamNamesForFEs<-function(fe_form,X,debug=TRUE){
   return(dfrNames);
 }
 
-##' @param formula current formula, containing both fixed & random effects
-##' @param fr full model frame
-##' @param ranOK random effects allowed here?
-##' @param type label for model type
-##' @param contrasts a list of contrasts (see ?glmmTMB)
-##' @param sparse (logical) return sparse model matrix?
-##' @param old_smooths smooth information from a prior model fit (for prediction)
-##' @return a list composed of
-##' \item{X}{design matrix for fixed effects}
-##' \item{Z}{design matrix for random effects}
-##' \item{reTrms}{output from \code{\link[reformulas]{mkReTrms}}, possibly augmented with information about \code{mgcv}-style smooth terms}
-##' \item{ss}{splitform of the formula}
-##' \item{aa}{additional arguments, used to obtain rank}
-##' \item{terms}{terms for the fixed effects}
-##' \item{offset}{offset vector, or vector of zeros if offset not specified}
-##' \item{reXterms}{terms for the model matrix in each RE term}
-##' \item{formula}{input formula}
-##'
-##' @importFrom stats model.matrix contrasts
-##' @importFrom methods new
-##' @importFrom mgcv smoothCon smooth2random s PredictMat
-##' @importFrom reformulas inForm findbars nobars noSpecials sub_specials addForm findbars_x anySpecial RHSForm RHSForm<- extractForm reOnly no_specials splitForm addForm0 makeOp
-##' @importFrom utils head
 createParamsInfo<-function(formula, fr, ranOK=TRUE, type="",
                            contrasts = NULL, sparse=FALSE, old_smooths = NULL){
   ##--keep only non-smooths FIXED EFFECTS (remove random effects and smooths) from formula and process using getReXtrms
@@ -475,7 +300,7 @@ createParamsInfo<-function(formula, fr, ranOK=TRUE, type="",
   has_sms <- hasSmooths(formula);
   if (has_sms){
     sm_form <- formula;
-    reformulas::RHSForm(sm_form) <- reformulas::RHSForm(makeRHSFormula(getSMs(sm_form))); #--TODO: getSMs or getTermsSMs??
+    reformulas::RHSForm(sm_form) <- reformulas::RHSForm(makeRHSFormula(getSmoothTerms(sm_form)));
     res_SMs <- getXReTrms(sm_form, fr, ranOK=ranOK, type=type,
                            contrasts = contrasts, sparse=sparse, old_smooths = old_smooths);
   }
@@ -483,93 +308,6 @@ createParamsInfo<-function(formula, fr, ranOK=TRUE, type="",
   ##--TODO: decide what to return (combine info from above results?)
   return(NULL);#--fill in
 }
-
-#' @title Get parameter information for fixed effects
-#' @description Function to get parameter information for fixed effects.
-#' @param formula - a formula from which to extract parameter info for fixed effects
-#' @param fr - the model frame
-#' @param contrasts - a list of contrasts (see ?glmmTMB)
-#' @param sparse - (logical) return sparse model matrix?
-#' @return a list composed of
-#' \itemize{
-#'  \item{p - a suitable parameter vector for the fixed effects}
-#'  \item{X}{design matrix for fixed effects}
-#'  \item{fe_form}{the fixed effects formula}
-#'  \item{terms}{terms for the fixed effects}
-#'  \item{contrasts}{the list of specified contrasts (if any)}
-#'  \item{offset}{offset vector, or vector of zeros if offset not specified}
-#'  \item{model_frame - the model frame}
-#'  \item{formula}{input formula}
-#' }
-#'
-#' @importFrom stats model.matrix contrasts
-#' @importFrom methods new
-#' @importFrom mgcv smoothCon smooth2random s PredictMat
-#' @importFrom reformulas inForm findbars nobars noSpecials sub_specials addForm findbars_x anySpecial RHSForm RHSForm<- extractForm reOnly no_specials splitForm addForm0 makeOp
-#' @importFrom utils head
-#'
-#' @export
-#'
-CreateParamsInfo_FEs <- function(formula, fr, contrasts = NULL, sparse=FALSE) {
-
-  fixedform <- getFEs(formula);
-  nobs <- nrow(fr)
-  if (is.null(fixedform)){
-    #--no fixed effects, return NULL (TODO: better idea??)
-    ##--glmmTMB created these if no fixedform:
-    X <- matrix(ncol=0, nrow=nobs); #--FE model matrix has no columns and nobs rows
-    offset <- rep(0,nobs);          #--offsets are 0
-    p <- RTMB::AD(numeric(0));
-    #--but for now:
-    return(NULL);
-  }
-
-  terms <- NULL ## make sure it's empty in case we don't set it
-
-  ## check for empty fixed form
-  ## need to ignore environments when checking!
-  ##  ignore.environment= arg only works with closures
-  idfun <- function(x,y) {
-      environment(x) <- emptyenv()
-      environment(y) <- emptyenv()
-      return(identical(x,y))
-  }
-
-  ##--determine FE model matrix----
-  tt <- terms(fixedform)
-  terms <- list(fixed=terms(tt));
-  if (!sparse) {
-      X <- model.matrix(reformulas::noSpecials(fixedform, specials = "offset"),
-                                               fr, contrasts);
-  } else {
-      X <- Matrix::sparse.model.matrix(reformulas::noSpecials(fixedform, specials = "offset"),
-                                                              fr, contrasts);
-      ## FIXME? ?sparse.model.matrix recommends MatrixModels::model.Matrix(*,sparse=TRUE)
-      ##  (but we may not need it, and would add another dependency etc.)
-  }
-
-  ## will be 0-column matrix if fixed formula is empty
-  offset <- rep(0,nobs);
-  if (reformulas::inForm(fixedform,quote(offset))) {
-      ## hate to match offset terms with model frame names
-      ##  via deparse, but since that was what was presumably done
-      ##  internally to get the model frame names in the first place ...
-      for (o in reformulas::extractForm(fixedform,quote(offset))) {
-          offset_nm <- deparse1(o);
-          ## don't think this will happen, but ...
-          if (length(offset_nm)>1) {
-              stop("trouble reconstructing offset name")
-          }
-          offset <- offset + fr[[offset_nm]];
-      }
-  }
-
-  p = RTMB::AD(numeric(ncol(X))); #--placeholder for FE arameters
-  fe_form=fixedform;
-  model_frame = fr;
-  return(namedList(p, X, fe_form, terms, contrasts, offset, model_frame, formula));
-} #--CreateParamsInfo_FEs
-
 
 ##--Based on glmmTMB: create FE, smooth, and RE terms from formula----
 ##' @param formula current formula, containing both fixed & random effects

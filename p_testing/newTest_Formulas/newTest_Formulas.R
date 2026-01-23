@@ -1,4 +1,4 @@
-#--testing R package "Formula" capabilities
+#--testing R package "Formula" capabilities: 2026-01-13: DEFUNCT! not using Formulas package any more.
 dirPrj =  rstudioapi::getActiveProject();
 #dirPrj= getwd();
 source(file.path(dirPrj,"R","MiscFunctions_ReadParse.R"));

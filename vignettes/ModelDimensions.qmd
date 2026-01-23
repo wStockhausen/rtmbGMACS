@@ -10,6 +10,31 @@ toc: true
 format: 
   html: 
     html-math-method: mathjax
+  pdf:
+    documentclass: scrartcl
+    toc: false
+    fig_crop: false
+    keep-tex: false
+    geometry:
+      - left=1.0in
+      - right=1.0in
+      - top=1.0in
+      - bottom=1.0in
+      - textwidth=6.5in
+      - showframe=false
+    include-in-header: 
+       #include '\usepackage{nopageno}' below in header to turn off page numbering
+      - text: |
+          \usepackage{placeins}
+          \extrafloats{500}
+          \maxdeadcycles=10000
+          \usepackage{fontspec}
+          \usepackage{multicol}
+          \usepackage{hhline}
+          \newlength\Oldarrayrulewidth
+          \newlength\Oldtabcolsep
+          \usepackage{nopageno}
+      - file: '`r system.file("files/ltx_ExtraLatexIncludes.tex",package="wtsQMD")`'
 tbl-cap-location: top
 fig-cap-location: bottom
 #prefer-html: true
@@ -61,15 +86,15 @@ Sparse dimensions are defined using the R function **createSparseDimsMap**. As a
 #> Create the individual dimensions as vectors or lists (for nested dimensions)
 #> --assign the attribute "dmnms", the dimension name(s) (plural if nested)
 #> ----model years
-vYs = 2001:2005;                  attr(vYs,"dmnms")<-"y";
+vYs = 2014:2025;                  attr(vYs,"dmnms")<-"y";
 #> ----model seasons
 vSs = c("fall","spring");         attr(vSs,"dmnms")<-"s";
 #> ----model sexes
-vXs = c("MALE","FEMALE");         attr(vXs,"dmnms")<-"x";
+vXs = c("male","female");         attr(vXs,"dmnms")<-"x";
 #> ----model sizes, nested with sexes
-vZs = list(  MALE=seq(40,60,5),
-           FEMALE=seq(25,50,5));  attr(vZs,"dmnms")<-c("x","z");
-#>--create the dimensions "map"
+vZs = list(male=seq(40,60,5),
+           female=seq(25,50,5));  attr(vZs,"dmnms")<-c("x","z");
+#>--create the dimensions "map”
 dmsSparse = createSparseDimsMap(y=vYs,s=vSs,x=vXs,z=vZs);
 dmsSparse |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
 ```
@@ -110,4 +135,28 @@ Data fit in gmacs typically represent quantities aggregated over some combinatio
 #| eval: !expr 'require(kableExtra)'
 #| echo: false
 aggMap |> kableExtra::kbl(booktabs=TRUE,longtable=TRUE);
+```
+
+\newpage
+
+## Extending dimensions
+
+```{r}
+  dmsYSC = dmsSparse;
+```
+
+```{r ex3}
+#| echo: true
+  mfx  = dmsYSC |> dplyr::filter(x=="male")   |>
+              dplyr::select(y,s,x) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y),
+                            yblk=ifelse(yn<2019,"<2019",
+                                        ifelse(yn<2022,"<2022",">=2022")));
+  mff  = dmsYSC |> dplyr::filter(x=="female") |>
+              dplyr::select(y,s,x) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y));
+  mfY     = dmsYSC |> dplyr::select(y) |> dplyr::distinct() |>
+              dplyr::mutate(yn=as.numeric(y));
+  contr_none  = "contr.none";
+  contr_sum   = list(x="contr.sum",m="contr.sum");
 ```

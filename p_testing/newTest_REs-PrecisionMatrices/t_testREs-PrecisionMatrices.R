@@ -5,8 +5,9 @@ require(RTMB);
 dirPrj = rstudioapi::getActiveProject();
 
 #--helper functions----
-source(file.path(dirPrj,"R/MiscFunctions.R"));
 source(file.path(dirPrj,"R/MiscFunctions_Matrices.R"));
+symlogit<-function(x){y = (x+1)/2.0; return(log(y/(1-y)))};
+syminvlogit<-function(x){2*exp(x)/(1+exp(x))-1.0}
 
 #--define fixed parameters
 lstParsFEs = list(mu=10);
@@ -63,10 +64,6 @@ lstParams = c(lstParamsFEs,lstParamsREs,lstParamsCMsREs,lstParamsCMsSMs);
 #--define objective function----
 objfun<-function(params){
   mu = params$mu; #--might want to make this a vector (needed as vector for dgmrf)
-
-  ##--mark `obs` as observations for OSAs
-  obs = OBS(obs); #--"data" needs to be arranged in a single vector for OSAs
-
   ##--calculate precision matrix (REs + smooths)----
   lstQs = list();
   ###-calculate precision matrices for REs----
@@ -171,8 +168,4 @@ dfrCmp = dplyr::bind_cols(
          );
 ggplot(dfrCmp,aes(x=i,y=obs,colour=block,group=block,fill=block)) + geom_point() + geom_line() +
   geom_line(aes(y=Estimate),linetype=2) +
-  geom_ribbon(aes(y=Estimate,ymin=lwr,ymax=upr),color=NA,alpha=0.2);
-
-#--calculate osas
-osas = RTMB::oneStepPredict(obj);#--see TMB documentation for options
-
+  geom_ribbon(aes(y=Estimate,ymin=lwr,ymax=upr),color=NA,alpha=0.2)

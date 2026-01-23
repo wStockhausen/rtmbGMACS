@@ -450,7 +450,7 @@ calcModelMatrixREs<-function(txt,dfrMF,cov_type,verbose=FALSE){
   if (tolower(cov_type)=="iid"){
 
   } else
-  if (tolower(cov_type)=="AR1"){
+  if (tolower(cov_type)=="ar1"){
 
   } else {
     error(paste0("unrecognized `cov_type` in `calcModelMatrixREs`: '",cov_type,"'."))
