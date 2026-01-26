@@ -489,13 +489,13 @@ createParamsInfo<-function(formula, fr, ranOK=TRUE, type="",
 #' @param formula - a formula from which to extract parameter info for fixed effects
 #' @param fr - the model frame
 #' @param contrasts - a list of contrasts (see ?glmmTMB)
+#' @param offset - the name of a column in `fr` to be used as a fixed offset
 #' @param sparse - (logical) return sparse model matrix?
 #' @return a list composed of
 #' \itemize{
 #'  \item{p - a suitable parameter vector for the fixed effects}
 #'  \item{X}{design matrix for fixed effects}
 #'  \item{fe_form}{the fixed effects formula}
-#'  \item{terms}{terms for the fixed effects}
 #'  \item{contrasts}{the list of specified contrasts (if any)}
 #'  \item{offset}{offset vector, or vector of zeros if offset not specified}
 #'  \item{model_frame - the model frame}
@@ -503,25 +503,25 @@ createParamsInfo<-function(formula, fr, ranOK=TRUE, type="",
 #' }
 #'
 #' @importFrom stats model.matrix contrasts
-#' @importFrom methods new
-#' @importFrom mgcv smoothCon smooth2random s PredictMat
-#' @importFrom reformulas inForm findbars nobars noSpecials sub_specials addForm findbars_x anySpecial RHSForm RHSForm<- extractForm reOnly no_specials splitForm addForm0 makeOp
-#' @importFrom utils head
+#' @importFrom reformulas extractForm inForm noSpecials
+#' @importFrom RTMB AD
 #'
 #' @export
 #'
-CreateParamsInfo_FEs <- function(formula, fr, contrasts = NULL, sparse=FALSE) {
+CreateParamsInfo_FEs <- function(formula, model_frame, contrasts = NULL, offset = NULL, sparse=TRUE) {
 
   fixedform <- getFEs(formula);
-  nobs <- nrow(fr)
+  nobs <- nrow(model_frame)
   if (is.null(fixedform)){
     #--no fixed effects, return NULL (TODO: better idea??)
+    #--but for now:
     ##--glmmTMB created these if no fixedform:
-    X <- matrix(ncol=0, nrow=nobs); #--FE model matrix has no columns and nobs rows
+    X <-Matrix::Matrix(numeric(0),nrow=nobs,ncol=0,sparse=sparse);
     offset <- rep(0,nobs);          #--offsets are 0
     p <- RTMB::AD(numeric(0));
-    #--but for now:
-    return(NULL);
+    fe_form     = fixedform;
+    model_matrix = dplyr::bind_cols(model_frame,as.matrix(X));
+    return(namedList(p, X, fe_form, contrasts, offset, formula, model_frame, model_matrix));
   }
 
   terms <- NULL ## make sure it's empty in case we don't set it
@@ -536,14 +536,14 @@ CreateParamsInfo_FEs <- function(formula, fr, contrasts = NULL, sparse=FALSE) {
   }
 
   ##--determine FE model matrix----
-  tt <- terms(fixedform)
-  terms <- list(fixed=terms(tt));
+  # tt <- terms(fixedform)
+  # terms <- list(fixed=terms(tt));
   if (!sparse) {
       X <- model.matrix(reformulas::noSpecials(fixedform, specials = "offset"),
-                                               fr, contrasts);
+                                               model_frame, contrasts);
   } else {
       X <- Matrix::sparse.model.matrix(reformulas::noSpecials(fixedform, specials = "offset"),
-                                                              fr, contrasts);
+                                                              model_frame, contrasts);
       ## FIXME? ?sparse.model.matrix recommends MatrixModels::model.Matrix(*,sparse=TRUE)
       ##  (but we may not need it, and would add another dependency etc.)
   }
@@ -560,14 +560,14 @@ CreateParamsInfo_FEs <- function(formula, fr, contrasts = NULL, sparse=FALSE) {
           if (length(offset_nm)>1) {
               stop("trouble reconstructing offset name")
           }
-          offset <- offset + fr[[offset_nm]];
+          offset <- offset + model_frame[[offset_nm]];
       }
   }
 
-  p = RTMB::AD(numeric(ncol(X))); #--placeholder for FE arameters
-  fe_form=fixedform;
-  model_frame = fr;
-  return(namedList(p, X, fe_form, terms, contrasts, offset, model_frame, formula));
+  p           = RTMB::AD(numeric(ncol(X))); #--placeholder for FE parameters
+  fe_form     = fixedform;
+  model_matrix = dplyr::bind_cols(model_frame,as.matrix(X));
+  return(namedList(p, X, fe_form, contrasts, offset, formula, model_frame,model_matrix));
 } #--CreateParamsInfo_FEs
 
 
@@ -918,19 +918,6 @@ getXReTrms <- function(formula, fr, ranOK=TRUE, type="",
 
     return(namedList(X, Z, reTrms, ss, aa, terms, offset, reXterms, formula));
 } #--getXReTerms
-
-###--From glmmTMB: utils.R----
-## generate a list with names equal to values
-## See also: \code{tibble::lst}, \code{Hmisc::llist}
-namedList <- function (...) {
-    L <- list(...)
-    snm <- sapply(substitute(list(...)), deparse)[-1]
-    if (is.null(nm <- names(L)))
-        nm <- snm
-    if (any(nonames <- nm == ""))
-        nm[nonames] <- snm[nonames]
-    setNames(L, nm)
-}
 
 ## reassign predvars to have term vars in the right order,
 ##  but with 'predvars' values inserted where appropriate

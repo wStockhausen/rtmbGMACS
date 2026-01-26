@@ -307,3 +307,22 @@ addList<-function(lst1,lst2){
   }
   return(lst1);
 }
+
+###--From glmmTMB: utils.R----
+## generate a list with names equal to values
+## See also: \code{tibble::lst}, \code{Hmisc::llist}
+#' @title Create a list with names from input elements
+#' @description Function to create a list with names from input elements
+#' @para ... - comma-separated objects to be included in the resulting list
+#' @return a named list
+#' @export
+namedList <- function (...) {
+    L <- list(...);
+    snm <- sapply(substitute(list(...)), deparse)[-1];
+    if (is.null(nm <- names(L)))
+        nm <- snm;
+    if (any(nonames <- nm == ""))
+        nm[nonames] <- snm[nonames];
+    setNames(L, nm);
+}
+
