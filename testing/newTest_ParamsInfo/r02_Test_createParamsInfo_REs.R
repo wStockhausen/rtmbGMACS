@@ -6,10 +6,13 @@ require(reformulas);
 source(file.path(dirPrj,"R/MiscConstants_enums.R"));
 source(file.path(dirPrj,"R/MiscFunctions.R"));
 source(file.path(dirPrj,"R/MiscFunctions_Matrices.R"));
-source(file.path(dirPrj,"R/MiscFunctions_ParamsInfo.R"));
+source(file.path(dirPrj,"R/MiscFunctions_Formulas.R"));
+source(file.path(dirPrj,"R/MiscFunctions_REs.R"));
+source(file.path(dirPrj,"R/mkReTrms.R"));
+source(file.path(dirPrj,"R/createParamsInfo_REs.R"));
 
 #--setup model dimensions
-source(file.path(dirPrj,"testing/r_01_SetupDims.R"));
+source(file.path(dirPrj,"testing/newTest_ParamsInfo/r00_SetupDims.R"));
 
 #--
 contr_none  = "contr.none";
@@ -23,16 +26,20 @@ mfYXPx  = dmsYSC |> dplyr::filter(x=="male")   |> dplyr::select(sp_idx=sparse_id
 mfYXMf  = dmsYSC |> dplyr::filter(x=="female") |> dplyr::select(sp_idx=sparse_idx,y,x,m) |> dplyr::distinct() |>
             dplyr::mutate(yn=as.numeric(y));
 
-f_m = ~0 + (1|yblk);
+f_m = ~0 + (1|yblk) + ar1(1|y) + (1+y||p);
 f_f = ~0 + m + ar1(y|yblk);
 
-pi_pLnA_m = CreateParamsInfo_REs(formula=f_m, model_frame=mfYXPx, contrasts = list(yblk=contr_none),
-                                 offset = NULL, sparse=TRUE);
+pi_pLnA_m = createParamsInfo_REs(formula=f_m,
+                                 model_frame=mfYXPx,
+                                 contrasts=list(yblk=contr_none),
+                                 sparse=TRUE);
 View(as.matrix(pi_pLnA_m$X));
 View(pi_pLnA_m$model_matrix);
 
-pi_pLnA_f = CreateParamsInfo_FEs(formula=f_f, model_frame=mfYXMf, contrasts = list(m=contr_none),
-                                 offset = NULL, sparse=TRUE);
+pi_pLnA_f = createParamsInfo_FEs(formula=f_f,
+                                 model_frame=mfYXMf,
+                                 contrasts=list(m=contr_none),
+                                 sparse=TRUE);
 View(as.matrix(pi_pLnA_f$X));
 View(pi_pLnA_f$model_matrix);
 

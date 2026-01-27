@@ -6,37 +6,58 @@
 #--from glmmTMB/R/glmmTMB.R: get_mat_dim
 #'@title From length of (strictly) lower triangle, compute dimension of matrix
 #'@param ntri - length of vector determining the (strictly) lower triangle
+#'@param strictly.lower.triangle - flag (TRUE/FALSE)
 #'@return the row or column dimension of the related square matrix
+#'@details If strictly.lower.triangle=TRUE, the triangular matrix dimension
+#'is strictly lower (i.e., below the main diagonal), if FALSE, it includes the
+#'main diagonal.
+#'@examplesIf FALSE
+#'getMatDimFromLwrTriLen(getLwrTriLenFromMatDim(8));
+#'getMatDimFromLwrTriLen(getLwrTriLenFromMatDim(8,strictly.lower.triangle=FALSE),strictly.lower.triangle=FALSE);
 #'@export
-getMatDimFromLwrTriLen <- function(ntri) {
-    as.integer(round(0.5 * (1 + sqrt(1 + 8 * ntri))))
+getMatDimFromLwrTriLen <- function(ntri,strictly.lower.triangle=TRUE) {
+    n = as.integer(round(0.5 * (1 + sqrt(1 + 8 * ntri))));
+    if (!strictly.lower.triangle) n = n-1;
+    return(n);
 }
 
-#'@title From dimension of square matrix, compute length of (strictly) lower triangle
+#'@title From dimension of square matrix, compute length of strictly lower triangle
 #'@param matdim - dimension (number of rows or columns) of square matrix
-#'@return the length of a vector defining the (strictly) lower triangle
+#'@param strictly.lower.triangle - flag (TRUE/FALSE; default=TRUE)
+#'@return the length of a vector defining the (strictly, if `strictly.lower.triangle`=FALSE) lower triangle.
+#'@examplesIf FALSE
+#'t1 = getLwrTriLenFromMatDim(8);
+#'t2 = getLwrTriLenFromMatDim(8,strictly.lower.triangle=FALSE);
 #'@export
-getLwrTriLenFromMatDim <- function(matdim) {
-    sum(1:(matdim-1));
+getLwrTriLenFromMatDim <- function(matdim,strictly.lower.triangle=TRUE) {
+  n = sum(1:(matdim-1)) + (!strictly.lower.triangle)*matdim;
+  return(n);
 }
 
-##' Get theta parameterization of a covariance structure
-## from Balint Tamasi, TMB user's group list
+#' @title Get the `theta` (Cholesky factor) parameterization of a covariance matrix
+#' @description Function to get `theta` (Cholesky factor) parameterization of
+#' a covariance matrix; from Balint Tamasi, TMB user's group list.
 #' @param S a covariance matrix
 #' @param corrs.only return only values corresponding to the correlation matrix parameters?
 #' @return the corresponding \code{theta} parameter vector
+#' @details If `corrs.only`=TRUE, \code{theta} corresponds to a strictly lower triangle matrix.
+#' If `corrs.only`=FALSE, then `theta` corresponds to a lower triangle matrix. If `n` is the length of the main diagonal of `S`, then
+#' the first `n` elements of the returned \code{theta} vector are given by
+#' \code{log(diag(S))/2}.
+#'
 #' @examplesIf FALSE
 #' # example code
 #' ##--ordinary R
 #' S = matrix(c(2,0.3,0.3,2),nrow=2);
-#' as.theta.vcov(S);
-#' as.theta.vcov(S,corrs.only=TRUE);
+#' getThetaFromCovMat(S);
+#' getCorrMatFromTheta(getThetaFromCovMat(S),strictly.lower.triangle=FALSE)
+#' getThetaFromCovMat(S,corrs.only=TRUE);
 #'
 #' ##--with RTMB
 #' require(RTMB);
 #' S = matrix(c(2,0.3,0.3,2),nrow=2)
 #' S = RTMB::AD(S,force=TRUE);
-#' getThetaFromCovMat(S)          #--generates C sstack error!
+#' getThetaFromCovMat(S)          #--generates C stack error!
 #' ###--the following runs fine
 #' S = matrix(c(2,0.3,0.3,2),nrow=2)
 #' tp = MakeTape(getThetaFromCovMat,S);
@@ -58,14 +79,27 @@ getThetaFromCovMat <- function(S, corrs.only=FALSE) {
   return(ret)
 }
 
-##' Get correlation structure from Cholesky lower triangle theta parameterization
-#' @param t - a "\code{theta} vector (strictly lower triangle of Cholesky matrix, by row)
-#' @return the corresponding correlation matrix
+#' @title Get a correlation (or covariance) matrix from a Cholesky factor (lower triangle) `theta` parameterization
+#' @description Function to get a correlation (or covariance) matrix from a Cholesky factor (lower triangle) `theta` parameterization.
+#' @param t - a "\code{theta} vector for a Cholesky matrix, by row
+#' @param strictly.lower.triangle - if TRUE, `theta` corresponds to a strictly lower triangle Cholesky factor; if FALSE, it includes values along the main diagonal
+#' @param return.cov- flag to return covariance matrix if strictly.lower.triangle=FALSE (default=FALSE)
+#' @return if `strictly.lower.triangle` is TRUE (default), the corresponding correlation matrix; otherwise, a covariance matrix
+#' @details If `strictly.lower.triangle` is FALSE, the first `n` elements of the input `theta` are interpreted as the elements of a `n` x `n`
+#' diagonal scaling matrix, with values equal to `log(sd)/2`, where `sd^2` is the vector of variances scaling the correlation
+#' matrix to a covariance matrix.
+#'
 #' @examplesIf FALSE
 #' # example code
 #' ##--ordinary R
-#' t = 0.3144855;
-#' getCorrMatFromTheta(t);
+#' tp = 0.3144855;
+#' getCorrMatFromTheta(tp);
+#' t = getThetaFromCovMat(getCorrMatFromTheta(tp),corrs.only=FALSE);
+#' getCorrMatFromTheta(t,strictly.lower.triangle=FALSE);
+#'
+#' S = matrix(c(2,0.3,0.3,2),nrow=2);
+#' t = getThetaFromCovMat(S,corrs.only=FALSE);
+#' Sp = getCorrMatFromTheta(t,strictly.lower.triangle=FALSE,return.cov=TRUE);
 #'
 #' #--round trip
 #' t - as.theta.vcov(getCorrMatFromTheta(t),TRUE);
@@ -78,32 +112,39 @@ getThetaFromCovMat <- function(S, corrs.only=FALSE) {
 #' #--can't do roundtrip as example because of `chol` call in `getThetaFromCovMat`.
 #' @export
 #'
-getCorrMatFromTheta<-function(t){
-  d = getMatDimFromLwrTriLen(length(t));
+getCorrMatFromTheta<-function(t,strictly.lower.triangle=TRUE,return.cov=FALSE){
+  d = getMatDimFromLwrTriLen(length(t),strictly.lower.triangle=strictly.lower.triangle);
   Ll = diag(x=1,nrow=d,names=FALSE);
-  Ll[lower.tri(Ll)] <- t;
-  diag(Ll) = 1.0;
+  if (strictly.lower.triangle) {lt = t;} else {lt = t[(d+1):length(t)];}
+  Ll[lower.tri(Ll)] <- lt;
+  #diag(Ll) = 1.0;
   LtL = Ll %*% t(Ll);
   s = diag(1/sqrt(diag(LtL)));
   C = s %*% (LtL) %*% t(s);    #--don't really need to transpose `s`
+  if ((!strictly.lower.triangle)&&return.cov)
+    C = diag(exp(t[1:d])) %*% C %*% diag(exp(t[1:d]));
   return(C);
 }
 
-#' @title Make a precision matrix for an AR1 process
+#' @title Make a precision matrix for (possibly multiple) AR1 or iid processes
 #' @description Function for creating a precision matrix for
-#' an AR1 process
-#' @usage mkPrecMat.ar1(M, sigma=NULL, rho=0, sdX=NULL, sparse=TRUE)
-#' @param n int > 0, number of elements in the AR1 process (default=NULL)
-#' @param sigma - the standard deviation of the white noise process
-#' @param rho - the correlation coefficient between successive values (default=0)
-#' @param sdX - standard deviation of the observed process (default=NULL)
-#' @param sparse - (T/F) Should the matrix be of class 'dsCMatrix' (default=TRUE)
+#' (possibly multiple) AR1 or iid (if `rho`=0) processes
+#' @usage mkPrecMat.ar1(n, sigma=1, rho=0, sdX=NULL, sparse=TRUE)
+#' @param n integer vector > 0, number of elements in each AR1 process (no default)
+#' @param sigma - vector with the standard deviation for each white noise process
+#' @param rho - vector with the correlation coefficient between successive values for each AR1 process (default=0)
+#' @param sdX - vector with standard deviations of the observed process (default=1)
+#' @param sparse - (T/F) Should the matrix be of class 'dsCMatrix' (default=0)
 #'
-#' @return a precision matrix with an AR1 structure and attributes "params",
-#' a vector with the values for `sigma` and `rho`, and "qType", which is "diag"
-#' if `rho` is 0 and "ar1" otherwise
+#' @return a precision matrix with block-diagonal AR1 structure and attributes "params",
+#' a vector with the values for `n`, `sigma` and `rho`, and "qType", which is "diag"
+#' if `rho` is 0 and "ar1" otherwise.
 #'
-#' @details Note that the variance associated with individual observations is
+#' @details A precision matrix for multiple independent AR1 and/or iid processes can be
+#' created by making `n`, `sigma` (or `sdX`), and `rho` vectors. `sigma` (or `sdX`), and `rho`
+#' are expanded (or truncated) to the length of `n`.
+#'
+#' Note that the variance associated with individual observations is
 #'
 #' $$ var(X_i) = E(X^2_i)-\mu^2 = \frac{\sigma^2}{1-\rho^2} $$
 #'
@@ -118,9 +159,11 @@ getCorrMatFromTheta<-function(t){
 #' # example code
 #' ##--R context
 #' Q <- mkPrecMat.ar1(n=5,sigma=2,rho=0.5,sparse=TRUE);
+#' Q <- mkPrecMat.ar1(n=c(5,5),sigma=2,rho=0.5,sparse=TRUE);
 #' C <- solve(Q); #--covariance matrix
-#' Qp <- mkPrecMat.ar1(n=5,rho=0.5, sdX=2/sqrt(1-0.5^2), sparse=TRUE);
-#' Q-Qp
+#'
+#' Qp <- mkPrecMat.ar1(n=5,sigma=0,rho=0.5, sdX=2/sqrt(1-0.5^2), sparse=TRUE);
+#'
 #'
 #' ##--RTMB context
 #' require(RTMB);
@@ -130,6 +173,7 @@ getCorrMatFromTheta<-function(t){
 #' Q-Qp
 #' Qp <- mkPrecMat.ar1(n=5, sigma=0, rho=RTMB::AD(0.5,force=TRUE), sdX=RTMB::AD(2/sqrt(1-0.5^2),force=TRUE), sparse=TRUE, force=FALSE);
 #' @importFrom Matrix Diagonal Matrix
+#' @importFrom RTMB AD
 #' @md
 #' @export
 #'
@@ -137,24 +181,36 @@ mkPrecMat.ar1 <- function(n, sigma=1, rho=0, sdX=0, sparse=TRUE, force=FALSE){
   #--testing: n=5;sigma=2;rho=0.5;sparse=TRUE;
   #if (abs(rho)>=1) warning("rho >= 1. not a valid AR1 process.")
   if (any(sapply(list(sigma,rho,sdX),class)=="advector")) force=TRUE;
-  rho   = RTMB::AD(rho,force=force);
-  sigma = RTMB::AD(sigma,force=force);
-  sigma = sigma + sqrt((1-rho^2))*RTMB::AD(sdX,force=force);#--either sigma or sdX should be non-zero, not both
+  nQ = length(n);
+  vn = n;
+  vrho    = RTMB::AD(rep_len(rho,length.out=nQ),force=force);
+  vsigma  = RTMB::AD(rep_len(sigma,length.out=nQ),force=force);
+  vsdX    = RTMB::AD(rep_len(sdX,length.out=nQ),force=force);
+  vsigma  = vsigma + sqrt((1-vrho^2))*vsdX;#--either sigma or sdX should be non-zero, not both
+  if (!force) cat("vsigma:",vsigma,"\n");
   #if(sigma <= 0) stop("sigma parameter must be greater than 0.");
 #  d <- c(RTMB::AD(1.0,force=force),rep(1.0+rho^2,(n-2)),RTMB::AD(1.0,force=force));
-  d <- RTMB::AD(rep(1,n),force=force);
-  d[2:(n-1)] <- rep(1.0+rho^2,(n-2));
-  u <- rep(-1*rho,(n-1));
-  Q <- RTMB::AD(Matrix::Matrix(0,n,n),force=force);
-  Q[getRowColIndices_band(n,c(-1,0,1))] = c(u,d,u);
-  D <- RTMB::AD(Matrix::Matrix(0,n,n),force=force);
-#  D[getRowColIndices_diag(n,0)] = RTMB::AD(1.0,force=force)/sigma;
-  D[getRowColIndices_diag(n,0)] = 1.0/sigma;
-  Q <- D %*% Q %*% D;
-  if(!sparse) Q <- RTMB::AD(Matrix::Matrix(Q, sparse=FALSE),force=force);
-  attr(Q,"qType")  = "ar1";
-  attr(Q,"params") = c(sigma=sigma,rho=rho);
-  return(Q);
+  lstQ = list();
+  for (i in 1:nQ){
+    n     = vn[i];
+    rho   = vrho[i];
+    sigma = vsigma[i];
+    d <- RTMB::AD(rep(1,n),force=force);
+    d[2:(n-1)] <- rep(1.0+rho^2,(n-2));
+    u <- rep(-1*rho,(n-1));
+    Q <- RTMB::AD(Matrix::Matrix(0,n,n),force=force);
+    Q[getRowColIndices_band(n,c(-1,0,1))] = c(u,d,u);
+    D <- RTMB::AD(Matrix::Matrix(0,n,n),force=force);
+  #  D[getRowColIndices_diag(n,0)] = RTMB::AD(1.0,force=force)/sigma;
+    D[getRowColIndices_diag(n,0)] = 1.0/sigma;
+    Q <- D %*% Q %*% D;
+    if(!sparse) Q <- RTMB::AD(Matrix::Matrix(Q, sparse=FALSE),force=force);
+    lstQ[[i]] = Q;
+  }
+  Qt = buildBlockDiagonalMat(lstQ,force=force);
+  attr(Qt,"qType")  = "ar1";
+  attr(Qt,"params") = c(n=vn,sigma=vsigma,rho=vrho);
+  return(Qt);
 }
 
 #'
@@ -164,7 +220,7 @@ mkPrecMat.ar1 <- function(n, sigma=1, rho=0, sdX=0, sparse=TRUE, force=FALSE){
 #' @param pars - vector of parameter values determining the precision matrix
 #' @param type - type of precision matrix
 #' @param sparse - flag to create a sparse or dense matrix
-#' @param force - force an RTMB adsperse representation
+#' @param force - force an RTMB adsparse representation
 #' @return a precision matrix (a Matrix type or RTMB "adsparse" type)
 #' @details
 #' If `force` is FALSE, the returned matrix will be an "adsparse" matrix only if
@@ -228,8 +284,11 @@ getRowColIndices_band<-function(n,diags){
 #' @examplesIf FALSE
 #' # example code
 #' ##--R context
-#' Q = mkPrecMat(5,c(1,0.5),"ar1",sparse=TRUE,force=FALSE);
-#' convertPrecMatToCovMat(Q)
+#' Q = mkPrecMat(5,c(0,0.5),"ar1",sparse=TRUE,force=FALSE);
+#' M = convertPrecMatToCovMat(Q);
+#' t = getThetaFromCovMat(M);
+#' Mp = getCorrMatFromTheta(t);
+#' Qp = convertCovMatToPrecMat(Mp);
 #'
 #' ##--RTMB context
 #' Q = mkPrecMat(5,RTMB::AD(c(0,0.5),force=TRUE),"ar1",sparse=TRUE,force=FALSE);
@@ -240,6 +299,8 @@ getRowColIndices_band<-function(n,diags){
 #' @export
 #'
 convertPrecMatToCovMat<-function(Q){solve(Q)};
+
+convertCovMatToPrecMat<-function(M){solve(M)};
 
 #' @title Get the starting rows/columns of blocks for a list of matrices to be sub-matrices in a "super" block-diagonal matrix
 #' @description Function to get the starting rows/columns of blocks for a list of matrices to be sub-matrices in a "super" block-diagonal matrix.
