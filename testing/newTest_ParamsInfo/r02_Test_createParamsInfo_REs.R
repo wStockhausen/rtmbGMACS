@@ -26,7 +26,7 @@ mfYXPx  = dmsYSC |> dplyr::filter(x=="male")   |> dplyr::select(sp_idx=sparse_id
 mfYXMf  = dmsYSC |> dplyr::filter(x=="female") |> dplyr::select(sp_idx=sparse_idx,y,x,m) |> dplyr::distinct() |>
             dplyr::mutate(yn=as.numeric(y));
 
-f_m = ~0 + (1|yblk) + ar1(1|y) + (1+y||p);
+f_m = ~0 + (1|yblk) + ar1(y|p) + (1+y||p);
 f_f = ~0 + m + ar1(y|yblk);
 
 pi_pLnA_m = createParamsInfo_REs(formula=f_m,

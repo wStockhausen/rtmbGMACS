@@ -53,7 +53,7 @@ createParamsInfo_REs <- function(formula,
   ###--make reTrms----
   ## no_specials so that mkReTrms can handle it TODO: think maybe want to include specials to allow cov structures to be evaluated in mkReTrms
   #  bars = reformulas::no_specials(reformulas::findbars_x(formula));
-  bars = reformulas::findbars_x(reform,specials=findValidCovStructs()); # <-allows covariance structures info to be passed
+  bars = reformulas::findbars_x(reform,specials=findValidCovStructs(),default.special="diag"); # <-allows covariance structures info to be passed
   reTrms <- mkReTrms(bars,
                      model_frame,
                      reorder.terms=FALSE,

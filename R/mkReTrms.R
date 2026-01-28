@@ -73,7 +73,7 @@ mkReTrms <- function(bars,
   ##--get component blocks----
   blist <- lapply(bars, mkBlist, fr, drop.unused.levels,
                   reorder.vars = reorder.vars, sparse = sparse)
-  nl <- vapply(blist, `[[`, 0L, "nlevels")   # no. of levels per term
+  nl <- vapply(blist, `[[`, 0L, "ngroups")   # no. of groups (factor levels) per term
                                     # (in lmer jss:  \ell_i)
 
   ##--order terms stably by decreasing number of levels in the factor----

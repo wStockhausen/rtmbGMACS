@@ -199,7 +199,7 @@ getREs <- function(term,
 ##' @author Steve Walker (hack by William Stockhausen)
 ##' @export
 splitForm_RE <- function(formula,
-                         defaultTerm="us",
+                         defaultTerm="diag",
                          cov_structs = findValidCovStructs(),
                          debug=FALSE) {
   #--split formula into separate random effects terms
@@ -304,7 +304,7 @@ mkBlist <- function(re_term,
              deparse1(sp_trm$group),call.=FALSE)
 
     if (drop.unused.levels) ff <- factor(ff, exclude=NA)
-    ngroups <- length(levels(ff)); #--number of levels in grouping factor
+    ngrps <- length(levels(ff)); #--number of levels in grouping factor
 
     ##--this section implements eq. 6 of the JSS lmer paper----
     ###--model matrix based on LHS of random effect term (X_i)----
@@ -350,8 +350,11 @@ mkBlist <- function(re_term,
       for (g in 1:ngrps){
         #--g = 1;
         isigma = rep(g,      each=npars);
-        irho   = rep(ngrps+g,each=npars-1);
-        Qp = Matrix::bandSparse(npars,k=-c(0,1),diagonals=list(isigma,irho),sym=TRUE);#--looks ok for RTMB (via RTMB::AD(Qp));
+        irho   = rep(ngrps+g,each=(npars-1));
+        cat("ar1 ith npars=",npars,"\n",
+            "isigma:",isigma,"\n",
+            "irho  :",irho,"\n")
+        Qp = Matrix::bandSparse(npars,k=c(0,1),diagonals=list(isigma,irho),sym=TRUE);#--looks ok for RTMB (via RTMB::AD(Qp));
         lstQ[[g]] = Qp;
       }
       Q = buildBlockDiagonalMat(lstQ);
@@ -365,7 +368,7 @@ mkBlist <- function(re_term,
       stop(paste0("unrecognized covstr '",sp_trm$covstr,"' when creating covariance/precision matrices\n"))
     }
 
-  return(list(ff = ff, sm = sm, ngroups = ngroups, npars = npars, colnms = colnames(mm),
+  return(list(ff = ff, sm = sm, ngroups = ngrps, npars = npars, colnms = colnames(mm),
               re_term = re_term, covstr = sp_trm$covstr, factorized_model_frame = frloc,
               Q = Q, fillQ = fillQ, covpars=covpars));
 }
