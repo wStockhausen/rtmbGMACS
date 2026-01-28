@@ -338,9 +338,11 @@ mkBlist <- function(re_term,
       isigma = rep(1:ngrps,each=npars);
       Q = Matrix::.sparseDiagonal(q,x=isigma,shape="g"); #--template for Q
       idx = Q@x;
-      pars = numeric(ngrps);   #--initial values on ln-scale for sigma
+      covpars = numeric(ngrps);   #--initial values on ln-scale for sigma
       Q = RTMB::AD(Q);
-      Q@x = exp(-2*pars[idx]); #--inverse of variance?
+      #--fill Q
+      fillQ<-function(covpars){exp(-2*covpars)[idx];}
+      Q@x = fillQ(covpars); #--inverse of variance?
     } else
     if (sp_trm$covstr %in% c("ar1")){
       #--covariance parameters: ln-scale standard deviation, correlation coefficient on symlogit scale (-inf,inf)->(-1,1)
@@ -354,11 +356,16 @@ mkBlist <- function(re_term,
       }
       Q = buildBlockDiagonalMat(lstQ);
       idx = Q@x;
-      pars = numeric(2*ngrps);
+      covpars = numeric(2*ngrps); #--ln-scale standard deviation (1:ngrp), correlation coefficient on symlogit scale (1:ngrp)
       Q = RTMB::AD(Q);
-      #--fill Q by bands(?)
+      #--fill Q
+      fillQ<-function(covpars){c(exp(-2*covpars[1:ngrps]),symlogistic(covpars[(ngrps+1):(2*ngrps)]))[idx];}
+      Q@x = fillQ(covpars);
+    } else {
+      stop(paste0("unrecognized covstr '",sp_trm$covstr,"' when creating covariance/precision matrices\n"))
     }
 
-    list(ff = ff, sm = sm, ngroups = ngroups, npars = npars, colnms = colnames(mm),
-         re_term=re_term, covstr=sp_trm$covstr, factorized_model_frame=frloc)
+  return(list(ff = ff, sm = sm, ngroups = ngroups, npars = npars, colnms = colnames(mm),
+              re_term = re_term, covstr = sp_trm$covstr, factorized_model_frame = frloc,
+              Q = Q, fillQ = fillQ, covpars=covpars));
 }

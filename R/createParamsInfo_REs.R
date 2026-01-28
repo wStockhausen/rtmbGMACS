@@ -57,7 +57,6 @@ createParamsInfo_REs <- function(formula,
   reTrms <- mkReTrms(bars,
                      model_frame,
                      reorder.terms=FALSE,
-                     calc.lambdat=TRUE,   #--WTS: changed to TRUE
                      sparse = sparse);
 
   ##--split `formula` into `fixedFormula` and reTrmFormulas, reTrmAddArgs lists----
