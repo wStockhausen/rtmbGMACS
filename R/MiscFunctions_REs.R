@@ -170,14 +170,15 @@ getREs <- function(term,
 ##' Hacked from [reformulas::splitForm()] to consider only RE terms.
 ##' reformulas::splitForm taken from Steve Walker's lme4ord,
 ##' ultimately from the flexLambda branch of [lme4]
-##' <https://github.com/stevencarlislewalker/lme4ord/blob/master/R/formulaParsing.R>.  Mostly for internal use.
+##' <https://github.com/stevencarlislewalker/lme4ord/blob/master/R/formulaParsing.R>.
 ##' @title Split formula containing special random effect terms
-##' @param formula - a formula containing random effect terms, or a single RE term
-##' @param defaultTerm - cov_struct for non-special RE terms
+##' @param reform - a formula containing random effect terms, or a single RE term
+##' @param defaultTerm - cov_struct name for non-special RE terms (default="diag")
 ##' @param cov_structs - vector of names of valid covariance structures
 ##' @param debug - flag (TRUE/FALSE) to print debugging info
 ##' @return a list containing elements
 ##' \itemize{
+##'  \item{\code{reTrms} list with each RE term as an element}
 ##'  \item{\code{reTrmFormulas} list of \code{x | g} formulas for each term}
 ##'   \item{\code{reTrmAddArgs} list of function+additional arguments, i.e. \code{list()} (non-special), \code{foo()} (no additional arguments), \code{foo(addArgs)} (additional arguments)}
 ##'   \item{\code{reTrmClasses} (vector of special functions/classes, as character)}
@@ -196,17 +197,19 @@ getREs <- function(term,
 ##' splitForm_RE(~1+rr(f|g,n=2))                    ## covariance structure specified with arguments
 ##' splitForm_RE(~1+s(x, bs = "tp"))                ## smooth special (ignored)
 ##'
-##' @author Steve Walker (hack by William Stockhausen)
+##' @author Steve Walker (hacked by William Stockhausen)
 ##' @export
-splitForm_RE <- function(formula,
+splitForm_RE <- function(reform,
                          defaultTerm="diag",
                          cov_structs = findValidCovStructs(),
                          debug=FALSE) {
   #--split formula into separate random effects terms
-  ## (including special terms)
+  ## with covariance structure information ("specials") retained
+  bars = reformulas::findbars_x(reform,specials=findValidCovStructs(),default.special="diag",debug=debug);
+  formSplits = reformulas::expandAllGrpVar(bars);
 
-  fbxx <- reformulas::findbars_x(formula, debug, cov_structs)
-  formSplits <- reformulas::expandAllGrpVar(fbxx)
+  ##--old: fbxx <- reformulas::findbars_x(formula, debug, cov_structs,default.special=defaultTerm)
+  ##--old: formSplits <- reformulas::expandAllGrpVar(fbxx);
 
   if (length(formSplits)>0) {
       formSplitID <- sapply(lapply(formSplits, "[[", 1), as.character)
@@ -233,7 +236,10 @@ splitForm_RE <- function(formula,
       reTrmFormulas <- reTrmAddArgs <- reTrmClasses <- NULL
   }
 
-  return(list(reTrmFormulas = reTrmFormulas,
+  names(bars) = vapply(bars,deparse,"");
+
+  return(list(reTrms = bars,
+              reTrmFormulas = reTrmFormulas,
               reTrmAddArgs  = reTrmAddArgs,
               reTrmClasses  = reTrmClasses));
 }
@@ -335,40 +341,20 @@ mkBlist <- function(re_term,
     q = ngrps*npars;
     if (sp_trm$covstr %in% c("diag","iid")){
       #--covariance parameters: ln-scale standard deviation
-      isigma = rep(1:ngrps,each=npars);
-      Q = Matrix::.sparseDiagonal(q,x=isigma,shape="g"); #--template for Q
-      idx = Q@x;
-      covpars = numeric(ngrps);   #--initial values on ln-scale for sigma
-      Q = RTMB::AD(Q);
-      #--fill Q
-      fillQ<-function(covpars){exp(-2*covpars)[idx];}
-      Q@x = fillQ(covpars); #--inverse of variance?
+      Qt = buildTemplateQ.diag(npars,ngrps); #--template for Q
+      idx = Qt@x;
+      fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
     } else
     if (sp_trm$covstr %in% c("ar1")){
       #--covariance parameters: ln-scale standard deviation, correlation coefficient on symlogit scale (-inf,inf)->(-1,1)
-      lstQ = list();
-      for (g in 1:ngrps){
-        #--g = 1;
-        isigma = rep(g,      each=npars);
-        irho   = rep(ngrps+g,each=(npars-1));
-        cat("ar1 ith npars=",npars,"\n",
-            "isigma:",isigma,"\n",
-            "irho  :",irho,"\n")
-        Qp = Matrix::bandSparse(npars,k=c(0,1),diagonals=list(isigma,irho),sym=TRUE);#--looks ok for RTMB (via RTMB::AD(Qp));
-        lstQ[[g]] = Qp;
-      }
-      Q = buildBlockDiagonalMat(lstQ);
-      idx = Q@x;
-      covpars = numeric(2*ngrps); #--ln-scale standard deviation (1:ngrp), correlation coefficient on symlogit scale (1:ngrp)
-      Q = RTMB::AD(Q);
-      #--fill Q
-      fillQ<-function(covpars){c(exp(-2*covpars[1:ngrps]),symlogistic(covpars[(ngrps+1):(2*ngrps)]))[idx];}
-      Q@x = fillQ(covpars);
+      Qt = buildTemplateQ.ar1(npars,ngrps,sequential=TRUE);
+      idx = Qt@x;
+      fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
     } else {
       stop(paste0("unrecognized covstr '",sp_trm$covstr,"' when creating covariance/precision matrices\n"))
     }
 
   return(list(ff = ff, sm = sm, ngroups = ngrps, npars = npars, colnms = colnames(mm),
               re_term = re_term, covstr = sp_trm$covstr, factorized_model_frame = frloc,
-              Q = Q, fillQ = fillQ, covpars=covpars));
-}
+              Qt = Qt, fillQ = fillQ));
+} #--mkBlist

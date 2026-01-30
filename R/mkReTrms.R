@@ -4,7 +4,7 @@
 ##' detailed list.
 ##'
 ##' @title Create list of structures needed for models with random effects
-##' @param bars a list of parsed random-effects terms with covariate structure info
+##' @param sp_form a list of parsed random-effects terms with covariate structure info created using splitForm_RE(formula) [splitForm_RE()]
 ##' @param model_frame a model frame in which to evaluate these terms
 ##' @param drop.unused.levels (logical) drop unused factor levels?
 ##' @param reorder.terms arrange random effects terms in decreasing order of number of groups (factor levels)?
@@ -60,18 +60,19 @@
 ##' ## reorder splitForm output to match mkReTrms components
 ##' ss <- splitForm(form2)
 ##' ss$reTrmFormulas[rterms2$ord]
-mkReTrms <- function(bars,
+mkReTrms <- function(sp_form,
                      model_frame,
                      drop.unused.levels=TRUE,
                      reorder.terms=TRUE,
                      reorder.vars=FALSE,
                      sparse = TRUE) {
   fr = model_frame; #--TODO: replace `fr` with `model_frame` in code below
-  names(bars) <- reformulas:::barnames(reformulas::no_specials(bars));
-  term.names <- vapply(bars, deparse1, "");
+  # names(bars) <- reformulas:::barnames(reformulas::no_specials(bars));
+  # term.names <- vapply(bars, deparse1, "");
+  term.names = names(sp_form$reTrms);
 
   ##--get component blocks----
-  blist <- lapply(bars, mkBlist, fr, drop.unused.levels,
+  blist <- lapply(sp_form$reTrms, mkBlist, fr, drop.unused.levels,
                   reorder.vars = reorder.vars, sparse = sparse)
   nl <- vapply(blist, `[[`, 0L, "ngroups")   # no. of groups (factor levels) per term
                                     # (in lmer jss:  \ell_i)
@@ -107,7 +108,7 @@ mkReTrms <- function(bars,
   }
   boff <- cumsum(c(0L, nb))             # offsets into b
 
-  ll <- list(Zt = drop0(Zt),
+  ll <- list(Zt = drop0(Zt),                    #--TODO: do zero columns need to be dropped
              Gp = unname(c(0L, cumsum(nb))));
 
   # massage the factor list

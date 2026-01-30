@@ -53,8 +53,9 @@ createParamsInfo_REs <- function(formula,
   ###--make reTrms----
   ## no_specials so that mkReTrms can handle it TODO: think maybe want to include specials to allow cov structures to be evaluated in mkReTrms
   #  bars = reformulas::no_specials(reformulas::findbars_x(formula));
-  bars = reformulas::findbars_x(reform,specials=findValidCovStructs(),default.special="diag"); # <-allows covariance structures info to be passed
-  reTrms <- mkReTrms(bars,
+  # bars = reformulas::findbars_x(reform,specials=findValidCovStructs(),default.special="diag"); # <-allows covariance structures info to be passed
+  sp_form <- splitForm_RE(reform); #--defaultTerm changed to "diag", now has list element reTrms = bars from line above
+  reTrms <- mkReTrms(sp_form,
                      model_frame,
                      reorder.terms=FALSE,
                      sparse = sparse);
@@ -62,8 +63,9 @@ createParamsInfo_REs <- function(formula,
   ##--split `formula` into `fixedFormula` and reTrmFormulas, reTrmAddArgs lists----
   ###--elements in reTrmFormulas are formulas for RE or smooth terms as "effect|group" or "variable"
   #sp_form <- reformulas::splitForm(formula, specials = findValidCovStructs())             #--covariance types extracted here!!----
-  sp_form <- splitForm_RE(formula); #--TODO: change defaultTerm to "diag"?
+#  sp_form <- splitForm_RE(reform); #--defaultTerm changed to "diag"?
 
+  #--TODO: move the following to mkReTrms--------------------------------------
   ##--create additional arguments (`aa`) list
   # FIX ME: migrate this (or something like it) down to reTrms,
   ##    allow for more different covstruct types that have additional arguments
@@ -140,6 +142,8 @@ createParamsInfo_REs <- function(formula,
 
   ## list(fr = fr, X = X, reTrms = reTrms, family = family, formula = formula,
   ##      wmsgs = c(Nlev = wmsgNlev, Zdims = wmsgZdims, Zrank = wmsgZrank))
+
+  #--TODO: move the above to mkReTrms--------------------------------------
 
   return(namedList(Z, reTrms, ss, aa, terms, offset, reXterms, formula));
 } #--getXReTerms
