@@ -75,7 +75,7 @@ mkReTrms <- function(sp_form,
   blist <- lapply(sp_form$reTrms, mkBlist, fr, drop.unused.levels,
                   reorder.vars = reorder.vars, sparse = sparse)
   nl <- vapply(blist, `[[`, 0L, "ngroups")   # no. of groups (factor levels) per term
-                                    # (in lmer jss:  \ell_i)
+                                             # (in lmer jss:  \ell_i)
 
   ##--order terms stably by decreasing number of levels in the factor----
   ord <- seq_along(nl)
@@ -88,10 +88,10 @@ mkReTrms <- function(sp_form,
       }
   }
   ##--create Ztlist and Zt----
-  Ztlist <- lapply(blist, `[[`, "sm"); #--extract sm's into a list
+  Ztlist <- lapply(blist, `[[`, "termZt"); #--extract termZt's into a list
   Zt <- do.call(rbind, Ztlist)  ## eq. 7, JSS lmer paper
   names(Ztlist) <- term.names
-  q <- nrow(Zt)
+  q <- nrow(Zt); #--total number of RE parameters (number of columns in Z)
 
   ## Create and install Lambdat, Lind, etc.  This must be done after
   ## any potential reordering of the terms.
@@ -108,9 +108,6 @@ mkReTrms <- function(sp_form,
   }
   boff <- cumsum(c(0L, nb))             # offsets into b
 
-  ll <- list(Zt = drop0(Zt),                    #--TODO: do zero columns need to be dropped
-             Gp = unname(c(0L, cumsum(nb))));
-
   # massage the factor list
   fl <- lapply(blist, `[[`, "ff")
   # check for repeated factors
@@ -122,11 +119,14 @@ mkReTrms <- function(sp_form,
   names(fl) <- ufn;
   attr(fl, "assign") <- asgn;
 
-  ll$flist  <- fl;
-  ll$colnms <- colnms;
-  ll$Ztlist <- Ztlist
-  ll$nl     <- nl;
-  ll$ord    <- ord;
-  ll$blist  <- blist;
+  ll <- list(); #--output list
+  ll$Zt = drop0(Zt);                    #--full Z (transposed) for this formula (TODO: do zero columns need to be dropped)
+  ll$Gp = unname(c(0L, cumsum(nb)));   #--index into columns
+  ll$flist  <- fl;                      #--factor list
+  ll$colnms <- colnms;                  #--Zt column names
+  ll$Ztlist <- Ztlist                   #--list of transposed Z's for individual terms
+  ll$nl     <- nl;                      #--number of levels
+  ll$ord    <- ord;                     #--(re-)order of terms
+  ll$blist  <- blist;                   #--blist (see mkBlist)
   ll
 } ## {mkReTrms}

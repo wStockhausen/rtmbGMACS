@@ -1,15 +1,18 @@
 #--test createParamsInfo_REs functions
 dirPrj = rstudioapi::getActiveProject();
+require(Matrix);
 require(reformulas);
+require(RTMB);
 
 #--source files
 source(file.path(dirPrj,"R/MiscConstants_enums.R"));
 source(file.path(dirPrj,"R/MiscFunctions.R"));
 source(file.path(dirPrj,"R/MiscFunctions_Matrices.R"));
 source(file.path(dirPrj,"R/MiscFunctions_Formulas.R"));
+source(file.path(dirPrj,"R/MiscFunctions_CovQs.R"));
 source(file.path(dirPrj,"R/MiscFunctions_REs.R"));
 source(file.path(dirPrj,"R/mkReTrms.R"));
-source(file.path(dirPrj,"R/createParamsInfo_REs.R"));
+#source(file.path(dirPrj,"R/createParamsInfo_REs.R"));
 
 #--setup model dimensions
 source(file.path(dirPrj,"testing/newTest_ParamsInfo/r00_SetupDims.R"));

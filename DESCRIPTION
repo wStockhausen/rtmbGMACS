@@ -1,8 +1,8 @@
 Package: rtmbGMACS
 Type: Package
 Title: A port of the GMACS framework from ADMB to RTMB.
-Version: 2026.01.20
-Date: 2026-01-20
+Version: 2026.01.30
+Date: 2026-01-30
 Author: William Stockhausen
 Maintainer: William Stockhausen <william.stockhausen@noaa.gov>
 Description: UNDER CONSTRUCTION: when completed, this will provide an RTMB version of the GMACS crustacean stock assessment framework.

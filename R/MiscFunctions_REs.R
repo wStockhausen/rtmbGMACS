@@ -275,86 +275,112 @@ splitTerm_RE<-function(term,specials=findValidCovStructs()){
   list(covstr=dp1,re=term[[2]],group=term[[3]]);
 }
 
-##' @param re_term a language object of the form  effect | groupvar
-##' @param frloc model frame
-##' @param drop.unused.levels (logical)
-##' @param sparse (logical) set up sparse model matrices?
-##' @return list containing grouping factor, sparse model matrix, number of levels, names
-##' @details Hacked from [reformulas::mkBlist()]
-##' @importFrom Matrix KhatriRao fac2sparse sparse.model.matrix
-##' @importFrom stats model.matrix
-##'
-##' @export
+#' @param re_term a language object of the form  effect | groupvar
+#' @param model_frame model frame
+#' @param drop.unused.levels - flag to drop unused levels from model matrix
+#' @param reorder.vars - flag to reorder variables
+#' @param sparse (logical) set up sparse model matrices?
+#' @return list, see details
+#' @details Hacked from [reformulas::mkBlist()]
+#'
+#' Return list has elements:
+#' \itemize{
+#'  \item{ff - facotrs}
+#'  \item{termZt - transposed Z for term}
+#'  \item{ngroups - number of factor groups in term
+#'  \item{npars number of RE parameters in term
+#'  \item{colnms column names in termZt
+#'  \item{re_term - expression for RE term
+#'  \item{covstr = covariance function string
+#'  \item{factorized_model_frame - model frame with non-numeric columns as factors
+#'  \item{Qtp - template for precision matrix
+#'  \item{fillQ - function to fill precision matrix
+#' }
+#'
+#' @importFrom Matrix KhatriRao fac2sparse sparse.model.matrix
+#' @importFrom stats model.matrix
+#'
+#' @export
+#'
 mkBlist <- function(re_term,
                     model_frame,
                     drop.unused.levels=TRUE,
                     reorder.vars=FALSE,
                     sparse = NULL) {
-    frloc <- reformulas:::factorize(re_term,model_frame)
-    ##--try to evaluate grouping factor within model frame ...
-    sp_trm = splitTerm_RE(re_term);
-    ff0 <- replaceTerm(sp_trm$group, quote(`:`), quote(`%i%`));
-    ff <- try(eval(substitute(makeFac(fac),
-                              list(fac = ff0)),
-                   frloc), silent = TRUE)
-    if (inherits(ff, "try-error")) {
-        stop("couldn't evaluate grouping factor ",
-             deparse1(sp_trm$group)," within model frame:",
-             "error =",
-             c(ff),
-             " Try adding grouping factor to data ",
-             "frame explicitly if possible",call.=FALSE)
-    }
-    if (all(is.na(ff)))
-        stop("Invalid grouping factor specification, ",
-             deparse1(sp_trm$group),call.=FALSE)
+  #--factorize non-numeric elements of model frame
+  frloc <- reformulas:::factorize(re_term,model_frame);
 
-    if (drop.unused.levels) ff <- factor(ff, exclude=NA)
-    ngrps <- length(levels(ff)); #--number of levels in grouping factor
+  ##--try to evaluate grouping factor within model frame ...
+  sp_trm = splitTerm_RE(re_term);
+  ff0 <- replaceTerm(sp_trm$group, quote(`:`), quote(`%i%`));
+  ff <- try(eval(substitute(makeFac(fac),
+                            list(fac = ff0)),
+                 frloc), silent = TRUE)
+  if (inherits(ff, "try-error")) {
+      stop("couldn't evaluate grouping factor ",
+           deparse1(sp_trm$group)," within model frame:",
+           "error =",
+           c(ff),
+           " Try adding grouping factor to data ",
+           "frame explicitly if possible",call.=FALSE)
+  }
+  if (all(is.na(ff)))
+      stop("Invalid grouping factor specification, ",
+           deparse1(sp_trm$group),call.=FALSE)
 
-    ##--this section implements eq. 6 of the JSS lmer paper----
-    ###--model matrix based on LHS of random effect term (X_i)----
-    ###--    sp_trm$re is the LHS (terms) of the a|b formula----
-    has.sparse.contrasts <- function(re_term) {
-      cc <- attr(re_term, "contrasts")
-      !is.null(cc) && is(cc, "sparseMatrix")
-    }
-    any.sparse.contrasts <- any(vapply(frloc, has.sparse.contrasts, FUN.VALUE = logical(1)))
-    mMatrix <- if (!isTRUE(sparse) && !any.sparse.contrasts) model.matrix else Matrix::sparse.model.matrix
-    mm <- mMatrix(eval(substitute( ~ foo, list(foo = sp_trm$re))), frloc)
-    if (reorder.vars) {
-        mm <- mm[colSort(colnames(mm)),]
-    }
+  if (drop.unused.levels) ff <- factor(ff, exclude=NA)
+  ngrps <- length(levels(ff)); #--number of levels in grouping factor
 
-    ##--this is J^T (see p. 9 of JSS lmer paper)----
-    ###--construct indicator matrix for groups by observations
-    ###--use fac2sparse() rather than as() to allow *not* dropping
-    ###--unused levels where desired
-    sm <- Matrix::fac2sparse(ff, to = "d",
-                             drop.unused.levels = drop.unused.levels)
-    sm <- Matrix::KhatriRao(sm, t(mm));
-    dimnames(sm) <- list(rep(levels(ff),each=ncol(mm)),
-                        rownames(mm));
+  ##--this section implements eq. 6 of the JSS lmer paper----
+  ###--model matrix based on LHS of random effect term (X_i)----
+  ###--    sp_trm$re is the LHS (terms) of the a|b formula----
+  has.sparse.contrasts <- function(re_term) {
+    cc <- attr(re_term, "contrasts")
+    !is.null(cc) && is(cc, "sparseMatrix")
+  }
+  any.sparse.contrasts <- any(vapply(frloc, has.sparse.contrasts, FUN.VALUE = logical(1)))
+  mMatrix <- if (!isTRUE(sparse) && !any.sparse.contrasts) model.matrix else Matrix::sparse.model.matrix
+  mm <- mMatrix(eval(substitute( ~ foo, list(foo = sp_trm$re))), frloc)
+  if (reorder.vars) {
+      mm <- mm[colSort(colnames(mm)),]
+  }
 
-    ##--determine precision/covariance matrix structure----
-    npars = ncol(mm); #--number of random effects parameters/group
-    q = ngrps*npars;
-    if (sp_trm$covstr %in% c("diag","iid")){
-      #--covariance parameters: ln-scale standard deviation
-      Qt = buildTemplateQ.diag(npars,ngrps); #--template for Q
-      idx = Qt@x;
-      fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
-    } else
-    if (sp_trm$covstr %in% c("ar1")){
-      #--covariance parameters: ln-scale standard deviation, correlation coefficient on symlogit scale (-inf,inf)->(-1,1)
-      Qt = buildTemplateQ.ar1(npars,ngrps,sequential=TRUE);
-      idx = Qt@x;
-      fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
-    } else {
-      stop(paste0("unrecognized covstr '",sp_trm$covstr,"' when creating covariance/precision matrices\n"))
-    }
+  ##--this is J^T (see p. 9 of JSS lmer paper)----
+  ###--construct indicator matrix for groups by observations
+  ###--use fac2sparse() rather than as() to allow *not* dropping
+  ###--unused levels where desired
+  sm <- Matrix::fac2sparse(ff, to = "d",
+                           drop.unused.levels = drop.unused.levels)
+  termZt <- Matrix::KhatriRao(sm, t(mm));
+  dimnames(termZt) <- list(rep(levels(ff),each=ncol(mm)),
+                           rownames(mm));
 
-  return(list(ff = ff, sm = sm, ngroups = ngrps, npars = npars, colnms = colnames(mm),
-              re_term = re_term, covstr = sp_trm$covstr, factorized_model_frame = frloc,
-              Qt = Qt, fillQ = fillQ));
+  ##--determine precision/covariance matrix structure----
+  npars = ncol(mm); #--number of random effects parameters/group
+  q = ngrps*npars;
+  if (sp_trm$covstr %in% c("diag","iid")){
+    #--covariance parameters: ln-scale standard deviation
+    Qtp = buildTemplateQ.diag(npars,ngrps); #--template for Q
+    idx = Qtp@x;
+    fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
+  } else
+  if (sp_trm$covstr %in% c("ar1")){
+    #--covariance parameters: ln-scale standard deviation, correlation coefficient on symlogit scale (-inf,inf)->(-1,1)
+    Qtp = buildTemplateQ.ar1(npars,ngrps,sequential=TRUE);
+    idx = Qtp@x;
+    fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
+  } else {
+    stop(paste0("unrecognized covstr '",sp_trm$covstr,"' when creating covariance/precision matrices\n"))
+  }
+
+  return(list(ff = ff,
+              termZt = termZt,
+              ngroups = ngrps,
+              npars = npars,
+              colnms = colnames(mm),
+              re_term = re_term,
+              covstr = sp_trm$covstr,
+              factorized_model_frame = frloc,
+              Qtp = Qtp,
+              fillQ = fillQ));
 } #--mkBlist
