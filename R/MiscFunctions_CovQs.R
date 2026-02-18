@@ -1,10 +1,16 @@
 #--functions for covariance/precision matrix calculations
 
-#' Build a template for a diagonal precision matrix
-#' @param np - number of (RE) parameters per group
+#' @title Build a template for a diagonal precision matrix
+#' @description Function to build a template for a diagonal precision matrix.
+#' @param np - number of (RE) parameters per group, as well as the number of variance parameters
 #' @param ng - #--number of groups (levels) in grouping factor
-#' @return a sparse diagonal matrix `T` of type Matrix::dgCMatrix
-#' @details Parameter ordering is considered to be within group, then by group.
+#' @return a \eqn{(\code{np} \cdot \code{ng}) x (\code{np} \cdot \code{ng})} sparse diagonal matrix `T` of type Matrix::dgCMatrix
+#' @details Conceptually, a \eqn{(\code{np} x \code{np})} sparse diagonal matrix `T_1` is repeated `ng` times along
+#' the block diagonal to form `T`.
+#'
+#' Note that `idx = T@x` provides a mapping from the `np` covariance parameters `cp` to a sparse diagonal precision matrix `Q`
+#' of size \eqn{(\code{np} \cdot \code{ng}) x (\code{np} \cdot \code{ng})} by `Q@x = cp[idx]`.
+#'
 #' @export
 #' @examplesIf FALSE
 #' np = 2; #--number of (RE) parameters/group
@@ -14,9 +20,12 @@
 #' Tp = buildTemplateQ.diag(np,ng);
 #' T-Tp
 #'
+#' @md
+#'
 buildTemplateQ.diag<-function(np,ng){
   isigma = rep(1:np,ng);
   Qt = Matrix::.sparseDiagonal(np*ng,x=isigma,shape="g"); #--template for Q
+  attr(Qt,"num_covpars") = np;
   return(Qt);
 }
 
@@ -30,9 +39,10 @@ buildTemplateQ.diag<-function(np,ng){
 #'
 #' @examplesIf FALSE
 #' # example code
+#' np = 2; #--number of (RE) parameters/group
 #' ng = 5;  #--number of groups (levels) in grouping factor
 #' np = 2; #--number of (RE) parameters/group
-#' #--number of covariance parameters/group = 2 (1 variance parameter for each RE parameter)
+#' #--number of covariance parameters/group = 2 (1 variance parameter for each RE parameter/group)
 #' Qt = buildTemplateQ.diag(np,ng); #--template for actual Q
 #' idx = Qt@x;                      #--"map" from covpars to Q
 #' ##--R context
@@ -49,20 +59,113 @@ buildTemplateQ.diag<-function(np,ng){
 #'
 fillQ.diag<-function(covpars,idx){exp(-2*covpars)[idx];}
 
+#' @title Build a template for a precision matrix with a general structure
+#' across parameters within a group (i.e., an unstructured precision matrix)
+#' @description Function to build a template for a precision matrix with a general structure
+#' across parameters within a group (i.e., an unstructured precision matrix).
+#' @param np - number of (RE) parameters per group
+#' @param ng - number of groups (levels) in grouping factor
+#' @return a sparse \eqn{(\code{np} \cdot \code{ng}) x (\code{np} \cdot \code{ng})} matrix `T` of type Matrix::dgCMatrix
+#' @details If `T_1` is the template for a single level, then the matrix with `T_1` repeated `ng` times
+#' along the block diagonal is the template for the full precision matrix. The parameter ordering for `T_1`
+#' is from the diagonal outward in one direction (`T_1` is symmetric, of course). Thus, the \eqn{(\begin{pmatrix}np+1 \\ 2 \end{pmatrix})}-element
+#' covariance parameter vector should be ordered as
+#' c(\eqn{\sigma}'s, lag1 \eqn{\rho}'s, lag 2 \eqn{\rho}'s, etc).
+#'
+#' @export
+#' @examplesIf FALSE
+#' np = 5; #--number of (RE) parameters
+#' ng = 2; #--number of groups (levels) in grouping factor
+#' #--number of covariance parameters is `choose(np+1,2)` (i.e., \eqn{\sigma}, \eqn{\rho})
+#' T = buildTemplateQ.us(np,ng);
+#' T
+#' T@x; #--covariance parameter vector indices
+#'
+#' @export
+#'
+buildTemplateQ.us<-function(np,ng,byDiagonal=TRUE){
+  idx = 1:choose(np+1,2);
+  if (byDiagonal){
+    idi = numeric(0); idj = numeric(0); n = np;
+    while (n>0){
+      idi = c(idi,0:(n-1));
+      idj = c(idj,(np-n):(np-1));
+      n = n-1;
+    }
+      idi; idj;
+  } else {
+    idi = numeric(0); n=0;
+    while (n<np) {idi = c(idi,seq(n,(np-1))); n = n+1;}
+    idj = numeric(0); n=np;
+    while (n>=0) {idj = c(idj,rep(np-n,n)); n = n-1;}
+  }
+  #idi; idj;
+  Qt_1 = Matrix::sparseMatrix(i=idi,j=idj,x=idx,dims=c(np,np),symmetric=TRUE,index1=FALSE,repr="C");
+  #Qt_1;
+  lstQ = rep(list(Qt_1),ng);
+  Qt = as(buildBlockDiagonalMat(lstQ),"generalMatrix");
+  attr(Qt,"byDiagonal") = byDiagonal;
+  return(Qt);
+}
+
+#' Calculate the values to fill a precision matrix (Q) with general structure
+#' @param covpars - vector of input covariance parameters
+#' @param np - number of RE parameters
+#' @param idx - index vector mapping `covpars` values to Q
+#' @return vector of values for the "x" slot in Q
+#' @details The values in `covpars` are standard deviations (\code{sigma}s) on the ln-scale and
+#' correlation parameters on the symmetric logit scale (-Inf,Inf) corresponding to (-1,1) on
+#' the arithmetic scale. These are converted to variances and correlations before being mapped to Q.
+#'
+#' If byDiagonal=TRUE, the ordering of values within `covpar` proceeds along the main diagonal
+#' (`np` ln-scale std. dev. terms), then along the sub-diagonals (`choose(np+1,2)-np` logit-scale
+#' correlation terms).
+#'
+#' @examplesIf FALSE
+#' # example code
+#' ng = 2; #--number of groups (levels) in grouping factor
+#' np = 5; #--number of (RE) parameters
+#' #--number of covariance parameters is `choose(np+1,2)`
+#' Qt = buildTemplateQ.us(np,ng,byDiagonal=TRUE); #--template for actual Q
+#' idx = Qt@x; #--"map" from covpars to Q
+#' ##--R context
+#' ###--because `byDagonal`=TRUE when building `Qt`, the covariance parameters are
+#' ###--ordered as c(sigma's, rho's).
+#' covpars = c(log(rep_len(c(1,0.75),np))/2,symlogit(rep_len(c(-0.5,0.5),choose(np+1,2)-np)));
+#' Q = Qt;
+#' Q@x = fillQ.us(covpars,np,idx);
+#' Q
+#' ##--RTMB context
+#' covpars = RTMB::AD(c(log(c(1,0.75))/2,symlogit(c(-0.5,0.5))),force=TRUE); #--advector
+#' Q = RTMB::AD(Qt,force=TRUE);   #--adsparse matrix
+#' Q@x = fillQ.us(covpars,np,idx);
+#' as.matrix(Q);
+#' @export
+#'
+fillQ.us <-function(covpars,np,idx,byDiagonal=TRUE){
+  lc = length(covpars);
+  if (byDiagonal) {
+    v = c(exp(-2*covpars[1:np]),symlogistic(covpars[(np+1):lc]))[idx];
+  } else {
+    #--fill in
+  }
+  return(v)
+}
+
 #' Build a template for a precision matrix with AR1 structure
 #' across parameters within a group.
 #' @param np - number of (RE) parameters per group
 #' @param ng - number of groups (levels) in grouping factor
 #' @return a sparse matrix `T` of type Matrix::dgCMatrix
 #' @details In `T`, parameter ordering is considered to be within group, then by group.
-#' If `sequential`=TRUE, the related covariance parameter vector should be ordered as
+#' If `sequential`=TRUE, the related (2*`np`-1)-element covariance parameter vector should be ordered as
 #' c(sigma's, rho's) (i.e., sequentially). If `sequential`=FALSE, sigma, rho values should be
-#' interleaved as c(sigma[1],rho[1],sigma[2],rho[2],...).
+#' interleaved as c(`sigma[1]`,`rho[1]`,`sigma[2]`,`rho[2]`,...,`rho[np-1]`,`sigma[np]`).
 #'
 #' @export
 #' @examplesIf FALSE
-#' ng = 2; #--number of groups (levels) in grouping factor
 #' np = 5; #--number of (RE) parameters
+#' ng = 2; #--number of groups (levels) in grouping factor
 #' #--number of covariance parameters is 2/group (i.e., sigma, rho)
 #' T = buildTemplateQ.ar1(np,ng);
 #' T
@@ -72,6 +175,7 @@ fillQ.diag<-function(covpars,idx){exp(-2*covpars)[idx];}
 #' T
 #' T@x; #--covariance parameter vector indices
 #'
+#' @importFrom Matrix bandSparse
 #' @export
 #'
 buildTemplateQ.ar1<-function(np,ng,sequential=TRUE){
@@ -91,8 +195,14 @@ buildTemplateQ.ar1<-function(np,ng,sequential=TRUE){
     Qp = Matrix::bandSparse(np,k=c(0,1),diagonals=list(isigma,irho),sym=TRUE);#--looks ok for RTMB (via RTMB::AD(Qp));
     lstQ[[g]] = Qp;
   }
-  Q = buildBlockDiagonalMat(lstQ);
-  return(as(Q,"generalMatrix"));
+  Qt = as(buildBlockDiagonalMat(lstQ),"generalMatrix");
+  attr(Qt,"sequential") = sequential;
+  if (sequential) {
+    attr(Qt,"covpars") = paste0("c(ln-scale std. dev.s, logit-scale rhos)");
+  } else {
+    attr(Qt,"covpars") = paste0("rep(c(ln-scale std. dev., logit-scale rho),ng)");
+  }
+  return(Qt);
 }
 
 #' Calculate the values to fill a precision matrix (Q) with an AR1 structure
@@ -383,7 +493,7 @@ mkPrecMat.ar1 <- function(n, sigma=1, rho=0, sdX=0, sparse=TRUE, force=FALSE){
 #' @param type - type of precision matrix
 #' @param sparse - flag to create a sparse or dense matrix
 #' @param force - force an RTMB adsparse representation
-#' @return a precision matrix (a Matrix type or RTMB "adsparse" type)
+#' @return a precision matrix (a [Matrix] type or [RTMB] "adsparse" type)
 #' @details
 #' If `force` is FALSE, the returned matrix will be an "adsparse" matrix only if
 #' `pars` is an "advector"; otherwise, it will be a [Matrix] type.
@@ -392,7 +502,8 @@ mkPrecMat.ar1 <- function(n, sigma=1, rho=0, sdX=0, sparse=TRUE, force=FALSE){
 #' \itemize{
 #'  \item{"diag" - diagonal iid matrix with variance `V` along the diagonal}
 #'  \item{"iid" - synonym for "diag"}
-#'  \item{"ar1" - AR1 precision matrix with variance `V` and correlation coefficient rho (latter parameterized as rho=symlogistic(par))}
+#'  \item{"ar1" - AR1 precision matrix with variance `V` and correlation coefficient $\rho$ (latter parameterized as $\rho$=symlogistic(par))}
+#'  \item{"us" - unstructured precision matrix
 #' }
 #'
 #' Variances `V` are generally parameterized on the ln scale such that \eqn{V = exp(2*par)}.

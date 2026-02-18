@@ -4,7 +4,7 @@
 \alias{expand.DimsMap}
 \title{Expand a dimensions map by additional dimensions}
 \usage{
-\method{expand}{DimsMap}(m1, m2)
+expand.DimsMap(m1, m2)
 }
 \arguments{
 \item{m1}{\itemize{

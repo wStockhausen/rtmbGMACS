@@ -20,3 +20,12 @@ Function that simply returns the input object multiplied by zero.
 \details{
 This function simply returns a numeric object of the same class and shape as the input filled with zeros.
 }
+\examples{
+\dontshow{if (condition) withAutoprint(\{ # examplesIf}
+# example code
+ FALSE
+##--RTMB context
+x = RTMB::AD(1:10,force=TRUE);
+zero(x);
+\dontshow{\}) # examplesIf}
+}

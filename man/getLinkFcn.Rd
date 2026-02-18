@@ -2,7 +2,7 @@
 % Please edit documentation in R/MiscFunctions.R
 \name{getLinkFcn}
 \alias{getLinkFcn}
-\title{Return the input with no changes}
+\title{Return a list with the reuested link function and it's inverse}
 \usage{
 getLinkFcn(txt)
 }
@@ -15,7 +15,7 @@ getLinkFcn(txt)
 vector of "transformed" values
 }
 \description{
-A pass-through transformation function (doesn't change values of input).
+Function to return a list with the reuested link function and it's inverse
 }
 \details{
 This constitutes a function that simply returns the input.

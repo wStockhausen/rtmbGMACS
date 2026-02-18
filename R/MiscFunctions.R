@@ -22,7 +22,9 @@ getLinkFcn<-function(txt){
 #' @param x - a numeric object to "convert"
 #' @return a numeric object of the same class and shape as the input filled with zeros
 #' @details This function simply returns a numeric object of the same class and shape as the input filled with zeros.
-#' @exampleIf FALSE
+#' @examplesIf condition
+#' # example code
+#'  FALSE
 #' ##--RTMB context
 #' x = RTMB::AD(1:10,force=TRUE);
 #' zero(x);
@@ -199,7 +201,7 @@ elem_div<-function(x,y){
 #' `w(z<z0) = 0`. Uses [plogis()] to calculate the logistic curve, with
 #' `location = z0` and `scale = dz/sclfac`. The `zs` are shifted to the left
 #' by `dz/shftfac` so that w(z==z0) = 1 and w(z>z0) = 1.
-#' @exampleIf FALSE
+#' @examplesIf FALSE
 #' z = 0:100;
 #' w = squarewave_right(50,z);
 #' if (require(ggplot2)){
@@ -236,7 +238,7 @@ squarewave_right<-function(z0,zs,dz=1,shftfac=2,sclfac=20){
 #' `w(z>z0) = 0`. Uses [plogis()] to calculate the logistic curve, with
 #' `location = z0` and `scale = dz/sclfac`. The `zs` are shifted to the right
 #' by `dz/shftfac` so that w(z==z0) = 1 and w(z<z0) = 1.
-#' @exampleIf FALSE
+#' @examplesIf FALSE
 #' z = 0:100;
 #' w = squarewave_left(50,z);
 #' if (require(ggplot2)){
@@ -313,7 +315,7 @@ addList<-function(lst1,lst2){
 ## See also: \code{tibble::lst}, \code{Hmisc::llist}
 #' @title Create a list with names from input elements
 #' @description Function to create a list with names from input elements
-#' @para ... - comma-separated objects to be included in the resulting list
+#' @param ... - comma-separated objects to be included in the resulting list
 #' @return a named list
 #' @export
 namedList <- function (...) {

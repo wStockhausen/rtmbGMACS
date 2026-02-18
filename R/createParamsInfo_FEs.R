@@ -123,29 +123,16 @@ createParamsInfo_FEs <- function(formula, model_frame, contrasts = NULL, offset 
   nobs <- nrow(model_frame)
   if (is.null(fixedform)){
     #--no fixed effects, return NULL (TODO: better idea??)
-    #--but for now:
-    ##--glmmTMB created these if no fixedform:
-    X <-Matrix::Matrix(numeric(0),nrow=nobs,ncol=0,sparse=sparse);
-    offset <- rep(0,nobs);          #--offsets are 0
-    p <- RTMB::AD(numeric(0));
-    fe_form     = fixedform;
-    model_matrix = dplyr::bind_cols(model_frame,as.matrix(X));
-    return(namedList(p, X, fe_form, contrasts, offset, formula, model_frame, model_matrix));
+    return(NULL);
   }
 
-  terms <- NULL ## make sure it's empty in case we don't set it
-
   ##--determine FE model matrix----
-  # tt <- terms(fixedform)
-  # terms <- list(fixed=terms(tt));
   if (!sparse) {
       X <- model.matrix(reformulas::noSpecials(fixedform, specials = "offset"),
                                                model_frame, contrasts);
   } else {
       X <- Matrix::sparse.model.matrix(reformulas::noSpecials(fixedform, specials = "offset"),
                                                               model_frame, contrasts);
-      ## FIXME? ?sparse.model.matrix recommends MatrixModels::model.Matrix(*,sparse=TRUE)
-      ##  (but we may not need it, and would add another dependency etc.)
   }
 
   ## will be 0-column matrix if fixed formula is empty
@@ -167,6 +154,13 @@ createParamsInfo_FEs <- function(formula, model_frame, contrasts = NULL, offset 
   p           = RTMB::AD(numeric(ncol(X))); #--placeholder for FE parameters
   fe_form     = fixedform;
   model_matrix = dplyr::bind_cols(model_frame,as.matrix(X));
-  return(namedList(p, X, fe_form, contrasts, offset, formula, model_frame, model_matrix));
+  return(namedList(p,
+                   X,
+                   fe_form,
+                   contrasts,
+                   offset,
+                   formula,
+                   model_frame,
+                   model_matrix));
 } #--CreateParamsInfo_FEs
 

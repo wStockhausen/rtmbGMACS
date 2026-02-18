@@ -98,9 +98,8 @@ getBlockDiagInfo<-function(x){
 #' @title Build a block-diagonal matrix from building block matrices
 #' @description Build a block-diagonal matrix from building block matrices.
 #' @param ... - individual matrices or a list of matrices
-#' @return block-diagonal matrix, either an "adsparse" matrix or inheriting from [Matrix] class [Matrix::CsparseMatrix].
+#' @return block-diagonal matrix, either an "adsparse" matrix or inheriting from [Matrix] class `CsparseMatrix`.
 #' @importFrom Matrix .bdiag .M2C Matrix
-#' @importFrom RTMB AD
 #' @export
 #'
 buildBlockDiagonalMat<-function(...,force=FALSE){

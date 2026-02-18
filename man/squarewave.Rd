@@ -40,4 +40,9 @@ Function to create a "square wave".
 \details{
 Provides a differentiable function such that \verb{w(zL<=z<=zR) = 1} and
 0 otherwise.
+z = 0:100;
+w = squarewave(25,75,z);
+if (require(ggplot2)){
+ggplot(data.frame(z=z,w=w),aes(x=z,y=w)) + geom_point() + geom_line();
+}
 }

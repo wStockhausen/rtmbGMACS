@@ -6,7 +6,7 @@
 #' The revised names for these drop the factor names and split interactions with a "_").
 #'
 #' @importFrom stringr str_split_1 str_remove
-#' @import from tibble tibble
+#' @importFrom tibble tibble
 #' @export
 #'
 createParamNamesForFEs<-function(fe_form,X,debug=TRUE){

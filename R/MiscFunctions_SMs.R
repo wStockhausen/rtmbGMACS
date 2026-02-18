@@ -117,9 +117,7 @@ getSMs <- function(formula,
 ##' Parse a formula into smooth terms,
 ##' treating 'special' terms (of the form foo(x|g\[,m\])) appropriately
 ##'
-##' Hacked from [reformulas::splitForm_SM()] to consider only RE terms.
-##' reformulas::splitForm_SM taken from Steve Walker's lme4ord,
-##' <https://github.com/stevencarlislewalker/lme4ord/blob/master/R/formulaParsing.R>.  Mostly for internal use.
+##' Hacked from [reformulas::splitForm()] to consider only RE terms.
 ##' @title Split formula containing special random effect terms
 ##' @param formula a formula containing special random effect terms
 ##' @param debug flag (TRUE/FALSE) to print debugging info

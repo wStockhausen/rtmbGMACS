@@ -37,3 +37,12 @@ Provides a differentiable function such that \code{w(z<=z0) = 1} and
 \code{location = z0} and \code{scale = dz/sclfac}. The \code{zs} are shifted to the right
 by \code{dz/shftfac} so that w(z==z0) = 1 and w(z<z0) = 1.
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+z = 0:100;
+w = squarewave_left(50,z);
+if (require(ggplot2)){
+  ggplot(data.frame(z=z,w=w),aes(x=z,y=w)) + geom_point() + geom_line();
+}
+\dontshow{\}) # examplesIf}
+}

@@ -7,6 +7,7 @@
 #' @details The formula is processed to substitute '+' for RE grouping symbols ('|' and '||')
 #' and drop "specials" (see [.valid_covstruct] and [.valid_smooths]) from the formula.
 #' Column names for derived columns (e.g., `cos(x)`) are a back-quoted version of the deriving formula.
+#'
 #' @importFrom reformulas inForm noSpecials sub_specials
 #' @export
 #'

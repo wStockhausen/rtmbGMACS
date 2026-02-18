@@ -2,11 +2,27 @@
 #' @description Function to convert a vector to a factor
 #' @param v - the vector to convert
 #' @param char.only - flag to convert `v` only if it is a character vector
-#' @details Copied from [reformulas:::makeFac()].
+#' @details Copied from `reformulas:::makeFac()` (char.only option changed to TRUE).
 #' @export
 #'
-makeFac <- function(v,char.only=FALSE) {
-    if (!is.factor(v) && (!char.only || is.character(v))) factor(v) else v
+makeFac <- function(v,char.only=TRUE) {
+    if (!is.factor(v) && ((!char.only && is.numeric(v)) || is.character(v))) factor(v) else v
+}
+
+#' @title Convert columns in a model frame to factors if included in a formula
+#' @description Function to convert columns in a dataframe to factors if included in a formula.
+#' @param frmla - formula or term
+#' @param model_frame - the dataframe to convert
+#' @param char.only - flag to convert only character columns to factors
+#' @details Copied from `reformulas:::factorize()` (char.only option changed to TRUE).
+#' @export
+#'
+factorize<-function(frmla, model_frame, char.only = TRUE) {
+    for (i in all.vars(reformulas::RHSForm(frmla))) {
+        if (!is.null(curf <- model_frame[[i]]))
+            model_frame[[i]] <- makeFac(curf, char.only)
+    }
+    return(model_frame);
 }
 
 #' @title infix interaction operator to combine levels from two factors
@@ -15,7 +31,7 @@ makeFac <- function(v,char.only=FALSE) {
 #' @param f2 - factor
 #' @param order - flag to re-order levels
 #' @return factor with merged levels from `f1` and `f2`
-#' @details Copied from [reformulas:::`%i%`].
+#' @details Copied from reformulas:::`%i%`.
 #' @export
 `%i%` <- function(f1, f2, fix.order = TRUE) {
     if (!is.factor(f1) || !is.factor(f2)) stop("both inputs must be factors")
@@ -169,79 +185,97 @@ getREs <- function(term,
 ##'
 ##' Hacked from [reformulas::splitForm()] to consider only RE terms.
 ##' reformulas::splitForm taken from Steve Walker's lme4ord,
-##' ultimately from the flexLambda branch of [lme4]
+##' ultimately from the flexLambda branch of the `lme4` package
 ##' <https://github.com/stevencarlislewalker/lme4ord/blob/master/R/formulaParsing.R>.
-##' @title Split formula containing special random effect terms
-##' @param reform - a formula containing random effect terms, or a single RE term
-##' @param defaultTerm - cov_struct name for non-special RE terms (default="diag")
-##' @param cov_structs - vector of names of valid covariance structures
+##' @title Split formula containing random effect terms
+##' @param re_form - a formula containing random effect terms, or a single RE term
+##' @param defaultCovStruct - covariance structure name for non-"special" RE terms (default="diag")
 ##' @param debug - flag (TRUE/FALSE) to print debugging info
-##' @return a list containing elements
+##' @return NULL, or a list containing elements
 ##' \itemize{
-##'  \item{\code{reTrms} list with each RE term as an element}
-##'  \item{\code{reTrmFormulas} list of \code{x | g} formulas for each term}
-##'   \item{\code{reTrmAddArgs} list of function+additional arguments, i.e. \code{list()} (non-special), \code{foo()} (no additional arguments), \code{foo(addArgs)} (additional arguments)}
-##'   \item{\code{reTrmClasses} (vector of special functions/classes, as character)}
+##'  \item{\code{reTrms} named list with each RE term as an element}
+##'  \item{\code{reTrmFormulas} named list of \code{x | g} formulas for each term}
+##'   \item{\code{reTrmAddArgs} named list (see details)}
+##'   \item{\code{reTrmCovTypes} named character vector of covariance structure types}
 ##' }
+##'
+##' @details The names associated with all elements in the returned list are the same names as used for the `reTrms` list.
+##'
+##' Each element in the `reTrmAddArgs` list is a language object, which itself has a list-like structure (use `[[` to access elements).
+##' For each language object, the first element will be the covariance structure type, as a `symbol`.
+##' Any additional elements represent additional arguments determining the covariance structure.
+##' Additional arguments of the form "x=value"can be recovered as `value = el[["x"]]`, where `el` is list element.
+##'
 ##' @examples
-##' splitForm_RE(~x+y)                     ## no REs
-##' splitForm_RE(~x+y+(f|g))               ## no covariance structure specified
-##' splitForm_RE(~x+y+diag(f|g))           ## covariance structure specified for RE term
-##' splitForm_RE(~x+y+(diag(f|g)))         ## 'hidden' term with covariance structure specified
-##' splitForm_RE(~x+y+(f|g)+cs(1|g))       ## combination of terms with covariance structures un/specified
-##' splitForm_RE(~x+y+(1|f/g))                      ## 'slash' term
-##' splitForm_RE(~x+y+(1|f/g/h))                    ## 'slash' term
-##' splitForm_RE(~x+y+(1|(f/g)/h))                  ## 'slash' term
-##' splitForm_RE(~x+y+(f|g)+cs(1|g)+cs(a|b,stuff))  ## complex covariance structures specified
-##' splitForm_RE(~(((x+y))))                        ## lots of parentheses
-##' splitForm_RE(~1+rr(f|g,n=2))                    ## covariance structure specified with arguments
-##' splitForm_RE(~1+s(x, bs = "tp"))                ## smooth special (ignored)
+##' sf = splitForm_RE(re_form=~x+y)                     ## no REs
+##' sf = splitForm_RE(re_form=~x+y+(f|g))               ## no covariance structure specified
+##' sf = splitForm_RE(re_form=~x+y+ar1(f|g))            ## covariance structure specified for RE term
+##' sf = splitForm_RE(re_form=~x+y+(diag(f|g)))         ## 'hidden' term with covariance structure specified
+##' sf = splitForm_RE(re_form=~x+y+((ar1(f|g))))        ## doubly-'hidden' term with covariance structure specified
+##' sf = splitForm_RE(re_form=~x+y+(f|g)+cs(1|g))       ## combination of terms with covariance structures un/specified
+##' sf = splitForm_RE(re_form=~x+y+(1|f/g))                      ## 'slash' term: equivalent to (1|g:f) + (1|f)
+##' sf = splitForm_RE(re_form=~x+y+(1|f/g/h))                    ## 'slash' term: equivalent to (1|h:g:f) + (1|g:f) + (1|f)
+##' sf = splitForm_RE(re_form=~x+y+(1|(f/g)/h))                  ## 'slash' term: equivalent to (1|h:g:f) + (1|g:f) + (1|f)
+##' sf = splitForm_RE(re_form=~x+y+(f|g)+cs(1|g)+cs(a|b,stuff))  ## complex covariance structures specified
+##' sf = splitForm_RE(re_form=~(((x+y))))                        ## lots of parentheses
+##' sf = splitForm_RE(re_form=~1+cs(f|g,n=2))                    ## covariance structure with one additional argument
+##' sf = splitForm_RE(re_form=~1+cs(f|g,n=2,stuff))              ## covariance structure with multiple additional arguments (TODO: returns NULL!)
+##' sf = splitForm_RE(re_form=~1+cs(f|g,n=2,m=3))                ## covariance structure with multiple additional arguments (TODO: returns NULL!)
+##' sf = splitForm_RE(re_form=~1+cs(f|g,list(n=2,m=3)))          ## covariance structure with multiple additional arguments given as list (WORKS!)
+##' sf = splitForm_RE(re_form=~1+s(x, bs = "tp"))                ## smooth special (ignored)
 ##'
 ##' @author Steve Walker (hacked by William Stockhausen)
+##' @importFrom reformulas expandAllGrpVar findbars_x
 ##' @export
-splitForm_RE <- function(reform,
-                         defaultTerm="diag",
-                         cov_structs = findValidCovStructs(),
+splitForm_RE <- function(re_form,
+                         defaultCovStruct="diag",
                          debug=FALSE) {
+
   #--split formula into separate random effects terms
-  ## with covariance structure information ("specials") retained
-  bars = reformulas::findbars_x(reform,specials=findValidCovStructs(),default.special="diag",debug=debug);
-  formSplits = reformulas::expandAllGrpVar(bars);
+  ##--with covariance structure information ("specials") retained
+  ##--`formSplits0` is a list of language elements) representing the RE terms with the
+  ##--default covariance structure specified for any non-"special" term.
+  ##
+  ##--Each language element (accessed as a list) in `formSplits0` has two elements:
+  ###--[[1]]  a symbol indicating the covariance structure
+  ###--[[2]] a language element representing the "raw" RE term (i.e. (expr|group,additional arguments))
+  formSplits0 = reformulas::findbars_x(re_form,specials=findValidCovStructs(),default.special=defaultCovStruct,debug=debug);
+  if (is.null(formSplits0)) return(NULL);
 
-  ##--old: fbxx <- reformulas::findbars_x(formula, debug, cov_structs,default.special=defaultTerm)
-  ##--old: formSplits <- reformulas::expandAllGrpVar(fbxx);
+  #--`formSplits1` seems to be identical to `formSplits0`. TODO: remove and rename `bars` to `formSplits`?
+  formSplits1 = reformulas::expandAllGrpVar(formSplits0);
 
-  if (length(formSplits)>0) {
-      formSplitID <- sapply(lapply(formSplits, "[[", 1), as.character)
-                                      # warn about terms without a
-                                      # setReTrm method
+  if (!is.null(formSplits0)) names(formSplits0) = vapply(formSplits0,deparse,"");
+  if (!is.null(formSplits1)) names(formSplits1) = vapply(formSplits1,deparse,"");
 
-      parenTerm <- formSplitID == "("
-                                      # capture additional arguments
-      reTrmAddArgs <- lapply(formSplits, "[", -2)[!parenTerm]
-                                      # remove these additional
-                                      # arguments
-      formSplits <- lapply(formSplits, "[", 1:2)
-                                      # standard RE terms
-      formSplitStan <- formSplits[parenTerm]
-                                      # structured RE terms
-      formSplitSpec <- formSplits[!parenTerm]
+  #--identify terms without covariance structure information
+  ##--TODO: don't think this can happen because default cov. structure info is applied when
+  ##--creating `formSplits0` so no element of `formSplitID` is "(")
+  formSplitID <- sapply(lapply(formSplits1, "[[", 1), as.character)
+  parenTerm <- formSplitID == "("; #--vector elements should be all FALSE
 
-      reTrmFormulas <- c(lapply(formSplitStan, "[[", 2),
-                         lapply(formSplitSpec, "[[", 2))
-      reTrmFormulas <- unlist(reTrmFormulas) # Fix me:: added for rr structure when it has n = 2, gives a list of list... quick fix
-      reTrmClasses <- c(rep(defaultTerm, length(formSplitStan)),
-                        sapply(lapply(formSplitSpec, "[[", 1), as.character))
-  } else {
-      reTrmFormulas <- reTrmAddArgs <- reTrmClasses <- NULL
-  }
+  # capture additional arguments
+  reTrmAddArgs <- lapply(formSplits1, "[", -2)[!parenTerm]
 
-  names(bars) = vapply(bars,deparse,"");
+  # remove these additional arguments
+  formSplits2 <- lapply(formSplits1, "[", 1:2); # standard RE terms, no additional arguments
+  formSplitStan <- formSplits2[parenTerm];      # (standard) RE terms without covariance structure info (not sure this is possible at this point)
+  formSplitSpec <- formSplits2[!parenTerm]      # (special) RE terms with covariance structure info
 
-  return(list(reTrms = bars,
+  #--extract "raw" formula for each RE term (no covariance structure info, no additional arguments)
+  reTrmFormulas <- c(lapply(formSplitStan, "[[", 2),
+                     lapply(formSplitSpec, "[[", 2));
+  reTrmFormulas <- unlist(reTrmFormulas); # Fix me:: added for rr structure when it has n = 2, gives a list of list... quick fix
+
+  #--extract character vector of covariance structure types
+  reTrmCovTypes <- c(rep(defaultCovStruct, length(formSplitStan)),
+                    sapply(lapply(formSplitSpec, "[[", 1), as.character));
+  names(reTrmCovTypes) <- c(names(formSplits2)[parenTerm],names(formSplits2)[!parenTerm]);
+
+  return(list(reTrms = formSplits0,
               reTrmFormulas = reTrmFormulas,
               reTrmAddArgs  = reTrmAddArgs,
-              reTrmClasses  = reTrmClasses));
+              reTrmCovTypes = reTrmCovTypes));
 }
 
 
@@ -251,8 +285,8 @@ splitForm_RE <- function(reform,
 #' @param term -  the term in which to make the replacement
 #' @param target -  the part to replace
 #' @param repl - the replacement
-#' @result term with part replaced
-#' @details Copied from [reformulas:::replaceTerm()].
+#' @return term with part replaced
+#' @details Copied from `reformulas:::replaceTerm()`.
 #' @importFrom reformulas inForm
 #' @export
 #'
@@ -272,29 +306,33 @@ replaceTerm <- function(term,target,repl) {
 splitTerm_RE<-function(term,specials=findValidCovStructs()){
   dp1 = deparse1(term[[1]]);
   if (dp1 %in% specials) term = term[[2]];
-  list(covstr=dp1,re=term[[2]],group=term[[3]]);
+  list(covstr=dp1,re=term[[2]],group=term[[3]]); #--TODO: want to take account of (or drop) "additional arguments" here!
 }
 
-#' @param re_term a language object of the form  effect | groupvar
+#' @title Make an info list for a RE term
+#' @description Function to make an info list for a RE term.
+#' @param re_term a language object of the form  (effect | groupvar)
 #' @param model_frame model frame
 #' @param drop.unused.levels - flag to drop unused levels from model matrix
-#' @param reorder.vars - flag to reorder variables
 #' @param sparse (logical) set up sparse model matrices?
 #' @return list, see details
-#' @details Hacked from [reformulas::mkBlist()]
+#' @details Hacked from `reformulas:::mkBlist()`.
 #'
 #' Return list has elements:
 #' \itemize{
-#'  \item{ff - facotrs}
+#'  \item{re_term - expression for RE term}
+#'  \item{re_term_lbl - character string for RE term}
+#'  \item{factorized_model_frame - model frame with non-numeric columns as factors}
+#'  \item{ff - factors}
 #'  \item{termZt - transposed Z for term}
-#'  \item{ngroups - number of factor groups in term
-#'  \item{npars number of RE parameters in term
-#'  \item{colnms column names in termZt
-#'  \item{re_term - expression for RE term
-#'  \item{covstr = covariance function string
-#'  \item{factorized_model_frame - model frame with non-numeric columns as factors
-#'  \item{Qtp - template for precision matrix
-#'  \item{fillQ - function to fill precision matrix
+#'  \item{ngrps - number of factor groups in term}
+#'  \item{nprs - number of RE parameters (i.e., per group) in term}
+#'  \item{npvs - number of RE parameter values in term}
+#'  \item{pr_lbls - labels for parameters}
+#'  \item{pv_lbls - labels for parameter values}
+#'  \item{covstr - covariance structure string}
+#'  \item{Qtp - template for precision matrix}
+#'  \item{fillQ - function to fill precision matrix}
 #' }
 #'
 #' @importFrom Matrix KhatriRao fac2sparse sparse.model.matrix
@@ -302,34 +340,40 @@ splitTerm_RE<-function(term,specials=findValidCovStructs()){
 #'
 #' @export
 #'
-mkBlist <- function(re_term,
-                    model_frame,
-                    drop.unused.levels=TRUE,
-                    reorder.vars=FALSE,
-                    sparse = NULL) {
-  #--factorize non-numeric elements of model frame
-  frloc <- reformulas:::factorize(re_term,model_frame);
+mkReTermInfoList <- function(re_term,
+                            model_frame,
+                            drop.unused.levels=TRUE,
+                            sparse = NULL) {
+  #--get label for re_term
+  re_term_lbl = deparse(re_term);
 
-  ##--try to evaluate grouping factor within model frame ...
+  #--factorize non-numeric elements of model frame
+  fr_mf <- factorize(re_term,model_frame);
+
+  #--try to evaluate grouping factor within model frame ...
+  ##--split term to identify grouping factor
   sp_trm = splitTerm_RE(re_term);
-  ff0 <- replaceTerm(sp_trm$group, quote(`:`), quote(`%i%`));
-  ff <- try(eval(substitute(makeFac(fac),
-                            list(fac = ff0)),
-                 frloc), silent = TRUE)
-  if (inherits(ff, "try-error")) {
+  ##--convert grouping factor expression from using ":" to using "%i%
+  gf0 <- replaceTerm(sp_trm$group, quote(`:`), quote(`%i%`));
+  ##--evaluate grouping factor
+  gf <- try(eval(substitute(makeFac(fac),list(fac = gf0)),fr_mf),
+            silent = TRUE
+           );
+  if (inherits(gf, "try-error")) {
       stop("couldn't evaluate grouping factor ",
            deparse1(sp_trm$group)," within model frame:",
            "error =",
-           c(ff),
+           c(gf),
            " Try adding grouping factor to data ",
            "frame explicitly if possible",call.=FALSE)
   }
-  if (all(is.na(ff)))
+  if (all(is.na(gf))){
       stop("Invalid grouping factor specification, ",
            deparse1(sp_trm$group),call.=FALSE)
+  }
 
-  if (drop.unused.levels) ff <- factor(ff, exclude=NA)
-  ngrps <- length(levels(ff)); #--number of levels in grouping factor
+  if (drop.unused.levels) gf <- factor(gf, exclude=NA)
+  ngrps <- length(levels(gf)); #--number of levels in grouping factor
 
   ##--this section implements eq. 6 of the JSS lmer paper----
   ###--model matrix based on LHS of random effect term (X_i)----
@@ -338,49 +382,65 @@ mkBlist <- function(re_term,
     cc <- attr(re_term, "contrasts")
     !is.null(cc) && is(cc, "sparseMatrix")
   }
-  any.sparse.contrasts <- any(vapply(frloc, has.sparse.contrasts, FUN.VALUE = logical(1)))
+  any.sparse.contrasts <- any(vapply(fr_mf, has.sparse.contrasts, FUN.VALUE = logical(1)))
   mMatrix <- if (!isTRUE(sparse) && !any.sparse.contrasts) model.matrix else Matrix::sparse.model.matrix
-  mm <- mMatrix(eval(substitute( ~ foo, list(foo = sp_trm$re))), frloc)
-  if (reorder.vars) {
-      mm <- mm[colSort(colnames(mm)),]
-  }
+  mmX_i <- mMatrix(eval(substitute( ~ foo, list(foo = sp_trm$re))), fr_mf); #--"raw" RE model matrix X_i in Table 3, JSS lmer paper
+  nprs    = ncol(mmX_i);    #--number of RE parameters/group
+  pr_lbls = colnames(mmX_i);#--parameter labels
+  #cat("nprs:",nprs,"\npr_lbls:",pr_lbls,"\n");
 
-  ##--this is J^T (see p. 9 of JSS lmer paper)----
-  ###--construct indicator matrix for groups by observations
-  ###--use fac2sparse() rather than as() to allow *not* dropping
-  ###--unused levels where desired
-  sm <- Matrix::fac2sparse(ff, to = "d",
-                           drop.unused.levels = drop.unused.levels)
-  termZt <- Matrix::KhatriRao(sm, t(mm));
-  dimnames(termZt) <- list(rep(levels(ff),each=ncol(mm)),
-                           rownames(mm));
+  ##--construct transpose of indicator matrix J_i in Table 3, JSS lmer paper
+  ###--with dimensions grouping factor levels (ngrps) by observations (nobs).
+  ####--use fac2sparse() rather than as() to allow *not* dropping unused levels where desired.
+  imJt_i <- Matrix::fac2sparse(gf, to = "d",
+                               drop.unused.levels = drop.unused.levels);
+  ##--construct transpose of term-wise random effects model matrix Z_i in Table 3, JSS lmer paper
+  termZt <- Matrix::KhatriRao(imJt_i, t(mmX_i));
+  dimnames(termZt) <- list(rep(levels(gf),each=nprs),
+                           rownames(mmX_i));
+  pv_lbls = paste(re_term_lbl,
+                  paste(pr_lbls,rep(levels(gf),each=nprs),sep="@"),
+                  sep="@"); #--cparameter value labels: re_term @ parameter label @-grouping factor value
+  #cat("rownames(termZt): ","\n",paste0(rownames(termZt),collase="\n"),"\n");
+  #cat("pv_lbls:","\n",paste0(pv_lbls,collase="\n"),"\n");
+  rownames(termZt) = pv_lbls;
+  npvs = length(pv_lbls);
 
   ##--determine precision/covariance matrix structure----
-  npars = ncol(mm); #--number of random effects parameters/group
-  q = ngrps*npars;
+  q = ngrps*nprs;  #--total number of RE parameters
   if (sp_trm$covstr %in% c("diag","iid")){
     #--covariance parameters: ln-scale standard deviation
-    Qtp = buildTemplateQ.diag(npars,ngrps); #--template for Q
+    Qtp = buildTemplateQ.diag(nprs,ngrps); #--template for Q
     idx = Qtp@x;
     fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
   } else
   if (sp_trm$covstr %in% c("ar1")){
     #--covariance parameters: ln-scale standard deviation, correlation coefficient on symlogit scale (-inf,inf)->(-1,1)
-    Qtp = buildTemplateQ.ar1(npars,ngrps,sequential=TRUE);
+    Qtp = buildTemplateQ.ar1(nprs,ngrps,sequential=TRUE);
+    idx = Qtp@x;
+    fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
+  } else
+  if (sp_trm$covstr %in% c("us")){
+    #--covariance parameters: ln-scale standard deviation, correlation coefficient on symlogit scale (-inf,inf)->(-1,1)
+    Qtp = buildTemplateQ.us(nprs,ngrps,sequential=TRUE);
     idx = Qtp@x;
     fillQ = function(covpars){fillQ.ar1(covpars,ngrps,idx,sequential=TRUE);}
   } else {
     stop(paste0("unrecognized covstr '",sp_trm$covstr,"' when creating covariance/precision matrices\n"))
   }
 
-  return(list(ff = ff,
+  return(list(re_term = re_term,
+              factorized_model_frame = fr_mf,
+              grouping_factor = gf,
               termZt = termZt,
-              ngroups = ngrps,
-              npars = npars,
-              colnms = colnames(mm),
-              re_term = re_term,
+              re_term_lbl = re_term_lbl,
+              ngrps = ngrps,          #--number of groups
+              grp_lbls = levels(gf),  #--group labels
+              nprs = nprs,            #--number opf parameters
+              pr_lbls = pr_lbls,      #--parameter labels
+              npvs = npvs,            #--number of parameter values
+              pv_lbls = pv_lbls,      #--parameter value labels
               covstr = sp_trm$covstr,
-              factorized_model_frame = frloc,
               Qtp = Qtp,
               fillQ = fillQ));
 } #--mkBlist
