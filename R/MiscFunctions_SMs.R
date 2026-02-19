@@ -143,7 +143,7 @@ splitForm_SM <- function(formula,
 
     ## split formula into separate "smooth" terms
 
-    fbxx <- findbars_x(formula, debug, sm_fcns)
+    fbxx <- reformulas::findbars_x(formula, debug, sm_fcns)
     formSplits <- expandAllGrpVar(fbxx)
 
     if (length(formSplits)>0) {

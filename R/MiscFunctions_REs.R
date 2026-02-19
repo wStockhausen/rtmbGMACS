@@ -242,7 +242,7 @@ splitForm_RE <- function(re_form,
   formSplits0 = reformulas::findbars_x(re_form,specials=findValidCovStructs(),default.special=defaultCovStruct,debug=debug);
   if (is.null(formSplits0)) return(NULL);
 
-  #--`formSplits1` seems to be identical to `formSplits0`. TODO: remove and rename `bars` to `formSplits`?
+  #--`formSplits1` seems to be identical to `formSplits0`. TODO: remove and rename `formSplits0` to `formSplits`?
   formSplits1 = reformulas::expandAllGrpVar(formSplits0);
 
   if (!is.null(formSplits0)) names(formSplits0) = vapply(formSplits0,deparse,"");
@@ -343,9 +343,11 @@ splitTerm_RE<-function(term,specials=findValidCovStructs()){
 mkReTermInfoList <- function(re_term,
                             model_frame,
                             drop.unused.levels=TRUE,
-                            sparse = NULL) {
+                            sparse = NULL,
+                            debug=FALSE) {
   #--get label for re_term
   re_term_lbl = deparse(re_term);
+  if (debug) cat("processing",re_term_lbl,"\n")
 
   #--factorize non-numeric elements of model frame
   fr_mf <- factorize(re_term,model_frame);
@@ -355,6 +357,7 @@ mkReTermInfoList <- function(re_term,
   sp_trm = splitTerm_RE(re_term);
   ##--convert grouping factor expression from using ":" to using "%i%
   gf0 <- replaceTerm(sp_trm$group, quote(`:`), quote(`%i%`));
+  if (debug) cat("gf0:",deparse(gf0),"\n");
   ##--evaluate grouping factor
   gf <- try(eval(substitute(makeFac(fac),list(fac = gf0)),fr_mf),
             silent = TRUE
@@ -385,22 +388,34 @@ mkReTermInfoList <- function(re_term,
   any.sparse.contrasts <- any(vapply(fr_mf, has.sparse.contrasts, FUN.VALUE = logical(1)))
   mMatrix <- if (!isTRUE(sparse) && !any.sparse.contrasts) model.matrix else Matrix::sparse.model.matrix
   mmX_i <- mMatrix(eval(substitute( ~ foo, list(foo = sp_trm$re))), fr_mf); #--"raw" RE model matrix X_i in Table 3, JSS lmer paper
-  nprs    = ncol(mmX_i);    #--number of RE parameters/group
-  pr_lbls = colnames(mmX_i);#--parameter labels
-  #cat("nprs:",nprs,"\npr_lbls:",pr_lbls,"\n");
+  if (drop.unused.levels){
+    idx = which(abs(colSums(as.matrix(mmX_i)))>0);
+    if (debug) cat("keeping columns ",paste(idx,collapse=" "),"\n");
+    mmX_i = mmX_i[,idx,drop=FALSE];
+  }
+  nprs    = ncol(mmX_i);    #--number of RE parameter values/group
+  if (debug) cat("nprs =",nprs,"\n");
+  pr_lbls = createParamValLabels(sp_trm$re,colnames(mmX_i),debug=FALSE)$revd;#--RE parameter labels
+  if (debug) cat("nprs:",nprs,"\n",
+                 "        pr_lbls:",pr_lbls,"\n",
+                 "colnames(mmX_i):",colnames(mmX_i),"\n");
+  colnames(mmX_i) = pr_lbls;
 
   ##--construct transpose of indicator matrix J_i in Table 3, JSS lmer paper
   ###--with dimensions grouping factor levels (ngrps) by observations (nobs).
   ####--use fac2sparse() rather than as() to allow *not* dropping unused levels where desired.
   imJt_i <- Matrix::fac2sparse(gf, to = "d",
                                drop.unused.levels = drop.unused.levels);
+  # cat("colnames(imJt_i) = ",paste(colnames(imJt_i),collapse=" "),"\n");
   ##--construct transpose of term-wise random effects model matrix Z_i in Table 3, JSS lmer paper
   termZt <- Matrix::KhatriRao(imJt_i, t(mmX_i));
+  # cat("rownames(termZt) = ",paste(rownames(termZt),collapse=" "),"\n");
   dimnames(termZt) <- list(rep(levels(gf),each=nprs),
                            rownames(mmX_i));
+  # cat("rownames(termZt) = ",paste(rownames(termZt),collapse=" "),"\n");
   pv_lbls = paste(re_term_lbl,
-                  paste(pr_lbls,rep(levels(gf),each=nprs),sep="@"),
-                  sep="@"); #--cparameter value labels: re_term @ parameter label @-grouping factor value
+                  paste(pr_lbls,rep(levels(gf),each=nprs),sep="}{"),
+                  sep="}{"); #--parameter value labels: re_term @ parameter label @ grouping factor value
   #cat("rownames(termZt): ","\n",paste0(rownames(termZt),collase="\n"),"\n");
   #cat("pv_lbls:","\n",paste0(pv_lbls,collase="\n"),"\n");
   rownames(termZt) = pv_lbls;
@@ -436,11 +451,11 @@ mkReTermInfoList <- function(re_term,
               re_term_lbl = re_term_lbl,
               ngrps = ngrps,          #--number of groups
               grp_lbls = levels(gf),  #--group labels
-              nprs = nprs,            #--number opf parameters
+              nprs = nprs,            #--number of parameters
               pr_lbls = pr_lbls,      #--parameter labels
               npvs = npvs,            #--number of parameter values
               pv_lbls = pv_lbls,      #--parameter value labels
-              covstr = sp_trm$covstr,
-              Qtp = Qtp,
-              fillQ = fillQ));
+              covstr = sp_trm$covstr, #--covariance type
+              Qtp = Qtp,              #--precision matrix template
+              fillQ = fillQ));        #--function to fill values of Q
 } #--mkBlist

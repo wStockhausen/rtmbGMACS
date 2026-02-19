@@ -1,10 +1,11 @@
 #'
 #' @title Create the parameters information list for a set of RE terms
 #' @description Function to create the parameters information list for a set of RE terms.
-#' @param formula formula, possibly containing random effects
-#' @param model_frame full model frame
+#' @param formula - formula, possibly containing random effects
+#' @param model_frame - full model frame
 #' @param contrasts a list of contrasts
-#' @param sparse (logical) return sparse model matrix?
+#' @param drop.unused.levels - flag (T/F) to drop unused levels
+#' @param sparse - flag (T/F) to return sparse model matrix?
 #' @return a list, or NULL (see details)
 #' @details
 #'
@@ -20,7 +21,7 @@
 #'
 #' @export
 #'
-createParamsInfo_REs<-function(formula,
+createParamInfo_REs<-function(formula,
                                  model_frame,
                                  contrasts=NULL,
                                  drop.unused.levels=TRUE,
@@ -70,4 +71,4 @@ createParamsInfo_REs<-function(formula,
               lstQfill=lstQfill         #--list of term-associated functions to fill the precision matrices
              ));
 
-}#--createParamsInfo_REs
+}#--createParamInfo_REs

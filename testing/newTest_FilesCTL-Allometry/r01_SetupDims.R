@@ -1,10 +1,17 @@
 #--set up model dimensions
-require(rtmbGMACS);
+#require(rtmbGMACS);
+dirPrj = rstudioapi::getActiveProject();
+source(file.path(dirPrj,"R/DimensionsFunctions.R"))
+source(file.path(dirPrj,"R/DimensionsUtilities.R"))
+
+
 vRs="EBS";
 maz = as.character(seq(25,75,5));
 fiz = as.character(seq(25,65,5));
 fmz = as.character(seq(30,65,5));
-vXs=list(male=list(all=list(`new`=maz,
+vXs=list(male=list(imm=list(`new`=maz,
+                             `old`=maz),
+                   mat=list(`new`=maz,
                              `old`=maz)
                   ),
           female=list(imm=list(`new`=fiz,

@@ -10,9 +10,10 @@ source(file.path(dirPrj,"R/MiscFunctions.R"));
 source(file.path(dirPrj,"R/MiscFunctions_Matrices.R"));
 source(file.path(dirPrj,"R/MiscFunctions_Formulas.R"));
 source(file.path(dirPrj,"R/MiscFunctions_CovQs.R"));
+source(file.path(dirPrj,"R/MiscFunctions_FEs.R"));
 source(file.path(dirPrj,"R/MiscFunctions_REs.R"));
-source(file.path(dirPrj,"R/createParamsInfo_REs.R"));
-source(file.path(dirPrj,"R/createParamsInfo_FEs.R"));
+source(file.path(dirPrj,"R/createParamInfo_REs.R"));
+source(file.path(dirPrj,"R/createParamInfo_FEs.R"));
 
 #--setup model dimensions
 source(file.path(dirPrj,"testing/newTest_ParamsInfo/r00_SetupDims.R"));
@@ -39,15 +40,15 @@ f_f = ~0 + m +       #--fixed effect for each level of m
        ar1(yn|yblk); #--ar1 process for yn (numeric y) w/in each level of yblk
 
 #--just test the REs creation here (need to finish this function; works to creating reTerms)
-pi_pLnA_m = createParamsInfo_REs(formula=f_m,
+pi_pLnA_m = createParamInfo_REs(formula=f_m,
                                  model_frame=mfYXPx,
                                  contrasts=list(yblk=contr_none),
                                  sparse=TRUE);
-pi_tmplt = makeFileTemplate_ParamsRE(formula=f_m,
-                                 model_frame=mfYXPx,
-                                 contrasts=list(yblk=contr_none));
+pi_tmplt = makeFileTemplate_ParamREs(formula=f_m,
+                                     model_frame=mfYXPx,
+                                     contrasts=list(yblk=contr_none));
 #--just test the FEs creation here
-pi_pLnA_f = createParamsInfo_FEs(formula=f_f,
+pi_pLnA_f = createParamInfo_FEs(formula=f_f,
                                  model_frame=mfYXMf,
                                  contrasts=list(m=contr_none),
                                  sparse=TRUE);

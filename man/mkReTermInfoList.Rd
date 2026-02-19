@@ -8,7 +8,8 @@ mkReTermInfoList(
   re_term,
   model_frame,
   drop.unused.levels = TRUE,
-  sparse = NULL
+  sparse = NULL,
+  debug = FALSE
 )
 }
 \arguments{
