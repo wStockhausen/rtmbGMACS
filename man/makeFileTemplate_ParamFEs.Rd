@@ -9,12 +9,13 @@ makeFileTemplate_ParamFEs(
   model_frame = NULL,
   contrasts = NULL,
   drop.unused.levels = TRUE,
+  tab_size = 4,
   debug = TRUE
 )
 }
 \arguments{
 \item{x}{\itemize{
-\item formula, possibly containing fixed effects, or list from \code{\link[=createParamInfo_FeEs]{createParamInfo_FeEs()}}
+\item formula, possibly containing fixed effects, or list from \code{\link[=createParamInfo_FEs]{createParamInfo_FEs()}}
 }}
 
 \item{model_frame}{\itemize{
@@ -27,6 +28,14 @@ makeFileTemplate_ParamFEs(
 
 \item{drop.unused.levels}{\itemize{
 \item flag to drop unused levels
+}}
+
+\item{tab_size}{\itemize{
+\item number of spaces to convert tabs to
+}}
+
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging info
 }}
 }
 \value{

@@ -1,0 +1,70 @@
+#-----Parameter values specification for pLnA_1~0 + x:m + diag(1 | y)
+pLnA_1         #--parameter name
+##--specifications for fixed effects-------------
+~0 + x:m    #--FE terms
+3 #--number of rows
+ idx mirror          level tform IV Phz   LB  UB PrType Pr1 Pr2
+   1      0   x@male:m@all  none  0   0 -Inf Inf   none  NA  NA
+   2      0 x@female:m@imm  none  0   0 -Inf Inf   none  NA  NA
+   3      0 x@female:m@mat  none  0   0 -Inf Inf   none  NA  NA
+##--specifications for random effects-------------
+1      #--number of terms defining random effects
+##--RE term 1 ----
+diag(1 | y)     #--RE term
+##---parameter values----
+0 #--phase
+13 #--number of rows
+ idx       level group IV
+   1 (Intercept)  2000  0
+   2 (Intercept)  2001  0
+   3 (Intercept)  2010  0
+   4 (Intercept)  2011  0
+   5 (Intercept)  2016  0
+   6 (Intercept)  2017  0
+   7 (Intercept)  2018  0
+   8 (Intercept)  2019  0
+   9 (Intercept)  2021  0
+  10 (Intercept)  2022  0
+  11 (Intercept)  2023  0
+  12 (Intercept)  2024  0
+  13 (Intercept)  2025  0
+##---covariance parameter values----
+diag         #--covariance type
+1         #--number of covariance parameters
+ idx mirror IV Phz   LB  UB PrType Pr1 Pr2
+   1      0  0   0 -Inf Inf   none  NA  NA
+##--specifications for smooths-------------
+0          #--number of terms defining smooths
+##--NO SMOOTH TERMS--------
+
+
+#-----Parameter values specification for pB_1~0 + x:m
+pB_1         #--parameter name
+##--specifications for fixed effects-------------
+~0 + x:m    #--FE terms
+3 #--number of rows
+ idx mirror          level tform IV Phz   LB  UB PrType Pr1 Pr2
+   1      0   x@male:m@all  none  0   0 -Inf Inf   none  NA  NA
+   2      0 x@female:m@imm  none  0   0 -Inf Inf   none  NA  NA
+   3      0 x@female:m@mat  none  0   0 -Inf Inf   none  NA  NA
+##--specifications for random effects-------------
+0          #--number of terms defining random effects
+##--NO RANDOM EFFECTS TERMS--------
+##--specifications for smooths-------------
+0          #--number of terms defining smooths
+##--NO SMOOTH TERMS--------
+
+
+#-----Parameter values specification for pZ0_1~1
+pZ0_1         #--parameter name
+##--specifications for fixed effects-------------
+~1    #--FE terms
+1 #--number of rows
+ idx mirror       level tform IV Phz   LB  UB PrType Pr1 Pr2
+   1      0 (Intercept)  none  0   0 -Inf Inf   none  NA  NA
+##--specifications for random effects-------------
+0          #--number of terms defining random effects
+##--NO RANDOM EFFECTS TERMS--------
+##--specifications for smooths-------------
+0          #--number of terms defining smooths
+##--NO SMOOTH TERMS--------

@@ -9,6 +9,7 @@ makeFileTemplate_ParamSMs(
   model_frame,
   contrasts = NULL,
   drop.unused.levels = TRUE,
+  tab_size = 4,
   debug = TRUE
 )
 }
@@ -23,6 +24,18 @@ makeFileTemplate_ParamSMs(
 
 \item{contrasts}{\itemize{
 \item a list of contrasts (if not NULL)
+}}
+
+\item{drop.unused.levels}{\itemize{
+\item flag to drop unused levels
+}}
+
+\item{tab_size}{\itemize{
+\item number of spaces to convert tabs to
+}}
+
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging info
 }}
 }
 \value{

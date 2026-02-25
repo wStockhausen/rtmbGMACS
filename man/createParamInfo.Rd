@@ -43,9 +43,9 @@ a list composed of
 \item{contrasts - list of contrasts used to determine model matrices}
 \item{drop.unused.levels - flag (T/F) to drop unused levels from design matrices}
 \item{offset - the name of the model_frame column used as a fixed offset}
-\item{piFEs}{parameter info list for fixed effects from \code{\link[=createParamsInfo_FEs]{createParamsInfo_FEs()}}}
-\item{piREs}{parameter info list for random effects from \code{\link[=createParamsInfo_REs]{createParamsInfo_REs()}}}
-\item{piSMs}{parameter info list for smooths from \code{\link[=createParamsInfo_SMs]{createParamsInfo_SMs()}}}
+\item{piFEs}{parameter info list for fixed effects from \code{\link[=createParamInfo_FEs]{createParamInfo_FEs()}}}
+\item{piREs}{parameter info list for random effects from \code{\link[=createParamInfo_REs]{createParamInfo_REs()}}}
+\item{piSMs}{parameter info list for smooths from \code{\link[=createParamInfo_SMs]{createParamInfo_SMs()}}}
 }
 }
 \description{

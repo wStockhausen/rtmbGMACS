@@ -418,11 +418,11 @@ getCorrMatFromTheta<-function(t,strictly.lower.triangle=TRUE,return.cov=FALSE){
 #'
 #' Note that the variance associated with individual observations is
 #'
-#' $$ var(X_i) = E(X^2_i)-\mu^2 = \frac{\sigma^2}{1-\rho^2} $$
+#' \eqn{ var(X_i) = E(X^2_i)-\mu^2 = \frac{\sigma^2}{1-\rho^2} }
 #'
 #' and thus
 #'
-#' $$ \sigma = \sqrt{{1-\rho^2}} \cdot sd(X) $$
+#' \eqn{ \sigma = \sqrt{{1-\rho^2}} \cdot \code{sd}(X) }
 #'
 #' and consequently the precision matrix can (optionally) be specified in terms of the standard
 #' deviation of the observed process (`sdX`).
@@ -502,8 +502,8 @@ mkPrecMat.ar1 <- function(n, sigma=1, rho=0, sdX=0, sparse=TRUE, force=FALSE){
 #' \itemize{
 #'  \item{"diag" - diagonal iid matrix with variance `V` along the diagonal}
 #'  \item{"iid" - synonym for "diag"}
-#'  \item{"ar1" - AR1 precision matrix with variance `V` and correlation coefficient $\rho$ (latter parameterized as $\rho$=symlogistic(par))}
-#'  \item{"us" - unstructured precision matrix
+#'  \item{"ar1" - AR1 precision matrix with variance `V` and correlation coefficient \eqn{\rho} (latter parameterized as \eqn{\rho=\code{symlogistic(par)}})}
+#'  \item{"us" - unstructured precision matrix}
 #' }
 #'
 #' Variances `V` are generally parameterized on the ln scale such that \eqn{V = exp(2*par)}.

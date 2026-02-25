@@ -15,9 +15,9 @@
 #'  \item{contrasts - list of contrasts used to determine model matrices}
 #'  \item{drop.unused.levels - flag (T/F) to drop unused levels from design matrices}
 #'  \item{offset - the name of the model_frame column used as a fixed offset}
-#'  \item{piFEs}{parameter info list for fixed effects from [createParamsInfo_FEs()]}
-#'  \item{piREs}{parameter info list for random effects from [createParamsInfo_REs()]}
-#'  \item{piSMs}{parameter info list for smooths from [createParamsInfo_SMs()]}
+#'  \item{piFEs}{parameter info list for fixed effects from [createParamInfo_FEs()]}
+#'  \item{piREs}{parameter info list for random effects from [createParamInfo_REs()]}
+#'  \item{piSMs}{parameter info list for smooths from [createParamInfo_SMs()]}
 #' }
 #'
 #' @export

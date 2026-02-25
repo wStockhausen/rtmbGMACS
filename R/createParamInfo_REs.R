@@ -11,14 +11,18 @@
 #'
 #' If `formula` does not contain any RE terms, NULL is returned. Otherwise, a list is returned with the following elements:
 #' \itemize{
+#'  \item{re_form}{RE formula}
 #'  \item{reTerms}{RE terms as character strings}
-#'  \item{Z}{model matrix for the REs}
+#'  \item{model_matrix}{model matrix for the REs}
+#'  \item{Z}{design matrix for the REs}
 #'  \item{re_pvs_idx}{a named vector with a cumulative index for the RE parameter values}
 #'  \item{re_pvs_lbls}{a list if labels for the RE parameter values}
 #'  \item{lstQtp}{a list of term-associated precision matrix templates (see [mkReTermInfoList()])}
 #'  \item{lstQfill}{a list of term-associated functions to fill the associated precision matrix (see [mkReTermInfoList()])}
 #' }
 #'
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
 #' @export
 #'
 createParamInfo_REs<-function(formula,
@@ -37,6 +41,8 @@ createParamInfo_REs<-function(formula,
   #--split RE formula into component RE terms
   ##--returns a list with elements reTrms, reTrmFormulas, reTrmAddArgs, reTrmCovTypes
   sp_form <- splitForm_RE(re_form);
+  #--determine model variables
+  vars = identifyVars(sp_form$reTrmFormulas[[1]]);
 
   #--create a list of output from mkReTermInfoList for each RE term
   reTermsInfoList = lapply(sp_form$reTrms, mkReTermInfoList, model_frame,
@@ -61,9 +67,13 @@ createParamInfo_REs<-function(formula,
   lstQtp   = lapply(reTermsInfoList, `[[`, "Qtp");    #--list of term-associated precision matrix templates
   lstQfill = lapply(reTermsInfoList, `[[`, "fillQ");  #--list of term-associated functions to fill the precision matrices
 
-  return(list(reTerms=reTerms,          #--RE terms as character strings
-              model_frame=model_frame,  #--model frame (TODO: want to relate this to Z)
-              Z=Z,                      #--RE model matrix (see eq. 2 in JSS lmer paper)
+  #--determine the model matrix
+  model_matrix = model_frame |> dplyr::select(tidyselect::all_of(vars));
+
+  return(list(re_form=re_form,          #--RE formula
+              reTerms=reTerms,          #--RE terms as character strings
+              model_matrix=model_matrix,#--RE model matrix
+              Z=Z,                      #--RE design matrix (see eq. 2 in JSS lmer paper)
               re_pvs_idx=re_pvs_idx,    #--named vector with cumulative index for RE parameter values
               re_pvs_lbls=re_pvs_lbls,  #--list of labels for RE parameter values
               covtype = covtype,        #--list of covariance types

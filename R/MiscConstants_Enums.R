@@ -1,5 +1,7 @@
 #--"enums" (most based on glmmTMB/R/enum.R)----
 ##--.valid_link: based on glmmTMB/R/enum.R{.valid_link} - enum for valid link function for stat family definition----
+#'@title Named character vector of valid statistical family link function names
+#'@details None. TODO: convert character values to functions?
 .valid_link <- c(
   log                 = "log",       # 0
   logit               = "logit",     # 1
@@ -11,6 +13,8 @@
   lambertW            = "lambertW"   # 7
 )
 ##--.valid_family: based on glmmTMB/R/enum.R{.valid_family} - enum for valid distributions functions----
+#'@title Named character vector of valid statistical family names
+#'@details None. TODO: convert character values to functions?
 .valid_family <- c(
   gaussian = "gaussian",                  #    0
   binomial = "binomial",                  #  100
@@ -36,6 +40,8 @@
   bell = "bell"                           # 1000
 )
 ##--.valid_covstruct: based on glmmTMB/R/enum.R{.valid_covstruct} - enum for valid covariance structures----
+#'@title Named character vector of valid covariance structure names
+#'@details None.
 .valid_covstruct <- c(
   diag    = "diag",     # 0,
   us      = "us",       # 1,
@@ -55,10 +61,14 @@
   rw = "rw"            # random walk (new)
 )
 ##--.valid_smooths: character vector for valid smooth functions----
+#'@title Character vector of valid mgcv smooth function names
+#'@details None.
 .valid_smooths <- c("s",
                     "ti");
 
 ##--.valid_simcode: based on glmmTMB/R/enum.R{.valid_simcode} - enum for valid simulation options----
+#'@title Named character vector of valid simulation options
+#'@details None.
 .valid_simcode <- c(
   zero = "zero",    # 0,
   fix = "fix",      # 1,

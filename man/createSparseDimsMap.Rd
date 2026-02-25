@@ -41,8 +41,8 @@ tibbles are crossed to create a tibble with only the desired combinations of
 actual dimension levels. The first column ("i") contains the 1-d index associated
 with each combination of actual dimension levels.
 
-Alternatively, the \code{...} can be given by splicing a list:\n
-dimsMap = createSparseDimsMap(!!!lst)\n
+Alternatively, the \code{...} can be given by splicing a list:\cr
+dimsMap = createSparseDimsMap(!!!lst)\cr
 where \code{lst} is a named list of the inputs to the function.
 This requires the \code{rlang} package be loaded.
 }

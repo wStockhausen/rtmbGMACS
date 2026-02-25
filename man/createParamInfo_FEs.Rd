@@ -10,7 +10,8 @@ createParamInfo_FEs(
   contrasts = NULL,
   drop.unused.levels = FALSE,
   offset = NULL,
-  sparse = TRUE
+  sparse = TRUE,
+  debug = FALSE
 )
 }
 \arguments{
@@ -37,19 +38,23 @@ createParamInfo_FEs(
 \item{sparse}{\itemize{
 \item flag (T/F) to return sparse model matrix?
 }}
+
+\item{debug}{\itemize{
+\item flag (T/F) to print debugging info
+}}
 }
 \value{
 a list composed of
 \itemize{
-\item{p - a suitable parameter vector for the fixed effects}
-\item{X}{design matrix for fixed effects}
-\item{fe_pvs_lbls}{labels for fixed effects parameter values}
+\item{formula}{input formula}
+\item{model_frame - the model frame}
 \item{fe_form}{the fixed effects formula}
 \item{contrasts}{the list of specified contrasts (if any)}
 \item{offset}{offset vector, or vector of zeros if offset not specified}
-\item{formula}{input formula}
-\item{model_frame - the model frame}
-\item{model_matrix - combined model frame and X}
+\item{vars}{fixed effects variables names}
+\item{fe_pvs_lbls}{labels for fixed effects parameter values}
+\item{X}{design matrix for fixed effects}
+\item{model_matrix}{model matrix associated with \code{X}}
 }
 }
 \description{

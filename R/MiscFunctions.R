@@ -1,8 +1,8 @@
 #--miscellaneous functions, including ADMB replacements
 
 #'
-#' @title Return a list with the reuested link function and it's inverse
-#' @description Function to return a list with the reuested link function and it's inverse
+#' @title Return a list with the requested link function and it's inverse
+#' @description Function to return a list with the requested link function and it's inverse
 #' @param x - vector of values to "convert"
 #' @return vector of "transformed" values
 #' @details This constitutes a function that simply returns the input.
@@ -45,14 +45,67 @@ zero<-function(x){
 #'
 identity<-function(x){return(x);}
 
-#' @title Identity function
-#' @description Function that simply returns the input object
+#' @title Alias for the `identity` [identity()] function
+#' @description This function simply returns the input object
 #' @param x - object to "convert"
 #' @return the input object
 #' @details This function simply returns the input.
 #' @export
 #'
 ident<-function(x){return(x);}
+
+#' @title Alias for the `identity` [identity()] function
+#' @description This function simply returns the input object
+#' @param x - object to "convert"
+#' @return the input object
+#' @details This function simply returns the input.
+#' @export
+#'
+none<-function(x){return(x);}
+
+#'
+#' @title Convert values from grams to kilograms
+#' @description Function to convert values from grams to kilograms.
+#' @param x - vector of values to convert
+#' @return vector of transformed values
+#' @export
+#'
+g2kg<-function(x){
+  return(x/1000.0);
+}
+
+#'
+#' @title Convert values from kilograms to grams
+#' @description Function to convert values from kilograms to grams.
+#' @param x - vector of values to convert
+#' @return vector of transformed values
+#' @export
+#'
+kg2g<-function(x){
+  return(x*1000.0);
+}
+
+#'
+#' @title Convert values from kilograms to 1,000's t
+#' @description Function to convert values from kilograms to 1,000's t.
+#' @param x - vector of values to convert
+#' @return vector of transformed values
+#' @export
+#'
+kg2kt<-function(x){
+  return(x/1000000.0);
+}
+
+#'
+#' @title Convert values from 1,000s t to kilograms
+#' @description Function to convert values from 1,000s t to kilograms.
+#' @param x - vector of values to convert
+#' @return vector of transformed values
+#' @export
+#'
+kt2kg<-function(x){
+  return(x*1000000.0);
+}
 
 #'
 #' @title Convert values to the logistic scale

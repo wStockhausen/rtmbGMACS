@@ -11,6 +11,7 @@ makeFileTemplate_Param(
   contrasts = NULL,
   drop.unused.levels = TRUE,
   offset = NULL,
+  tab_size = 4,
   debug = TRUE
 )
 }
@@ -33,6 +34,10 @@ makeFileTemplate_Param(
 
 \item{drop.unused.levels}{\itemize{
 \item flag to drop unused levels
+}}
+
+\item{tab_size}{\itemize{
+\item number of spaces to convert tabs to
 }}
 }
 \value{

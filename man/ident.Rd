@@ -2,7 +2,7 @@
 % Please edit documentation in R/MiscFunctions.R
 \name{ident}
 \alias{ident}
-\title{Identity function}
+\title{Alias for the \code{identity} \code{\link[=identity]{identity()}} function}
 \usage{
 ident(x)
 }
@@ -15,7 +15,7 @@ ident(x)
 the input object
 }
 \description{
-Function that simply returns the input object
+This function simply returns the input object
 }
 \details{
 This function simply returns the input.

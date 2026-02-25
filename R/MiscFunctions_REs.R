@@ -302,7 +302,45 @@ replaceTerm <- function(term,target,repl) {
                                          y=replaceTerm(term[[3]],target,repl))))
 }
 
+#' @title Identify variables in a character string, formula, or call
+#' @param trm - character string, formula, or call
+#' @return character vector with variables as character strings
+#' @details If `trm` is a formula or call, [deparse1()] is called on it
+#' to obtain a character string. `trm` is then split using the regex
+#' "\[\[~\*\|\+\-:/\]\]" and non-numeric terms and empty elements are
+#' removed from the resulting character vector.
+#' @examplesIf FALSE
+#' # example code
+#'
+#' identifyVars(~0 + cos(x) + y/m | z:g+w*p)         #--formula
+#' identifyVars("~0 + cos(x) + y/m | z:g+w*p")       #--character string
+#' identifyVars("fred = 0 + cos(x) + y/m | z:g+w*p") #--equation as text
+#'
+#' @importFrom stringr regex str_split_1 str_trim
+#' @export
+identifyVars<-function(trm){
+  if (is.call(trm)){
+    trm = deparse1(trm)
+  }
+  txt = stringr::str_trim(stringr::str_split_1(trm,stringr::regex("[[=~\\*\\|\\+\\-:/]]")));
+  txt = suppressWarnings(txt[is.na(as.numeric(txt))]);
+  txt = txt[txt!=""];
+  return(txt);
+}
 
+#' @title Split a RE term into component parts
+#' @title Function to split a RE term into component parts.
+#' @param term - term to split
+#' @param specials - character vector of "specials" to handle
+#' @return a list
+#' @details
+#' The returned list has elements
+#' \itemize{
+#'   \item{covstr - string indicating covariance type}
+#'   \item{re - random effects term}
+#'   \item{group - grouping factor}
+#' }
+#'
 splitTerm_RE<-function(term,specials=findValidCovStructs()){
   dp1 = deparse1(term[[1]]);
   if (dp1 %in% specials) term = term[[2]];
@@ -335,7 +373,7 @@ splitTerm_RE<-function(term,specials=findValidCovStructs()){
 #'  \item{fillQ - function to fill precision matrix}
 #' }
 #'
-#' @importFrom Matrix KhatriRao fac2sparse sparse.model.matrix
+#' @importFrom Matrix fac2sparse KhatriRao sparse.model.matrix t
 #' @importFrom stats model.matrix
 #'
 #' @export
@@ -345,6 +383,7 @@ mkReTermInfoList <- function(re_term,
                             drop.unused.levels=TRUE,
                             sparse = NULL,
                             debug=FALSE) {
+  #debug=TRUE;
   #--get label for re_term
   re_term_lbl = deparse(re_term);
   if (debug) cat("processing",re_term_lbl,"\n")
@@ -388,10 +427,12 @@ mkReTermInfoList <- function(re_term,
   any.sparse.contrasts <- any(vapply(fr_mf, has.sparse.contrasts, FUN.VALUE = logical(1)))
   mMatrix <- if (!isTRUE(sparse) && !any.sparse.contrasts) model.matrix else Matrix::sparse.model.matrix
   mmX_i <- mMatrix(eval(substitute( ~ foo, list(foo = sp_trm$re))), fr_mf); #--"raw" RE model matrix X_i in Table 3, JSS lmer paper
+  if (debug) cat("The class for mmX_i is ",class(mmX_i),". It should be a matrix or a Matrix class.")
   if (drop.unused.levels){
     idx = which(abs(colSums(as.matrix(mmX_i)))>0);
     if (debug) cat("keeping columns ",paste(idx,collapse=" "),"\n");
     mmX_i = mmX_i[,idx,drop=FALSE];
+    if (debug) cat("After dropping unused levels, the class for mmX_i is ",class(mmX_i),". It should be a matrix or a Matrix class.\n")
   }
   nprs    = ncol(mmX_i);    #--number of RE parameter values/group
   if (debug) cat("nprs =",nprs,"\n");
@@ -400,8 +441,13 @@ mkReTermInfoList <- function(re_term,
                  "        pr_lbls:",pr_lbls,"\n",
                  "colnames(mmX_i):",colnames(mmX_i),"\n");
   colnames(mmX_i) = pr_lbls;
+  if (!is.matrix(as.matrix(mmX_i))){
+    str = paste0("The class for mmX_i is ",class(mmX_i)," but should be a matrix or a Matrix class.\n")
+    stop(str);
+  }
 
-  ##--construct transpose of indicator matrix J_i in Table 3, JSS lmer paper
+
+  ##--construct transpose of indicator matrix J_i in Table 3, JSS lmer paper----
   ###--with dimensions grouping factor levels (ngrps) by observations (nobs).
   ####--use fac2sparse() rather than as() to allow *not* dropping unused levels where desired.
   imJt_i <- Matrix::fac2sparse(gf, to = "d",

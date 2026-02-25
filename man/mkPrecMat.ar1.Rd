@@ -41,11 +41,11 @@ are expanded (or truncated) to the length of \code{n}.
 
 Note that the variance associated with individual observations is
 
-$$ var(X_i) = E(X^2_i)-\mu^2 = \frac{\sigma^2}{1-\rho^2} $$
+\eqn{ var(X_i) = E(X^2_i)-\mu^2 = \frac{\sigma^2}{1-\rho^2} }
 
 and thus
 
-$$ \sigma = \sqrt{{1-\rho^2}} \cdot sd(X) $$
+\eqn{ \sigma = \sqrt{{1-\rho^2}} \cdot \code{sd}(X) }
 
 and consequently the precision matrix can (optionally) be specified in terms of the standard
 deviation of the observed process (\code{sdX}).

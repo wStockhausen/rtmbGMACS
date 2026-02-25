@@ -1,29 +1,43 @@
-#--set up model dimensions
-#require(rtmbGMACS);
+#--set up model dimensions to fit allometry data
+##--since fitting to data here, will use it to create the dimensions
+require(rtmbGMACS);
+chkData=FALSE;
+
+#--set up paths----
 dirPrj = rstudioapi::getActiveProject();
-source(file.path(dirPrj,"R/DimensionsFunctions.R"))
-source(file.path(dirPrj,"R/DimensionsUtilities.R"))
+dirThs = file.path(dirPrj,"testing/newTest_FilesCTL-Allometry");
 
+#--get allometric data----
+dfrZW  = wtsUtilities::getObj(file.path(dirThs,"rda_AllometryData.RData")) |>
+           dplyr::rename(obs=w) |> tibble::rownames_to_column(var="obs_id") |>
+           dplyr::mutate(dplyr::across(dplyr::everything(),as.character));
+if (chkData){
+  plt = ggplot(dfrZW,aes(x=as.numeric(z),y=as.numeric(obs),colour=x)) + geom_point();
+  print(plt);
+  rm(plt)
+}
 
-vRs="EBS";
-maz = as.character(seq(25,75,5));
-fiz = as.character(seq(25,65,5));
-fmz = as.character(seq(30,65,5));
-vXs=list(male=list(imm=list(`new`=maz,
-                             `old`=maz),
-                   mat=list(`new`=maz,
-                             `old`=maz)
-                  ),
-          female=list(imm=list(`new`=fiz,
-                               `old`=fiz),
-                      mat=list(`new`=fmz,
-                               `old`=fmz)
-                     )
-         ); attr(vXs,"dmnms")<-c("x","m","p","z");
-ys = as.character(2015:2024); names(ys) = ys;
-ss = as.character(1:2);       names(ss) = ss;
-dmsC    = createSparseDimsMap(r=vRs,x=vXs);            #--DimsMap for stock categories
-dmsYS   = createSparseDimsMap(y=ys,s=ss);              #--DimsMap for years and seasons
-dmsYSC  = createSparseDimsMap(y=ys,s=ss,r=vRs,x=vXs);  #--DimsMap for combination
-dimsZBC = dmsC |> dplyr::mutate(lft=as.numeric(z)-2.5,mid=as.numeric(z),rgt=as.numeric(z)+2.5);
-fleets = c("Directed","Bycatch","Survey"); #--fishery and survey fleets
+##--remove some clearly bad values----
+dfrZWp = dfrZW |>
+          dplyr::filter(!((as.numeric(z)>125)&(as.numeric(obs)<100))) |>
+          dplyr::filter(!((as.numeric(z)<100)&(as.numeric(obs)>400))) |>
+          dplyr::filter(!((as.numeric(z)< 40)&(as.numeric(obs)> 75))) |>
+          dplyr::filter(!(dplyr::between(as.numeric(z),125, 150)&dplyr::between(as.numeric(obs),250,300))) |>
+          dplyr::filter(as.numeric(obs)>0);
+if (chkData){
+  plt = ggplot(dfrZWp,aes(x=as.numeric(z),y=as.numeric(obs),colour=x)) + geom_point() +
+          coord_cartesian(xlim=c(0,175),ylim=c(0,NA))
+  print(plt);
+  rm(plt);
+}
+
+##--save censored data to dataframe----
+dfrData = dfrZWp;
+rm(dfrZW,dfrZWp);
+
+##--calculate observed size limits by sex, maturity state, and post-molt age
+dfrLims = dfrData |> dplyr::group_by(x,m,p) |>
+            dplyr::summarize(minZ=min(z,na.rm=TRUE),
+                             maxZ=max(z,na.rm=TRUE)) |>
+            dplyr::ungroup();
+

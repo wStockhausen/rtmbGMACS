@@ -34,5 +34,16 @@ a precision matrix (a \link[Matrix:Matrix]{Matrix::Matrix} type or \link[RTMB:RT
 Function to make a precision matrix.
 }
 \details{
+If \code{force} is FALSE, the returned matrix will be an "adsparse" matrix only if
+\code{pars} is an "advector"; otherwise, it will be a \link[Matrix:Matrix]{Matrix::Matrix} type.
 
+The \code{type}s of precision matrices that can be created using this function are currently:
+\itemize{
+\item{"diag" - diagonal iid matrix with variance \code{V} along the diagonal}
+\item{"iid" - synonym for "diag"}
+\item{"ar1" - AR1 precision matrix with variance \code{V} and correlation coefficient \eqn{\rho} (latter parameterized as \eqn{\rho=\code{symlogistic(par)}})}
+\item{"us" - unstructured precision matrix}
+}
+
+Variances \code{V} are generally parameterized on the ln scale such that \eqn{V = exp(2*par)}.
 }

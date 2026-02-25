@@ -1,0 +1,113 @@
+#--set up environment----
+SETUP_CODE
+  require(Matrix);
+  require(reformulas);
+  require(rtmbGMACS);
+  dirPrj = rstudioapi::getActiveProject();
+  dirThs = file.path(dirPrj,"testing/newTest_FilesCTL-Allometry");
+  source(file.path(dirThs,"r01_SetupDims.R"));
+END_SETUP_CODE
+
+#--rtmbGMACS allometry specifications----
+PROCESS_ALLOMETRY
+  #--OPTIONS
+  # pwrLaw1: w(z|pA,pB)       = pA*z^pB
+  # pwrLaw2: w(z|pLnA,pB,pZ0) = exp(pLnA+pB*log(z/pZ0))
+  #--parameter relationships:
+  ##--pLnA = log(pA)  + pB*log(pZ0)
+  ##--pA   = exp(pLnA - pB*log(pZ0))
+  CODE
+    ###--probably don't need to keep original sparse indices with any derived model frames
+    mfYXM  = dfrData |> dplyr::select(y,x,m,p) |> dplyr::distinct();
+    mfXM   = mfYXM   |> dplyr::select(x,m)     |> dplyr::distinct();
+    contr_none  = list(x="contr.none",m="contr.none");
+    contr_sum   = list(x="contr.sum",m="contr.sum");
+  END_CODE
+  PARAM_EQS
+    par_id     frame  link_fcn  formula              contrasts    drop_unused  rePDF
+    pLnA_1     mfYXM   ident    ~0+x:m+diag(1|y)     contr_none      TRUE     normal  #--fixed effects: sex x maturity state, REs: intercept by year
+    pB_1       mfXM    ident    ~0+x:m               contr_none      TRUE     NA      #--fixed effects: sex x maturity state
+    pZ0_1      mfXM    ident    ~1                   contr_none      TRUE     NA      #--intercept (estimation turned off below)
+  END_PARAM_EQS
+  PARAM_VALS
+    #-----Parameter values specification for pLnA_1~0 + x:m + diag(1 | y)
+    pLnA_1         #--parameter name
+    ##--specifications for fixed effects-------------
+    #--FE terms: ~0 + x:m
+    3 #--number of rows
+     idx mirror          level tform   IV     Phz    LB   UB  PrType Pr1  Pr2
+       1      0   x@male:m@all log  0.00027   -1     0   Inf  none   NA   NA
+       2      1 x@female:m@imm log  0.000562   0     0   Inf  none   NA   NA
+       3      0 x@female:m@mat log  0.000441   0     0   Inf  none   NA   NA
+    ##--specifications for random effects-------------
+    1      #--number of terms defining random effects
+    ##--RE term 1: diag(1 | y) ----
+    ##---parameter values----
+    0 #--phase
+    13 #--number of rows
+     idx       level group value
+       1 (Intercept)  2000     0
+       2 (Intercept)  2001     0
+       3 (Intercept)  2010     0
+       4 (Intercept)  2011     0
+       5 (Intercept)  2016     0
+       6 (Intercept)  2017     0
+       7 (Intercept)  2018     0
+       8 (Intercept)  2019     0
+       9 (Intercept)  2021     0
+      10 (Intercept)  2022     0
+      11 (Intercept)  2023     0
+      12 (Intercept)  2024     0
+      13 (Intercept)  2025     0
+    ##---covariance parameter values----
+    diag         #--covariance type
+    1         #--number of covariance parameters
+     idx mirror    IV    Phz  LB    UB  PrType Pr1  Pr2
+       1      0     1     0    0   Inf  none   NA   NA  #--arith-scale std. deviation
+    ##--specifications for smooths-------------
+    0          #--number of terms defining smooths
+    ##--NO SMOOTH TERMS--------
+    END_pLnA_1
+
+    #-----Parameter values specification for pB_1~0 + x:m
+    pB_1         #--parameter name
+    ##--specifications for fixed effects-------------
+     #--FE terms: ~0 + x:m
+    3 #--number of rows
+     idx mirror          level tform  IV       Phz    LB  UB  PrType  Pr1  Pr2
+       1      0   x@male:m@all none  3.022134   0     0   Inf   none  NA   NA
+       2      1 x@female:m@imm none  2.816928   0     0   Inf   none  NA   NA
+       3      0 x@female:m@mat none  2.898686  -1     0   Inf   none  NA   NA
+    ##--specifications for random effects-------------
+    0          #--number of terms defining random effects
+    ##--NO RANDOM EFFECTS TERMS--------
+    ##--specifications for smooths-------------
+    0          #--number of terms defining smooths
+    ##--NO SMOOTH TERMS--------
+    END_pB_1
+
+    #-----Parameter values specification for pZ0_1~1
+    pZ0_1         #--parameter name
+    ##--specifications for fixed effects-------------
+    #--FE terms: ~1
+    1 #--number of rows
+     idx mirror       level tform  IV   Phz   LB    UB   PrType Pr1  Pr2
+       1      0 (Intercept) none    1   -1   -Inf   Inf  none   NA   NA   #--phase = -1 turns off estimation
+    ##--specifications for random effects-------------
+    0          #--number of terms defining random effects
+    ##--NO RANDOM EFFECTS TERMS--------
+    ##--specifications for smooths-------------
+    0          #--number of terms defining smooths
+    ##--NO SMOOTH TERMS--------
+    END_pZ0_1
+
+  END_PARAM_VALS
+  FUNCTIONS
+  fcn_idx  fcn_id      fcn       frame    vars  par_ids              fcnREsEQ  fcnREsCovType fcnREsVarEQ fcnREsPDF fcnREsLink  description
+    1      all         pwrLaw2   mfYXM     z    pLnA_1,pB_1,pZ0_1    NA        NA            NA           NA        NA          all:_w(z)_=_exp(pLnA+pB*log(z/pZ0))
+  END_FUNCTIONS
+#  FUNCTIONS_REs
+#  #--type: "RE" or "VAR"
+#  fcn_idx  fcn_id  type  {factors/covariates} mirror  phase  IV  LB  UB
+#  END_FUNCTIONS_REs
+END_ALLOMETRY

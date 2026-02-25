@@ -40,8 +40,10 @@ Function to create the parameters information list for a set of RE terms.
 \details{
 If \code{formula} does not contain any RE terms, NULL is returned. Otherwise, a list is returned with the following elements:
 \itemize{
+\item{re_form}{RE formula}
 \item{reTerms}{RE terms as character strings}
-\item{Z}{model matrix for the REs}
+\item{model_matrix}{model matrix for the REs}
+\item{Z}{design matrix for the REs}
 \item{re_pvs_idx}{a named vector with a cumulative index for the RE parameter values}
 \item{re_pvs_lbls}{a list if labels for the RE parameter values}
 \item{lstQtp}{a list of term-associated precision matrix templates (see \code{\link[=mkReTermInfoList]{mkReTermInfoList()}})}
